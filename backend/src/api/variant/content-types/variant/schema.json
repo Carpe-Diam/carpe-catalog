@@ -1,0 +1,112 @@
+{
+    "kind": "collectionType",
+    "collectionName": "variants",
+    "info": {
+        "singularName": "variant",
+        "pluralName": "variants",
+        "displayName": "Variant",
+        "description": "Product variant with specific metal/diamond configuration"
+    },
+    "options": {
+        "draftAndPublish": true
+    },
+    "attributes": {
+        "variant_sku": {
+            "type": "string",
+            "required": true,
+            "unique": true
+        },
+        "product": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "api::product.product",
+            "inversedBy": "variants"
+        },
+        "media": {
+            "type": "media",
+            "multiple": true,
+            "allowedTypes": [
+                "images",
+                "videos"
+            ]
+        },
+        "model": {
+            "type": "string"
+        },
+        "diameter": {
+            "type": "string"
+        },
+        "stock_status": {
+            "type": "string"
+        },
+        "dia_quality": {
+            "type": "string"
+        },
+        "metal_type": {
+            "type": "string"
+        },
+        "metal_color": {
+            "type": "string"
+        },
+        "carat_weight": {
+            "type": "string"
+        },
+        "weight_grams": {
+            "type": "decimal"
+        },
+        "dia_size": {
+            "type": "string"
+        },
+        "setting": {
+            "type": "string"
+        },
+        "diamond_count": {
+            "type": "integer"
+        },
+        "ct_per_stone": {
+            "type": "decimal"
+        },
+        "actual_ct": {
+            "type": "string"
+        },
+        "mtg_cost": {
+            "type": "decimal"
+        },
+        "set_cost": {
+            "type": "decimal"
+        },
+        "finish_cost": {
+            "type": "decimal"
+        },
+        "dia_cost": {
+            "type": "decimal"
+        },
+        "total_cost": {
+            "type": "decimal"
+        },
+        "purchase_price_markup": {
+            "type": "string"
+        },
+        "memo_price": {
+            "type": "decimal"
+        },
+        "raw_purchase_price": {
+            "type": "decimal"
+        },
+        "rounded_purchase_price": {
+            "type": "decimal"
+        },
+        "wholesale_price": {
+            "type": "decimal"
+        },
+        "cod_wholesale_price": {
+            "type": "decimal"
+        },
+        "shopify_msrp": {
+            "type": "decimal"
+        },
+        "dimensions": {
+            "type": "string"
+        }
+    }
+}

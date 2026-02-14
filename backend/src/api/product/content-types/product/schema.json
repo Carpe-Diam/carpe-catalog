@@ -1,0 +1,59 @@
+{
+    "kind": "collectionType",
+    "collectionName": "products",
+    "info": {
+        "singularName": "product",
+        "pluralName": "products",
+        "displayName": "Product",
+        "description": "Jewelry product with parent SKU"
+    },
+    "options": {
+        "draftAndPublish": true
+    },
+    "attributes": {
+        "parent_sku": {
+            "type": "string",
+            "required": true,
+            "unique": true
+        },
+        "title": {
+            "type": "string"
+        },
+        "category": {
+            "type": "string"
+        },
+        "subcategory": {
+            "type": "string"
+        },
+        "description": {
+            "type": "richtext"
+        },
+        "base_price": {
+            "type": "decimal"
+        },
+        "type_of_jewelry": {
+            "type": "string"
+        },
+        "setting_style": {
+            "type": "string"
+        },
+        "diamond_count": {
+            "type": "integer"
+        },
+        "dimensions": {
+            "type": "string"
+        },
+        "item_weight": {
+            "type": "decimal"
+        },
+        "others": {
+            "type": "text"
+        },
+        "variants": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::variant.variant",
+            "mappedBy": "product"
+        }
+    }
+}
