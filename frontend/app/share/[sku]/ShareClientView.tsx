@@ -77,7 +77,7 @@ export default function ShareClientView({
       {/* ========================= HEADER ========================= */}
       <header className="max-w-[1200px] flex items-center justify-between p-4 border bg-white rounded-lg">
         <div className="mx-auto w-full flex items-center justify-between">
-          <Image src="/ud-logo.svg" alt="Logo" width={60} height={40} />
+          <Image src="/ud-logo.svg" alt="Logo" width={60} height={40} unoptimized />
           <span className="text-sm sm:text-base text-black">Order #{orderId}</span>
         </div>
       </header>

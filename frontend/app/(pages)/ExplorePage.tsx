@@ -5,17 +5,17 @@ import { useState } from "react";
 import DisplayCard from "@/components/custom/DisplayCard";
 import Image from "next/image";
 
-export default function  ExplorePage({ products }: { products: any[] }) {
+export default function ExplorePage({ products }: { products: any[] }) {
   const [query, setQuery] = useState('');
 
-    const filtered = products.filter(p =>
-        (p?.title ?? "").toLowerCase().includes(query.toLowerCase())
-    );
+  const filtered = products.filter(p =>
+    (p?.title ?? "").toLowerCase().includes(query.toLowerCase())
+  );
 
   return (
     <div className="w-full">
       <nav className="border-b border-[#E9EAEB] px-5 py-3 flex items-center justify-between">
-        <Image src="/ud-logo.svg" alt="Logo" width={60} height={24} />
+        <Image src="/ud-logo.svg" alt="Logo" width={60} height={24} unoptimized />
         <Input
           type="input"
           placeholder="Search..."
