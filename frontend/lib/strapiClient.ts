@@ -1,4 +1,4 @@
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
+export const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
 
 /**
  * Generic Strapi fetch helper
@@ -63,7 +63,7 @@ function transformVariant(variant: any): any {
   };
 }
 
-function transformProduct(product: any): any {
+export function transformProduct(product: any): any {
   const p = flattenStrapiItem(product);
   if (!p) return p;
 
@@ -100,4 +100,32 @@ export async function getProductBySku(parentSku: string) {
   if (items.length === 0) return null;
 
   return transformProduct(items[0]);
+}
+
+/**
+ * Access a private collection by slug and password
+ */
+export async function accessPrivateCollection(slug: string, password: string) {
+  const response = await fetch(`${STRAPI_URL}/api/private-collections/access`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ slug, password }),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) throw new Error('Invalid password');
+    if (response.status === 404) throw new Error('Collection not found');
+    throw new Error('Failed to access collection');
+  }
+
+  const collection = await response.json();
+
+  // Transform products within the collection
+  if (collection.products && Array.isArray(collection.products)) {
+    collection.products = collection.products.map(transformProduct);
+  }
+
+  return collection;
 }
