@@ -18,7 +18,6 @@
     "@strapi/plugin-cloud": "5.36.0",
     "@strapi/plugin-users-permissions": "5.36.0",
     "@strapi/strapi": "5.36.0",
-    "better-sqlite3": "12.4.1",
     "pg": "^8.11.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
@@ -29,6 +28,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "better-sqlite3": "12.4.1",
     "typescript": "^5"
   },
   "engines": {
