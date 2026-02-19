@@ -1,0 +1,9 @@
+[
+    {
+        "title": "Sample Private Collection",
+        "slug": "sample-collection",
+        "password": "demo123",
+        "isActive": true,
+        "productSkus": []
+    }
+]

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState, Dispatch, SetStateAction } from "react";
 import { cn } from "@/lib/utils";
-import { getStrapiMediaUrl } from "@/lib/strapiClient";
+// Zoho media URLs are used directly (absolute URLs from Zoho WorkDrive)
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Play, X } from "lucide-react";

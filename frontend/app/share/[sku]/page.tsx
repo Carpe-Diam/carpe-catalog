@@ -1,4 +1,4 @@
-import { getProductBySku, getStrapiMediaUrl } from "@/lib/strapiClient";
+import { getProductBySku } from "@/lib/zohoClient";
 import { notFound } from "next/navigation";
 import ShareClientView, {
   MediaItem,
@@ -38,7 +38,7 @@ export default async function SharePage({
   const orderId = resolvedSearch.order ?? "00000";
 
   /* ---------------------------------------------------------------------- */
-  /*                          FETCH FROM STRAPI                              */
+  /*                         FETCH FROM ZOHO CRM                              */
   /* ---------------------------------------------------------------------- */
 
   const product = await getProductBySku(sku);
@@ -71,7 +71,7 @@ export default async function SharePage({
       media={formattedMedia}
       orderId={orderId}
       product={product as Product}
-      variant={variant}
+      variant={variant as Variant}
     />
   );
 }

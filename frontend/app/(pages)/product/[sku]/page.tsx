@@ -1,4 +1,4 @@
-import { getProductBySku } from "@/lib/strapiClient";
+import { getProductBySku } from "@/lib/zohoClient";
 import ProductClient from "./ProductClient";
 
 export default async function ProductPage({ params }: { params: Promise<{ sku: string }> }) {
@@ -6,6 +6,7 @@ export default async function ProductPage({ params }: { params: Promise<{ sku: s
 
   try {
     const product = await getProductBySku(sku);
+
 
     if (!product) {
       return <div className="p-6 text-gray-500">No product found.</div>;

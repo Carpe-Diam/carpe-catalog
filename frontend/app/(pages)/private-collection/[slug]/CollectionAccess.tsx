@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { accessPrivateCollection } from "@/lib/strapiClient";
 import DisplayCard from "@/components/custom/DisplayCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,18 @@ export default function CollectionAccess({ slug }: CollectionAccessProps) {
         setError("");
 
         try {
-            const data = await accessPrivateCollection(slug, password);
+            const res = await fetch("/api/private-collection", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ slug, password }),
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || "Failed to access collection");
+            }
+
+            const data = await res.json();
             setCollection(data);
         } catch (err: any) {
             setError(err.message || "Failed to access collection");

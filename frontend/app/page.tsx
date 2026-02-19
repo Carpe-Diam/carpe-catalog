@@ -1,4 +1,4 @@
-import { getProducts } from "@/lib/strapiClient";
+import { getProducts } from "@/lib/zohoClient";
 import ExplorePage from "@/app/(pages)/ExplorePage";
 
 export default async function Home() {
@@ -11,7 +11,7 @@ export default async function Home() {
       </div>
     );
   } catch (error) {
-    console.error("Strapi error:", error);
+    console.error("Zoho fetch error:", error);
     return <div className="p-6 text-red-500">Error fetching products.</div>;
   }
 }
