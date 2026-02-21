@@ -166,6 +166,7 @@ const VARIANT_FIELDS = [
     'Name',
     'Product_Design',
     'Variant_Image',
+    'Record_Image',
     'Gross_Weight',
     'Total_Diamonds',
     'Cost_Price',
@@ -240,17 +241,19 @@ function parseVariantSku(variantSku: string, parentSku: string) {
  * Transform a Zoho variant record into the frontend Variant type
  */
 function transformVariant(zohoVariant: any, parentSku: string = ''): Variant {
-    // Build media array from the Variant_Image field
+    // Build media array using the CRM record photo API
+    // (WorkDrive preview URLs in Variant_Image are inaccessible externally)
     const media: Media[] = [];
 
-    if (zohoVariant.Variant_Image) {
-        const proxiedUrl = getMediaUrl(zohoVariant.Variant_Image);
+    // Use CRM record photo endpoint if the record has an image
+    if (zohoVariant.Record_Image || zohoVariant.Variant_Image) {
+        const photoUrl = `/api/image-proxy?module=Product_Variants&id=${zohoVariant.id}`;
         media.push({
             id: `img-${zohoVariant.id}`,
             file_name: 'variant-image',
             file_type: 'image/jpeg',
-            preview_url: proxiedUrl,
-            download_url: proxiedUrl,
+            preview_url: photoUrl,
+            download_url: photoUrl,
         });
     }
 

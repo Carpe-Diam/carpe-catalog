@@ -4,6 +4,7 @@ import ExplorePage from "@/app/(pages)/ExplorePage";
 export default async function Home() {
   try {
     const products = await getProducts();
+    console.log("API Response:", products);
 
     return (
       <div className="bg-white rounded-lg">

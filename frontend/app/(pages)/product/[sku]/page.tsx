@@ -6,7 +6,7 @@ export default async function ProductPage({ params }: { params: Promise<{ sku: s
 
   try {
     const product = await getProductBySku(sku);
-
+    console.log("product", product);
 
     if (!product) {
       return <div className="p-6 text-gray-500">No product found.</div>;
