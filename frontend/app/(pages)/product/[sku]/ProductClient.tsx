@@ -21,8 +21,43 @@ export interface Media {
   download_url?: string | null;
 }
 
+export interface BillOfMaterialsRow {
+  group?: string | null;
+  sub_group?: string | null;
+  sub_sub_group?: string | null;
+  shape?: string | null;
+  size?: string | null;
+  weight?: number | null;
+  pieces?: number | null;
+  total_weight?: number | null;
+  rate_per_unit?: number | null;
+  price?: number | null;
+  gross_weight?: number | null;
+  a_sell_rate_per_unit?: number | null;
+  b_sell_rate_per_unit?: number | null;
+  c_sell_rate_per_unit?: number | null;
+  d_sell_rate_per_unit?: number | null;
+}
+
+export interface OtherOperationsRow {
+  operations?: string | null;
+  sub_operations?: string | null;
+  weight?: number | null;
+  rate_per_unit?: number | null;
+  price?: number | null;
+  a_sell_rate_per_unit?: number | null;
+  b_sell_rate_per_unit?: number | null;
+  c_sell_rate_per_unit?: number | null;
+  d_sell_rate_per_unit?: number | null;
+  sell_price_a?: number | null;
+  sell_price_b?: number | null;
+  sell_price_c?: number | null;
+  sell_price_d?: number | null;
+}
+
 export interface Variant {
   variant_sku: string;
+  sku_segments: string[];
   carat_weight?: string | number | null;
   dia_quality?: string | null;
   metal_type?: string | null;
@@ -34,10 +69,67 @@ export interface Variant {
   model?: string | null;
   dimensions?: string | null;
   weight_grams?: number | null;
+  stone_type?: string | null;
+  sub_group?: string | null;
+  parsed_size?: string | null;
+  sub_sub_group?: string | null;
+  product_url?: string | null;
+  product_variant_name?: string | null;
+  cad_person_name?: string | null;
+  ring_size?: string | null;
+  style_size_inch?: string | null;
+  website_name?: string | null;
+  website_description?: string | null;
+  raw_material_details?: string | null;
+  work_drive_download_link?: string | null;
+  portal_user?: string | null;
 
   /* pricing + media */
   total_cost: number;
   media: Media[];
+  sell_price_a?: number | null;
+  sell_price_b?: number | null;
+  sell_price_c?: number | null;
+  sell_price_d?: number | null;
+  total_sell_price_a?: number | null;
+  total_sell_price_b?: number | null;
+  total_sell_price_c?: number | null;
+  total_sell_price_d?: number | null;
+  cost_price?: number | null;
+  operations_total_price?: number | null;
+
+  /* weights */
+  net_weight?: number | null;
+  diamond_weight?: number | null;
+  polki_weight?: number | null;
+  stone_weight?: number | null;
+
+  /* subforms */
+  bill_of_materials?: BillOfMaterialsRow[];
+  other_operations?: OtherOperationsRow[];
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          SKU SEGMENT DECODE MAP                             */
+/* -------------------------------------------------------------------------- */
+
+// Maps raw SKU codes to human-readable labels
+const SKU_DECODE: Record<string, string> = {
+  // Materials
+  G: 'Gold', S: 'Silver', P: 'Platinum', D: 'Diamond',
+  BD: 'Beads', PE: 'Pearl', PO: 'Polki', GE: 'Gemstone',
+  // Colors
+  W: 'White', Y: 'Yellow', R: 'Rose',
+  // Sub Groups
+  GF: 'GlassFlied', H: 'Heated', L: 'LabGrown',
+  NN: 'Nano', N: 'Natural', NA: 'Not Applicable',
+  '95': 'PT950',
+  // Stone types (same codes, already covered above)
+};
+
+/** Decode a raw SKU code to its label, or return the raw code if unknown */
+function decodeSegment(raw: string): string {
+  return SKU_DECODE[raw] || raw;
 }
 
 export interface Product {
@@ -73,13 +165,10 @@ export default function ProductClient({ product }: ProductClientProps) {
   const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
-  // Config = subset of variant attributes
-  const [config, setConfig] = useState<Record<string, string>>({
-    carat_weight: String(initialVariant?.carat_weight ?? ""),
-    dia_quality: String(initialVariant?.dia_quality ?? ""),
-    metal_type: String(initialVariant?.metal_type ?? ""),
-    metal_color: String(initialVariant?.metal_color ?? ""),
-  });
+  // Config = raw SKU segments array (e.g. ["G", "14", "Y", "D", "L", "2", "NA"])
+  const [segmentConfig, setSegmentConfig] = useState<string[]>(
+    initialVariant?.sku_segments ?? []
+  );
 
   /* ---------------------- Variant Selection from URL ---------------------- */
   useEffect(() => {
@@ -88,12 +177,7 @@ export default function ProductClient({ product }: ProductClientProps) {
     const match = product.variants.find(v => v.variant_sku === urlVariant);
     if (match) {
       setSelectedVariant(match);
-      setConfig({
-        carat_weight: String(match.carat_weight ?? ""),
-        dia_quality: String(match.dia_quality ?? ""),
-        metal_type: String(match.metal_type ?? ""),
-        metal_color: String(match.metal_color ?? ""),
-      });
+      setSegmentConfig([...match.sku_segments]);
     }
   }, [urlVariant, product.variants]);
 
@@ -114,12 +198,7 @@ export default function ProductClient({ product }: ProductClientProps) {
   /* ---------------- Reset config + media when variant changes ---------------- */
   useEffect(() => {
     if (!selectedVariant) return;
-    setConfig({
-      carat_weight: String(selectedVariant.carat_weight ?? ""),
-      dia_quality: String(selectedVariant.dia_quality ?? ""),
-      metal_type: String(selectedVariant.metal_type ?? ""),
-      metal_color: String(selectedVariant.metal_color ?? ""),
-    });
+    setSegmentConfig([...selectedVariant.sku_segments]);
     setCurrentIndex(0);
   }, [selectedVariant]);
 
@@ -139,32 +218,80 @@ export default function ProductClient({ product }: ProductClientProps) {
     return () => window.removeEventListener("keydown", handler);
   }, [lightboxOpen, mediaArray.length]);
 
-  /* -------------------- Option Lists (unique values) -------------------- */
-  const getUniqueValues = (field: keyof Variant): string[] =>
-    [...new Set(product.variants.map(v => v[field]).filter(Boolean))].map(String);
+  /* ------------ Segment-based options + variant matching ------------ */
 
-  const caratOptions = getUniqueValues("carat_weight");
-  const diamondQualityOptions = getUniqueValues("dia_quality");
-  const metalOptions = getUniqueValues("metal_type");
-  const metalColorOptions = getUniqueValues("metal_color");
+  // Find the max number of segments across all variants
+  const maxSegments = Math.max(...product.variants.map(v => v.sku_segments.length), 0);
 
-  /* ---------------------- Config Change → Update Variant ---------------------- */
-  const handleConfigChange = (field: keyof Variant, value: string) => {
-    const newConfig = { ...config, [field]: value };
-    setConfig(newConfig);
+  // For each segment position, get unique values across all variants
+  const segmentOptions: string[][] = [];
+  for (let i = 0; i < maxSegments; i++) {
+    const uniqueVals = [...new Set(
+      product.variants.map(v => v.sku_segments[i]).filter(Boolean)
+    )];
+    segmentOptions.push(uniqueVals);
+  }
 
-    const match = product.variants.find(v =>
-      Object.entries(newConfig).every(([key, val]) => {
-        if (!val) return true;
-        const obj = v as unknown as Record<string, unknown>;
-        const fieldValue = obj[key];
-        return fieldValue?.toString().toLowerCase() === String(val).toLowerCase();
-        ;
-      })
+  // Segment position labels (intelligently calculates based on string structure)
+  const getSegmentLabel = (idx: number) => {
+    if (idx === 0) return 'Metal Type';
+    if (idx === 1) return 'Metal Carat';
+    if (idx === 2) return 'Metal Color';
+
+    // Check if the last segment is the ring size
+    // Standard sku starts with 3 metal segments. Stones take 3 segments each.
+    // If the remaining modulo is 1, the last item is Ring Size.
+    const hasRingSizeAtEnd = (maxSegments - 3) % 3 === 1;
+    if (hasRingSizeAtEnd && idx === maxSegments - 1) return 'Ring Size';
+
+    // Stone components (sets of 3)
+    const stoneIndex = Math.floor((idx - 3) / 3) + 1;
+    const mod = (idx - 3) % 3;
+
+    if (mod === 0) return `Stone ${stoneIndex} Type`;
+    if (mod === 1) return `Stone ${stoneIndex} Sub Group`;
+    if (mod === 2) return `Stone ${stoneIndex} Size`;
+
+    return `Segment ${idx + 1}`;
+  };
+
+  /* ---------------------- Segment Change → Update Variant ---------------------- */
+  const handleSegmentChange = (segmentIndex: number, value: string) => {
+    const newSegments = [...segmentConfig];
+    // Ensure the array is long enough
+    while (newSegments.length <= segmentIndex) newSegments.push('');
+    newSegments[segmentIndex] = value;
+    setSegmentConfig(newSegments);
+
+    // 1. Try exact match: variant whose sku_segments match newSegments exactly
+    let match = product.variants.find(v =>
+      v.sku_segments.length === newSegments.length &&
+      v.sku_segments.every((seg, i) => seg === newSegments[i])
     );
+
+    // 2. Fallback: variant that matches the changed segment + most others
+    if (!match) {
+      let bestScore = -1;
+      for (const v of product.variants) {
+        // The changed segment MUST match
+        if (v.sku_segments[segmentIndex] !== value) continue;
+
+        let score = 0;
+        for (let i = 0; i < newSegments.length; i++) {
+          if (i === segmentIndex) continue;
+          if (v.sku_segments[i] === newSegments[i]) score++;
+        }
+
+        if (score > bestScore) {
+          bestScore = score;
+          match = v;
+        }
+      }
+    }
 
     if (match) {
       setSelectedVariant(match);
+      setSegmentConfig([...match.sku_segments]);
       router.replace(
         `/product/${product.parent_sku}?variant=${match.variant_sku}`,
         { scroll: false }
@@ -202,12 +329,10 @@ export default function ProductClient({ product }: ProductClientProps) {
             <HeaderSection product={product} selectedVariant={selectedVariant} />
 
             <ConfigurationSection
-              config={config}
-              handleConfigChange={handleConfigChange}
-              caratOptions={caratOptions}
-              diamondQualityOptions={diamondQualityOptions}
-              metalOptions={metalOptions}
-              metalColorOptions={metalColorOptions}
+              segmentConfig={segmentConfig}
+              segmentOptions={segmentOptions}
+              getSegmentLabel={getSegmentLabel}
+              handleSegmentChange={handleSegmentChange}
               quantity={quantity}
               setQuantity={setQuantity}
               product={product}
@@ -252,7 +377,7 @@ interface MediaSectionProps {
 
 function MediaSection({ mediaArray, currentIndex, setCurrentIndex, displayMedia, isVideo, onOpenLightbox, currentMedia, productTitle }: MediaSectionProps) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 sticky top-6 self-start">
       <div className="bg-white border rounded-lg p-2">
         <div
           className="relative w-full aspect-square rounded-md overflow-hidden bg-gray-100 cursor-zoom-in"
@@ -324,12 +449,10 @@ function HeaderSection({ product, selectedVariant }: HeaderSectionProps) {
 }
 
 interface ConfigSectionProps {
-  config: Record<string, string>;
-  handleConfigChange: (field: keyof Variant, value: string) => void;
-  caratOptions: string[];
-  diamondQualityOptions: string[];
-  metalOptions: string[];
-  metalColorOptions: string[];
+  segmentConfig: string[];
+  segmentOptions: string[][];
+  getSegmentLabel: (idx: number) => string;
+  handleSegmentChange: (segmentIndex: number, value: string) => void;
   quantity: number;
   setQuantity: (n: number) => void;
   product: Product;
@@ -338,12 +461,10 @@ interface ConfigSectionProps {
 }
 
 function ConfigurationSection({
-  config,
-  handleConfigChange,
-  caratOptions,
-  diamondQualityOptions,
-  metalOptions,
-  metalColorOptions,
+  segmentConfig,
+  segmentOptions,
+  getSegmentLabel,
+  handleSegmentChange,
   quantity,
   setQuantity,
   product,
@@ -355,13 +476,21 @@ function ConfigurationSection({
       <h2 className="text-base font-medium mb-4">Product Configuration</h2>
 
       <div className="space-y-4">
-        <ConfigGroup title="Carat Weight" options={caratOptions} selected={config.carat_weight} onSelect={v => handleConfigChange("carat_weight", v)} />
-
-        <ConfigGroup title="Diamond Quality" options={diamondQualityOptions} selected={config.dia_quality} onSelect={v => handleConfigChange("dia_quality", v)} />
-
-        <ConfigGroup title="Metal Type" options={metalOptions} selected={config.metal_type} onSelect={v => handleConfigChange("metal_type", v)} />
-
-        <ConfigGroup title="Metal Color" options={metalColorOptions} selected={config.metal_color} onSelect={v => handleConfigChange("metal_color", v)} />
+        {segmentOptions.map((options, idx) => {
+          // Only show selectors for positions that actually have multiple options
+          // or a single meaningful value
+          if (!options.length) return null;
+          return (
+            <ConfigGroup
+              key={idx}
+              title={getSegmentLabel(idx)}
+              options={options}
+              selected={segmentConfig[idx] ?? ''}
+              onSelect={v => handleSegmentChange(idx, v)}
+              decode
+            />
+          );
+        })}
 
         {/* Quantity */}
         <div className="flex items-center justify-between">
@@ -512,9 +641,10 @@ interface ConfigGroupProps {
   options: string[];
   selected: string;
   onSelect: (v: string) => void;
+  decode?: boolean;
 }
 
-function ConfigGroup({ title, options, selected, onSelect }: ConfigGroupProps) {
+function ConfigGroup({ title, options, selected, onSelect, decode: shouldDecode }: ConfigGroupProps) {
   if (!options?.length) return null;
 
   return (
@@ -531,7 +661,7 @@ function ConfigGroup({ title, options, selected, onSelect }: ConfigGroupProps) {
               selected === option ? "border-black" : "border-gray-400"
             )}
           >
-            {option}
+            {shouldDecode ? decodeSegment(option) : option}
           </Button>
         ))}
       </div>

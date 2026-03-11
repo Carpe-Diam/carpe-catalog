@@ -4,16 +4,20 @@ import { getAccessToken } from '@/lib/zohoAuth';
 const ZOHO_API_DOMAIN = process.env.ZOHO_API_DOMAIN || 'https://www.zohoapis.in';
 
 /**
- * Proxies variant images from Zoho CRM's record photo API.
+ * Proxies images/files from Zoho CRM.
  *
- * Usage: /api/image-proxy?module=Product_Variants&id=RECORD_ID
+ * Supports two modes:
  *
- * This downloads the record's profile image using the CRM OAuth token,
- * which avoids the 401 issue with Zoho WorkDrive preview URLs.
+ * 1) Record photo (profile image):
+ *    /api/image-proxy?module=Product_Variants&id=RECORD_ID
+ *
+ * 2) File upload field attachment:
+ *    /api/image-proxy?module=Product_Variants&id=RECORD_ID&attachment_id=FILE_ID
  */
 export async function GET(req: NextRequest) {
     const module = req.nextUrl.searchParams.get('module') || 'Product_Variants';
     const recordId = req.nextUrl.searchParams.get('id');
+    const attachmentId = req.nextUrl.searchParams.get('attachment_id');
 
     if (!recordId) {
         return new Response('Missing id parameter', { status: 400 });
@@ -27,14 +31,24 @@ export async function GET(req: NextRequest) {
     try {
         const token = await getAccessToken();
 
-        const res = await fetch(
-            `${ZOHO_API_DOMAIN}/crm/v7/${module}/${recordId}/photo`,
-            {
-                headers: {
-                    Authorization: `Zoho-oauthtoken ${token}`,
-                },
+        let url: string;
+
+        if (attachmentId) {
+            // File upload field attachment download
+            if (!/^\d+$/.test(attachmentId)) {
+                return new Response('Invalid attachment ID', { status: 400 });
             }
-        );
+            url = `${ZOHO_API_DOMAIN}/crm/v7/${module}/${recordId}/actions/download_fields_attachment?fields_attachment_id=${attachmentId}`;
+        } else {
+            // Record profile photo
+            url = `${ZOHO_API_DOMAIN}/crm/v7/${module}/${recordId}/photo`;
+        }
+
+        const res = await fetch(url, {
+            headers: {
+                Authorization: `Zoho-oauthtoken ${token}`,
+            },
+        });
 
         if (!res.ok) {
             return new Response('Image not found', { status: 404 });
