@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, Dispatch, SetStateAction } from "react";
+import { useEffect, useState, useRef, Dispatch, SetStateAction, useMemo, useCallback, memo } from "react";
 import { cn } from "@/lib/utils";
 // Zoho media URLs are used directly (absolute URLs from Zoho WorkDrive)
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Play, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { OrderRequestDrawer } from "@/components/custom/OrderDrawer";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
@@ -16,6 +18,7 @@ import { OrderRequestDrawer } from "@/components/custom/OrderDrawer";
 
 export interface Media {
   id: string | number;
+  file_name?: string | null;
   file_type: string;
   preview_url: string;
   download_url?: string | null;
@@ -118,13 +121,17 @@ const SKU_DECODE: Record<string, string> = {
   // Materials
   G: 'Gold', S: 'Silver', P: 'Platinum', D: 'Diamond',
   BD: 'Beads', PE: 'Pearl', PO: 'Polki', GE: 'Gemstone',
+  // Specific Gemstones
+  RB: 'Ruby', SA: 'Sapphire', EM: 'Emerald', AM: 'Amethyst',
+  AQ: 'Aquamarine', CI: 'Citrine', GA: 'Garnet', OP: 'Opal',
+  TO: 'Topaz', TU: 'Tourmaline', TZ: 'Tanzanite', MO: 'Moissanite',
+  CZ: 'Cubic Zirconia', ON: 'Onyx', TS: 'Tsavorite', PD: 'Peridot', SP: 'Spinel',
   // Colors
   W: 'White', Y: 'Yellow', R: 'Rose',
   // Sub Groups
-  GF: 'GlassFlied', H: 'Heated', L: 'LabGrown',
+  GF: 'GlassFilled', H: 'Heated', L: 'LabGrown',
   NN: 'Nano', N: 'Natural', NA: 'Not Applicable',
   '95': 'PT950',
-  // Stone types (same codes, already covered above)
 };
 
 /** Decode a raw SKU code to its label, or return the raw code if unknown */
@@ -182,15 +189,19 @@ export default function ProductClient({ product }: ProductClientProps) {
   }, [urlVariant, product.variants]);
 
   /* -------------------------- Media Logic -------------------------- */
-  const mediaArray: Media[] = selectedVariant?.media ?? [];
+  const mediaArray = useMemo(() => {
+    const rawMediaArray: Media[] = selectedVariant?.media ?? [];
+    return rawMediaArray.filter(m => m.file_name?.toLowerCase().includes('catalog-image'));
+  }, [selectedVariant]);
+
   const currentMedia = mediaArray[currentIndex] ?? null;
 
-  const getMediaUrl = (m: Media | null) => {
+  const getMediaUrl = useCallback((m: Media | null) => {
     if (!m) return null;
     return m.file_type.includes("video")
       ? m.preview_url
       : (m.download_url ?? m.preview_url);
-  };
+  }, []);
 
   const displayMedia = getMediaUrl(currentMedia);
   const isVideo = currentMedia?.file_type?.includes("video") ?? false;
@@ -221,42 +232,56 @@ export default function ProductClient({ product }: ProductClientProps) {
   /* ------------ Segment-based options + variant matching ------------ */
 
   // Find the max number of segments across all variants
-  const maxSegments = Math.max(...product.variants.map(v => v.sku_segments.length), 0);
+  const maxSegments = useMemo(() => 
+    Math.max(...product.variants.map(v => v.sku_segments.length), 0),
+  [product.variants]);
 
   // For each segment position, get unique values across all variants
-  const segmentOptions: string[][] = [];
-  for (let i = 0; i < maxSegments; i++) {
-    const uniqueVals = [...new Set(
-      product.variants.map(v => v.sku_segments[i]).filter(Boolean)
-    )];
-    segmentOptions.push(uniqueVals);
-  }
+  const segmentOptions = useMemo(() => {
+    const options: string[][] = [];
+    for (let i = 0; i < maxSegments; i++) {
+        const uniqueVals = [...new Set(
+        product.variants.map(v => v.sku_segments[i]).filter(Boolean)
+        )];
+        options.push(uniqueVals);
+    }
+    return options;
+  }, [maxSegments, product.variants]);
 
   // Segment position labels (intelligently calculates based on string structure)
-  const getSegmentLabel = (idx: number) => {
+  const getSegmentLabel = useCallback((idx: number) => {
     if (idx === 0) return 'Metal Type';
     if (idx === 1) return 'Metal Carat';
     if (idx === 2) return 'Metal Color';
 
-    // Check if the last segment is the ring size
-    // Standard sku starts with 3 metal segments. Stones take 3 segments each.
-    // If the remaining modulo is 1, the last item is Ring Size.
     const hasRingSizeAtEnd = (maxSegments - 3) % 3 === 1;
     if (hasRingSizeAtEnd && idx === maxSegments - 1) return 'Ring Size';
 
-    // Stone components (sets of 3)
     const stoneIndex = Math.floor((idx - 3) / 3) + 1;
     const mod = (idx - 3) % 3;
 
-    if (mod === 0) return `Stone ${stoneIndex} Type`;
-    if (mod === 1) return `Stone ${stoneIndex} Sub Group`;
-    if (mod === 2) return `Stone ${stoneIndex} Size`;
+    // Dynamically label based on the selected stone type at this position
+    const typeIdx = idx - mod;
+    let baseTypeLabel = segmentConfig[typeIdx] ? decodeSegment(segmentConfig[typeIdx]) : `Stone ${stoneIndex}`;
+
+    // If we have a specific gemstone abbreviation sitting in the size slot, 
+    // we should label the segment block as Emerald instead of Gemstone
+    if (baseTypeLabel === 'Gemstone' && segmentConfig[typeIdx + 2]) {
+      const specific = decodeSegment(segmentConfig[typeIdx + 2]);
+      if (specific !== segmentConfig[typeIdx + 2]) {
+        baseTypeLabel = specific;
+      }
+    }
+
+    if (mod === 0) return `${baseTypeLabel} Type`;
+    if (mod === 1) return `${baseTypeLabel} Origin`; // e.g., LabGrown / Natural
+    if (mod === 2) return `${baseTypeLabel} Size`;
 
     return `Segment ${idx + 1}`;
-  };
+  }, [maxSegments, segmentConfig]);
 
   /* ---------------------- Segment Change → Update Variant ---------------------- */
-  const handleSegmentChange = (segmentIndex: number, value: string) => {
+  const handleSegmentChange = useCallback((segmentIndex: number, value: string) => {
     const newSegments = [...segmentConfig];
     // Ensure the array is long enough
     while (newSegments.length <= segmentIndex) newSegments.push('');
@@ -297,65 +322,82 @@ export default function ProductClient({ product }: ProductClientProps) {
         { scroll: false }
       );
     }
-  };
+  }, [segmentConfig, product.variants, product.parent_sku, router]);
 
   /* ------------------------------ RENDER ------------------------------ */
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const handleOpenLightbox = useCallback(() => setLightboxOpen(true), []);
+  const handleCloseLightbox = useCallback(() => setLightboxOpen(false), []);
+
+  useGSAP(() => {
+    // Fade in text content on the right
+    gsap.fromTo('.stagger-reveal',
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power2.out", delay: 0.2 }
+    );
+  }, { scope: containerRef });
+
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col">
-
-      <header className="max-w-7xl flex items-center justify-between p-4 border bg-white rounded-lg">
-        <div className=" mx-auto w-full flex items-center justify-between">
-          <Image src="/ud-logo.svg" alt="Logo" width={60} height={40} />
-          <span className="text-sm sm:text-base text-black">SKU #{selectedVariant?.variant_sku}</span>
-        </div>
+    <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900" ref={containerRef}>
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-6 py-4">
+        <Image src="/ud-logo.svg" alt="Logo" width={70} height={28} unoptimized className="cursor-pointer" onClick={() => router.push('/')} />
+        <span className="text-xs uppercase tracking-widest text-gray-500">Ref: {selectedVariant?.variant_sku}</span>
       </header>
-      <div className="bg-neutral-50 min-h-screen  flex justify-center">
 
-        <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8 py-6">
-
-          <MediaSection
-            mediaArray={mediaArray}
-            currentIndex={currentIndex}
-            setCurrentIndex={setCurrentIndex}
-            displayMedia={displayMedia}
-            isVideo={isVideo}
-            onOpenLightbox={() => setLightboxOpen(true)}
-            currentMedia={currentMedia}
-            productTitle={product.title}
-          />
-
-          <div className="space-y-6">
-            <HeaderSection product={product} selectedVariant={selectedVariant} />
-
-            <ConfigurationSection
-              segmentConfig={segmentConfig}
-              segmentOptions={segmentOptions}
-              getSegmentLabel={getSegmentLabel}
-              handleSegmentChange={handleSegmentChange}
-              quantity={quantity}
-              setQuantity={setQuantity}
-              product={product}
-              selectedVariant={selectedVariant}
-              router={router}
+      <main className="flex-grow pb-32">
+        <section className="container mx-auto px-4 md:px-8 flex flex-col lg:flex-row gap-8 lg:gap-12 mb-16 pt-8">
+          {/* Left: Image Gallery */}
+          <div className="w-full lg:w-2/3 lg:sticky lg:top-24 self-start">
+            <MediaSection
+              mediaArray={mediaArray}
+              onOpenLightbox={handleOpenLightbox}
+              setCurrentIndex={setCurrentIndex}
+              productTitle={product.title}
             />
-
-            <DetailsSection product={product} selectedVariant={selectedVariant} />
           </div>
-        </div>
 
-        {lightboxOpen && (
-          <Lightbox
-            mediaArray={mediaArray}
-            currentIndex={currentIndex}
-            setCurrentIndex={setCurrentIndex}
-            onClose={() => setLightboxOpen(false)}
-            isVideo={isVideo}
-            displayMedia={displayMedia}
-            currentMedia={currentMedia}
-          />
-        )}
-      </div>
+          {/* Right: Product Info */}
+          <div className="w-full lg:w-1/3 flex flex-col">
+            <div>
+              <div className="stagger-reveal">
+                <HeaderSection product={product} selectedVariant={selectedVariant} />
+              </div>
+
+              <div className="stagger-reveal">
+                <ConfigurationSection
+                  segmentConfig={segmentConfig}
+                  segmentOptions={segmentOptions}
+                  getSegmentLabel={getSegmentLabel}
+                  handleSegmentChange={handleSegmentChange}
+                  quantity={quantity}
+                  setQuantity={setQuantity}
+                  product={product}
+                  selectedVariant={selectedVariant}
+                  router={router}
+                />
+              </div>
+
+              <div className="stagger-reveal mt-2">
+                <DetailsSection product={product} selectedVariant={selectedVariant} />
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {lightboxOpen && (
+        <Lightbox
+          mediaArray={mediaArray}
+          currentIndex={currentIndex}
+          setCurrentIndex={setCurrentIndex}
+          onClose={handleCloseLightbox}
+          isVideo={isVideo}
+          displayMedia={displayMedia}
+          currentMedia={currentMedia}
+        />
+      )}
     </div>
   );
 }
@@ -366,68 +408,77 @@ export default function ProductClient({ product }: ProductClientProps) {
 
 interface MediaSectionProps {
   mediaArray: Media[];
-  currentIndex: number;
-  setCurrentIndex: Dispatch<SetStateAction<number>>;
-  displayMedia: string | null;
-  isVideo: boolean;
   onOpenLightbox: () => void;
-  currentMedia: Media | null;
+  setCurrentIndex: Dispatch<SetStateAction<number>>;
   productTitle: string;
 }
 
-function MediaSection({ mediaArray, currentIndex, setCurrentIndex, displayMedia, isVideo, onOpenLightbox, currentMedia, productTitle }: MediaSectionProps) {
-  return (
-    <div className="flex flex-col gap-4 sticky top-6 self-start">
-      <div className="bg-white border rounded-lg p-2">
-        <div
-          className="relative w-full aspect-square rounded-md overflow-hidden bg-gray-100 cursor-zoom-in"
-          onClick={onOpenLightbox}
-        >
-          {!displayMedia ? (
-            <div className="w-full h-full flex items-center justify-center text-gray-200">
-              No media available
-            </div>
-          ) : isVideo ? (
-            <iframe src={currentMedia?.preview_url} allow="autoplay; fullscreen" className="w-full h-full rounded-md" />
-          ) : (
-            <Image src={displayMedia} alt={productTitle} fill className="object-cover" />
-          )}
-        </div>
-
-        <div className="flex gap-3 overflow-x-auto mt-2">
-          {mediaArray.map((m, i) => {
-            const url = m.file_type.includes("video")
-              ? m.preview_url
-              : (m.download_url ?? m.preview_url);
-
-            const isVid = m.file_type.includes("video");
-
-            return (
-              <button
-                key={m.id}
-                onClick={() => setCurrentIndex(i)}
-                className={cn(
-                  "relative w-24 h-24 rounded-md overflow-hidden border flex-shrink-0",
-                  currentIndex === i ? "border-black" : "border-gray-300"
-                )}
-              >
-                {isVid ? (
-                  <>
-                    <iframe src={m.preview_url} className="object-cover w-full h-full pointer-events-none" />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                      <Play className="w-6 h-6 text-white" />
-                    </div>
-                  </>
-                ) : (
-                  <Image src={url} alt="thumb" fill className="object-cover" />
-                )}
-              </button>
-            );
-          })}
-        </div>
+const MediaSection = memo(function MediaSection({ mediaArray, onOpenLightbox, setCurrentIndex, productTitle }: MediaSectionProps) {
+  if (!mediaArray.length) {
+    return (
+      <div className="w-full h-96 flex flex-col items-center justify-center text-gray-400 font-serif italic border border-gray-200 bg-gray-50">
+        No media available
       </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+      {mediaArray.map((m, i) => {
+        const url = m.file_type.includes("video") ? m.preview_url : (m.download_url ?? m.preview_url);
+        const isVid = m.file_type.includes("video");
+
+        return (
+          <div
+            key={m.id}
+            className="w-full relative aspect-[3/4] bg-gray-50 cursor-zoom-in group overflow-hidden"
+            onClick={() => {
+              setCurrentIndex(i);
+              onOpenLightbox();
+            }}
+          >
+            {isVid ? (
+              <>
+                <iframe src={m.preview_url} className="w-full h-full object-cover pointer-events-none" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition">
+                  <Play className="w-12 h-12 text-white/80" />
+                </div>
+              </>
+            ) : (
+              <Image src={url} alt={`${productTitle} Image ${i + 1}`} fill className="object-cover object-center group-hover:scale-[1.03] transition-transform duration-500 ease-out" unoptimized />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
+});
+
+function extractStones(segments: string[]) {
+  const stones = [];
+  let i = 3;
+  while (i + 2 < segments.length) {
+    if (segments[i] && segments[i] !== 'NA') {
+      let decodedType = decodeSegment(segments[i]);
+      let size = segments[i + 2] || '';
+
+      // If the stone type is generic "Gemstone" but the size field contains a specific
+      // gemstone abbreviation (like EM -> Emerald), swap it out so it displays properly.
+      const decodedSize = decodeSegment(size);
+      if (decodedType === 'Gemstone' && decodedSize !== size) {
+        decodedType = decodedSize;
+        size = ''; // It wasn't a size, it was the specific stone name
+      }
+
+      stones.push({
+        type: decodedType,
+        subGroup: segments[i + 1] ? decodeSegment(segments[i + 1]) : '',
+        size: size
+      });
+    }
+    i += 3;
+  }
+  return stones;
 }
 
 interface HeaderSectionProps {
@@ -435,18 +486,57 @@ interface HeaderSectionProps {
   selectedVariant: Variant | null;
 }
 
-function HeaderSection({ product, selectedVariant }: HeaderSectionProps) {
+const HeaderSection = memo(function HeaderSection({ product, selectedVariant }: HeaderSectionProps) {
+  const v = selectedVariant;
+  const metalColor = v?.metal_color?.toLowerCase() || "";
+  const metalType = v?.metal_type?.toLowerCase() || "";
+
+  const stones = extractStones(v?.sku_segments || []);
+
+  const stoneDescParts = stones.map(s => {
+    let desc = s.type.toLowerCase();
+    if (s.subGroup === 'LabGrown') desc = `lab-grown ${desc}`;
+    else if (s.subGroup === 'Natural') desc = `natural ${desc}`;
+
+    return desc.endsWith('y') ? `${desc.slice(0, -1)}ies` : `${desc}s`;
+  });
+
+  let stoneDesc = "";
+  if (stoneDescParts.length === 1) stoneDesc = stoneDescParts[0];
+  else if (stoneDescParts.length === 2) stoneDesc = `${stoneDescParts[0]} and ${stoneDescParts[1]}`;
+  else if (stoneDescParts.length > 2) stoneDesc = `${stoneDescParts.slice(0, -1).join(', ')} and ${stoneDescParts[stoneDescParts.length - 1]}`;
+
+  const categoryLabel = product.category?.split('-')[0]?.trim()?.toLowerCase() || 'ring';
+
+  const sentence = metalColor && metalType
+    ? `${v?.carat_weight} kt ${metalColor} ${metalType} ${categoryLabel}${stoneDesc ? ` set with ${stoneDesc}` : ''}.`
+    : "";
+
   return (
-    <section className="bg-white border rounded-lg p-6">
-      <h1 className="text-xl font-semibold text-gray-900">{product.title}</h1>
-      <p className="text-gray-500 text-sm mt-1">{product.category}</p>
-      <p className="text text-md mt-2">{product.others}</p>
-      <p className="text-2xl font-semibold text-[#883734] mt-4">
-        ${selectedVariant?.total_cost ?? product.base_price}
-      </p>
+    <section>
+      <h1 className="text-xl md:text-2xl font-semibold mb-2 uppercase tracking-wide">
+        {product.title}
+      </h1>
+      {/* <p className="text-lg mb-4">
+        ${v?.total_cost ?? product.base_price}
+      </p> */}
+
+      <div className="mb-4">
+        <span className="inline-block border border-gray-300 px-2 py-1 text-[10px] md:text-xs uppercase tracking-wider text-gray-600">
+          {product.category?.split('-')[0]?.trim() || "FINE JEWELRY"}
+        </span>
+      </div>
+
+      {sentence && (
+        <p className="text-sm text-gray-700 mb-6">
+          {sentence.charAt(0).toUpperCase() + sentence.slice(1)}
+        </p>
+      )}
+
+      {product.others && <p className="text-gray-600 text-sm mb-6">{product.others}</p>}
     </section>
   );
-}
+});
 
 interface ConfigSectionProps {
   segmentConfig: string[];
@@ -460,7 +550,7 @@ interface ConfigSectionProps {
   router: ReturnType<typeof useRouter>;
 }
 
-function ConfigurationSection({
+const ConfigurationSection = memo(function ConfigurationSection({
   segmentConfig,
   segmentOptions,
   getSegmentLabel,
@@ -472,14 +562,10 @@ function ConfigurationSection({
   router,
 }: ConfigSectionProps) {
   return (
-    <section className="bg-white border rounded-lg p-6">
-      <h2 className="text-base font-medium mb-4">Product Configuration</h2>
-
-      <div className="space-y-4">
+    <section>
+      <div className="mb-6 space-y-6">
         {segmentOptions.map((options, idx) => {
-          // Only show selectors for positions that actually have multiple options
-          // or a single meaningful value
-          if (!options.length) return null;
+          if (options.length <= 1) return null;
           return (
             <ConfigGroup
               key={idx}
@@ -493,36 +579,30 @@ function ConfigurationSection({
         })}
 
         {/* Quantity */}
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-gray-700">Quantity</p>
-          <div className="flex items-center gap-2">
-            <Button onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</Button>
-            <Input
-              type="number"
-              min={1}
-              value={quantity}
-              onChange={e => setQuantity(Number(e.target.value))}
-              className="w-16 text-center"
-            />
-            <Button onClick={() => setQuantity(quantity + 1)}>+</Button>
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-2">
+            <p className="text-sm font-medium uppercase tracking-wider">Quantity</p>
+          </div>
+          <div className="flex border border-gray-300 w-fit">
+            <button className="px-4 py-2 hover:bg-gray-50 text-gray-500 transition outline-none" onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
+            <span className="w-10 text-center text-sm flex items-center justify-center font-medium">{quantity}</span>
+            <button className="px-4 py-2 hover:bg-gray-50 text-gray-500 transition outline-none" onClick={() => setQuantity(quantity + 1)}>+</button>
           </div>
         </div>
 
-        <div className="border-t pt-4 text-sm text-black space-y-4">
-          <p>Prices quoted are for stock variants.</p>
-          <p>
-            <strong>Lead Time:</strong> In stock ships in 1 day. Made-to-order ships in ~3 weeks.
-          </p>
+        {/* Add to Bag (OrderRequestDrawer) */}
+        <div className="mb-2">
+          {selectedVariant && (
+            <div className="w-full [&>button]:w-full [&>button]:bg-black [&>button]:text-white [&>button]:uppercase [&>button]:tracking-wider [&>button]:font-semibold [&>button]:py-4 [&>button]:flex [&>button]:justify-center [&>button]:items-center [&>button]:gap-2 [&>button]:hover:bg-gray-800 [&>button]:transition [&>button]:rounded-none">
+              <OrderRequestDrawer variant={selectedVariant} product={product} />
+            </div>
+          )}
         </div>
 
-        {/* Buttons */}
-        <div className="flex gap-4 mt-6">
-          {selectedVariant && (
-            <OrderRequestDrawer variant={selectedVariant} product={product} />
-          )}
-
+        <div className="mb-6">
           <Button
             variant="outline"
+            className="w-full border-gray-300 hover:bg-gray-50 uppercase tracking-widest py-4 h-auto rounded-none text-xs font-semibold"
             onClick={() => {
               const orderId = Math.floor(100000 + Math.random() * 900000);
               if (selectedVariant)
@@ -534,33 +614,136 @@ function ConfigurationSection({
             Share to Customer
           </Button>
         </div>
+
+        {/* Benefits list */}
+        <div className="text-xs text-center text-gray-500 mb-6 border-b border-gray-200 pb-6">
+          3 payments of ${(selectedVariant?.total_cost || 0) / 3 || 0} interest-free (0% APR) with <span className="font-bold">Klarna</span>. <a className="underline cursor-pointer">Learn more</a>
+        </div>
+
+        <ul className="text-sm space-y-3 mb-6 text-gray-700">
+          {/* <li className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+            </svg>
+            <span className="underline cursor-pointer">30 days for exchanges and returns</span>
+          </li> */}
+          {/* <li className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+            </svg>
+            <span className="underline cursor-pointer">Free shipping worldwide</span>
+          </li> */}
+          {/* <li className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+            </svg>
+            <span className="underline cursor-pointer">3 years warranty</span>
+          </li> */}
+          <li className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+            </svg>
+            <span>Lifetime personal assistance</span>
+          </li>
+        </ul>
       </div>
     </section>
   );
-}
+});
 
 interface DetailsSectionProps {
   product: Product;
   selectedVariant: Variant | null;
 }
 
-function DetailsSection({ product, selectedVariant }: DetailsSectionProps) {
+const DetailsSection = memo(function DetailsSection({ product, selectedVariant }: DetailsSectionProps) {
   const v = selectedVariant;
 
+  const getSubgroupDisplay = (sg?: string | null) => {
+    if (!sg) return "";
+    if (sg.toLowerCase() === 'labgrown') return "lab-grown";
+    return sg.toLowerCase();
+  };
+
+  const getMetalDisplay = () => {
+    if (!v?.metal_type || !v?.carat_weight || !v?.metal_color) return null;
+    return `${v.carat_weight}K ${v.metal_color} ${v.metal_type} (100% recycled solid gold)`;
+  };
+
+  const stones = extractStones(v?.sku_segments || []);
+
   return (
-    <section className="bg-white border rounded-lg p-6">
-      <h3 className="text-base font-medium mb-4">Product Details</h3>
-      <div className="grid grid-cols-2 gap-y-2 text-sm">
-        <Detail label="Type of Jewelry" value={product.subcategory} />
-        <Detail label="Setting Style" value={v?.setting} />
-        <Detail label="Diamond Count" value={v?.diamond_count ? `${v.diamond_count} stones` : null} />
-        <Detail label="Diameter / Band Width" value={v?.model} />
-        <Detail label="Dimensions" value={v?.dimensions} />
-        <Detail label="Item Weight" value={v?.weight_grams ? `${v.weight_grams} grams` : null} />
+    <section>
+      <div className="mb-6">
+        <p className="text-xs uppercase text-gray-400 mb-2">Ref: {v?.variant_sku}</p>
+        <ul className="text-sm text-gray-700 list-disc pl-4 space-y-1">
+          {getMetalDisplay() && <li>Metal: <span className="underline">{getMetalDisplay()}</span></li>}
+          {stones.map((stone, idx) => {
+            const isDiamond = stone.type === 'Diamond';
+            const isSpecificGemstone = !['Diamond', 'Pearl', 'Gemstone', 'Beads'].includes(stone.type);
+            const prefix = isDiamond || stone.type === 'Pearl' ? stone.type : (isSpecificGemstone ? 'Gemstone' : stone.type);
+
+            return (
+              <li key={`stone-${idx}`}>
+                {prefix}: {getSubgroupDisplay(stone.subGroup)} <span className="capitalize">{stone.type}</span>
+                {isDiamond && v?.dia_quality ? ` (${v.dia_quality} quality)` : ''}
+              </li>
+            );
+          })}
+          {v?.diamond_weight ? <li>Total diamond weight: {v.diamond_weight} ctw</li> : null}
+          {/* {v?.diamond_count ? <li>Number of diamonds: {v.diamond_count}</li> : null} */}
+          {v?.dimensions && <li>Dimensions: {v.dimensions}</li>}
+          {v?.model && <li>Band width / model: {v.model}</li>}
+          {v?.weight_grams && <li>Weight: {v.weight_grams} g</li>}
+          {product.subcategory && <li>Type: {product.subcategory}</li>}
+          {v?.setting && <li>Setting: {v.setting}</li>}
+        </ul>
+      </div>
+
+      {/* Accordions Mock */}
+      <div className="border-t border-gray-200">
+        <button className="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200 hover:text-gray-600 transition">
+          About Fine Jewelry
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+          </svg>
+        </button>
+        <button className="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200 hover:text-gray-600 transition">
+          More Information
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+          </svg>
+        </button>
+        <button className="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200 hover:text-gray-600 transition">
+          Delivery
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+          </svg>
+        </button>
+        <button className="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200 hover:text-gray-600 transition">
+          Responsible Jewellery Council
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+          </svg>
+        </button>
+      </div>
+
+      {/* Categories & Share */}
+      <div className="mt-8 flex flex-wrap gap-4 text-[10px] md:text-xs text-gray-500 uppercase tracking-wide">
+        <span className="cursor-pointer hover:underline hover:text-black transition">All rings</span>
+        <span className="cursor-pointer hover:underline hover:text-black transition">Diamond Rings</span>
+        <span className="cursor-pointer hover:underline hover:text-black transition">Eternity Rings</span>
+        <span className="cursor-pointer hover:underline hover:text-black transition">Solitary Rings</span>
+      </div>
+      <div className="mt-6 flex items-center gap-2 text-xs uppercase tracking-wide font-medium cursor-pointer text-gray-600 hover:text-black transition">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+        </svg>
+        Share Product
       </div>
     </section>
   );
-}
+});
 
 interface LightboxProps {
   mediaArray: Media[];
@@ -572,7 +755,7 @@ interface LightboxProps {
   currentMedia: Media | null;
 }
 
-function Lightbox({
+const Lightbox = memo(function Lightbox({
   mediaArray,
   currentIndex,
   setCurrentIndex,
@@ -630,7 +813,7 @@ function Lightbox({
       </div>
     </div>
   );
-}
+});
 
 /* -------------------------------------------------------------------------- */
 /*                                   HELPERS                                  */
@@ -644,42 +827,44 @@ interface ConfigGroupProps {
   decode?: boolean;
 }
 
-function ConfigGroup({ title, options, selected, onSelect, decode: shouldDecode }: ConfigGroupProps) {
+const ConfigGroup = memo(function ConfigGroup({ title, options, selected, onSelect, decode: shouldDecode }: ConfigGroupProps) {
   if (!options?.length) return null;
 
   return (
-    <div>
-      <p className="text-sm text-gray-700 mb-1">{title}</p>
+    <div className="mb-6">
+      <div className="flex justify-between items-center mb-2">
+        <p className="text-sm font-medium uppercase tracking-wider">{title}</p>
+        {title === 'Ring Size' && <span className="text-[10px] md:text-xs text-gray-500 cursor-pointer underline">Size guide</span>}
+      </div>
       <div className="flex flex-wrap gap-2">
         {options.map(option => (
-          <Button
+          <button
             key={option}
-            variant="ghost"
             onClick={() => onSelect(option)}
             className={cn(
-              "rounded-md text-xs px-3 py-1.5 border",
-              selected === option ? "border-black" : "border-gray-400"
+              "border px-4 py-2 text-xs md:text-sm text-center transition-all min-w-[3rem]",
+              selected === option ? "border-black text-black" : "border-gray-300 text-gray-500 hover:border-black hover:text-black"
             )}
           >
             {shouldDecode ? decodeSegment(option) : option}
-          </Button>
+          </button>
         ))}
       </div>
     </div>
   );
-}
+});
 
 interface DetailProps {
   label: string;
   value: string | number | null | undefined;
 }
 
-function Detail({ label, value }: DetailProps) {
+const Detail = memo(function Detail({ label, value }: DetailProps) {
   if (!value) return null;
   return (
-    <>
-      <p className="text-gray-500">{label}</p>
-      <p className="font-medium text-gray-900">{value}</p>
-    </>
+    <div className="flex justify-between items-center py-2 border-b border-[#EAEAEA] last:border-0">
+      <span className="text-gray-500">{label}</span>
+      <span className="font-medium text-[#111]">{value}</span>
+    </div>
   );
-}
+});

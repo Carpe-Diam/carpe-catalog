@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>PDPAOLA Product Page</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style data-purpose="custom-fonts">
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #333;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .accordion-content.active {
+            max-height: 500px;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+    <script data-purpose="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#000',
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827',
+                        }
+                    },
+                    fontSize: {
+                        'xxs': '0.65rem',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-white min-h-screen flex flex-col pt-8">
+    <!-- BEGIN: Top Banner -->
+    <div
+        class="fixed top-0 left-0 right-0 bg-gray-100 text-center py-1 text-xs z-50 flex justify-center items-center gap-2">
+        <span>FREE SHIPPING</span>
+        <button class="absolute right-4 top-1/2 transform -translate-y-1/2">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
+        </button>
+    </div>
+    <!-- END: Top Banner -->
+    <!-- BEGIN: MainHeader -->
+    <header class="sticky top-6 bg-white z-40 border-b border-gray-200">
+        <div class="container mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button class="md:hidden">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                        <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="flex-1 text-center">
+                <a class="text-2xl font-bold tracking-widest uppercase inline-block" href="#">PDPAOLA</a>
+            </div>
+            <nav class="hidden md:flex items-center gap-6 text-xs font-medium uppercase tracking-wider">
+                <a class="hover:underline" href="#">Search</a>
+                <a class="hover:underline" href="#">Log in</a>
+                <a class="hover:underline" href="#">Wishlist</a>
+                <a class="hover:underline flex items-center gap-1" href="#">Bag(0)</a>
+            </nav>
+            <div class="md:hidden flex items-center gap-4 text-xs font-medium uppercase tracking-wider">
+                <a href="#">Search</a>
+                <a href="#">Bag(0)</a>
+            </div>
+        </div>
+    </header>
+    <!-- END: MainHeader -->
+    <main class="flex-grow pb-32">
+        <!-- BEGIN: Breadcrumb -->
+        <div class="container mx-auto px-4 md:px-8 py-4">
+            <a class="text-gray-500 hover:text-black" href="#">
+                <svg class="w-4 h-4 inline-block -mt-1" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                    <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+            </a>
+        </div>
+        <!-- END: Breadcrumb -->
+        <!-- BEGIN: Product Details Section -->
+        <section class="container mx-auto px-4 md:px-8 flex flex-col lg:flex-row gap-8 lg:gap-12 mb-16">
+            <!-- Left: Image Gallery -->
+            <div class="w-full lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                <img alt="Ring close up" class="w-full object-cover aspect-[3/4]"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuByVgyr30CG2ylZjK6MYCWHV-tslPnABcjC1D6tvnsMU5CMNk5eMmms9ziV3mYNst223MPCFfSHFan4N25IbWg08QvtFbyfq3yt1NfQJ3Gh_LtMtuMaH_bokj7rK6ZrPnJUBWKXX0s9rfIZwQooo8r5SrP4BGMbw8fRgaWOgq8BZYHMcLOqpcan55IQ6E-TmKkyUJIhi-1XzY14f_XrHqZtVrRHFD8GpIJACzOy-NouVw_4IXuEMACRDsp4bwI79N0LqG53mXen2cNu" />
+                <img alt="Ring on hand" class="w-full object-cover aspect-[3/4]"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlYS24g4MUT1nnrFa1IFeKI_J0oWD7wQ-WeNOPAbd3NdS8nKIZSAvumOBoL98cO04i8qkJYVJi83it91JuSP4RDod4IkqEq4pf5GY75Le2r8Gx8AT0QALED_sfZ8n3g89Za2Nz2zMLIFmdmfJZm-MGKX20cY6dulsgQz0yRQR9eV6OFQelDckqHruq3Qal46JmXnYRzoenjvWTAc8tdtQLE2qaYNPtV1SVeQJYgUSNcu0vcLVhtNBDj-eDzmhcAemAWJti8qjPamn_" />
+                <img alt="Ring side view" class="w-full object-cover aspect-[3/4]"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOC2fGr9KxcE0CoNd6E-yD4x0XynWzEPOhTyq2i7S-LLHECw2_C8ineaPbzD2KEHAwP1HeEpRFHcY7Vdu1tq7P6b-BrqJEfCtMgnQoF7T7KrAKiEABh0ZlRJ2WvEipXbyO4vr7A38t_4V-vOFKHpb8EktV2DYWtVWJkfslbCOCYN9M8USqamhg-v4LbR1BUyjLNQmimRXqKScCPiH1WOjlO4tk5NwqEwt5WxJXWPnWXmuR6lm6IyADs3_qE27D79Ew1kgklJPPW9wJ" />
+                <img alt="Ring model shot" class="w-full object-cover aspect-[3/4]"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRNHLlZSGDun8Ssq_Q3SPP_TS9xnEv_K1ellUmIUEt4Rlw2xyF6HuTRwMVQdE4nnk6kgoD-kjoy6UWoqBe8FnyFXUl-2Jnz8b6wWycT6VjlZiSZDYWjrHW0eH5EYovyb3TcZAsisztG3GKpyJlJlaouy1ucWgnh2ZP9lPLvXz_eJY6VfQ77As_2kULkXQdX5eSYNnAyAefWLqdlXeah6-cLwrXQHqYUjMNFwcpOok0v1qk1RSnRsKIlHvNFBYukGxqOFX2ZySu7XtZ" />
+            </div>
+            <!-- Right: Product Info -->
+            <div class="w-full lg:w-1/3 flex flex-col">
+                <div class="sticky top-24">
+                    <h1 class="text-xl md:text-2xl font-semibold mb-2 uppercase tracking-wide">DIAMONDS AND WHITE GOLD
+                        ASTRA MINI ETERNITY RING</h1>
+                    <p class="text-lg mb-4">690€</p>
+                    <div class="mb-4">
+                        <span
+                            class="inline-block border border-gray-300 px-2 py-1 text-xs uppercase tracking-wider text-gray-600">Fine
+                            Jewelry</span>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-6">White gold eternity ring set with a row of lab-grown diamonds.
+                    </p>
+                    <!-- Carats Selector -->
+                    <div class="mb-6">
+                        <p class="text-sm font-medium mb-2 uppercase tracking-wider">Carats</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button class="border border-black px-4 py-2 text-sm text-center">0.40K</button>
+                            <button
+                                class="border border-gray-300 px-4 py-2 text-sm text-center text-gray-500 hover:border-black hover:text-black">0.80K</button>
+                        </div>
+                    </div>
+                    <!-- Size Selector -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="text-sm font-medium uppercase tracking-wider">Select Size</p>
+                            <a class="text-xs underline text-gray-500" href="#">Size guide</a>
+                        </div>
+                        <div class="grid grid-cols-5 gap-2">
+                            <button
+                                class="border border-gray-300 px-2 py-2 text-sm text-center hover:border-black">8</button>
+                            <button
+                                class="border border-gray-300 px-2 py-2 text-sm text-center hover:border-black">10</button>
+                            <button
+                                class="border border-gray-300 px-2 py-2 text-sm text-center hover:border-black">12</button>
+                            <button
+                                class="border border-gray-300 px-2 py-2 text-sm text-center hover:border-black">14</button>
+                            <button
+                                class="border border-gray-300 px-2 py-2 text-sm text-center hover:border-black">16</button>
+                            <button
+                                class="border border-gray-300 px-2 py-2 text-sm text-center hover:border-black">18</button>
+                        </div>
+                    </div>
+                    <!-- Add to Bag -->
+                    <button
+                        class="w-full bg-black text-white uppercase tracking-wider font-semibold py-4 mb-2 flex justify-center items-center gap-2 hover:bg-gray-800 transition">
+                        Select Size
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        </svg>
+                    </button>
+                    <div class="text-xs text-center text-gray-500 mb-6 border-b border-gray-200 pb-6">
+                        3 payments of 230.00 € interest-free (0% APR) with <span class="font-bold">Klarna</span>. <a
+                            class="underline" href="#">Learn more</a>
+                    </div>
+                    <!-- Benefits -->
+                    <ul class="text-sm space-y-3 mb-6">
+                        <li class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+                            <span class="underline">30 days for exchanges and returns</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+                            <span class="underline">Free shipping worldwide</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+                            <span class="underline">3 years warranty</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path
+                                    d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+                            <span>Lifetime personal assistance</span>
+                        </li>
+                    </ul>
+                    <!-- Details List -->
+                    <div class="mb-6">
+                        <p class="text-xs uppercase text-gray-400 mb-2">Ref: AN02-126-10</p>
+                        <ul class="text-sm text-gray-700 list-disc pl-4 space-y-1">
+                            <li>Metal: <a class="underline" href="#">18K White Gold (100% recycled solid gold)</a></li>
+                            <li>Stones: Lab-grown Diamonds (High quality)</li>
+                            <li>Total carat weight: 0.40</li>
+                            <li>Number of diamonds: 21</li>
+                            <li>Diamonds diameter: 1.7 mm</li>
+                            <li>Exterior diameter: 16 mm</li>
+                            <li>Ring width: 1.8 mm</li>
+                            <li>Thickness: 1.5 mm</li>
+                            <li>Weight: 1.2 g</li>
+                        </ul>
+                    </div>
+                    <!-- Accordions -->
+                    <div class="border-t border-gray-200">
+                        <button
+                            class="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200">
+                            About Fine Jewelry
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2"></path>
+                            </svg>
+                        </button>
+                        <button
+                            class="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200">
+                            More Information
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2"></path>
+                            </svg>
+                        </button>
+                        <button
+                            class="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200">
+                            Delivery
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2"></path>
+                            </svg>
+                        </button>
+                        <button
+                            class="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200">
+                            Responsible Jewellery Council
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                                <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <!-- Categories & Share -->
+                    <div class="mt-8 flex flex-wrap gap-4 text-xs text-gray-500 uppercase tracking-wide">
+                        <a class="hover:underline" href="#">All rings</a>
+                        <a class="hover:underline" href="#">Diamond Rings</a>
+                        <a class="hover:underline" href="#">Eternity Rings</a>
+                        <a class="hover:underline" href="#">Diamond Rings</a>
+                        <a class="hover:underline" href="#">Solitary Rings</a>
+                    </div>
+                    <div
+                        class="mt-6 flex items-center gap-2 text-xs uppercase tracking-wide font-medium cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        </svg>
+                        Share Product
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- END: Product Details Section -->
+        <!-- BEGIN: Last Items Viewed -->
+        <section class="container mx-auto px-4 md:px-8 mb-16">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl uppercase tracking-wider font-medium">Last Items Viewed</h2>
+                <div class="flex gap-2">
+                    <button class="p-1 border border-gray-200 hover:bg-gray-50 text-gray-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                            </path>
+                        </svg>
+                    </button>
+                    <button class="p-1 border border-gray-200 hover:bg-gray-50 text-gray-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Empty state or placeholder for items -->
+        </section>
+        <!-- END: Last Items Viewed -->
+        <!-- BEGIN: You May Also Like -->
+        <section class="container mx-auto px-4 md:px-8 mb-16">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl uppercase tracking-wider font-medium">You May Also Like</h2>
+                <div class="flex gap-2">
+                    <button class="p-1 border border-gray-200 hover:bg-gray-50 text-gray-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                            </path>
+                        </svg>
+                    </button>
+                    <button class="p-1 border border-gray-200 hover:bg-gray-50 text-gray-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- Product Card 1 -->
+                <div class="group relative">
+                    <div class="absolute top-2 left-2 z-10 bg-black text-white text-[10px] px-1 py-0.5 uppercase">Fine
+                        Jewelry</div>
+                    <button class="absolute top-2 right-2 z-10 text-gray-400 hover:text-red-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        </svg>
+                    </button>
+                    <img alt="Related Ring 1" class="w-full object-cover mb-4"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgHoy8WZiBh3TbJIDC27PMaWtN-XmUC2Yno8jegrgQJDz673UlF5YAaKHqWPQIGqBUz1v-Y41GJg5ULxcKjGgq0CmCtZtP__RfEr8wiEnaJDWumdLeW7fLyF0y4Oqewu9N_aRtiZwKpRZUYEiQqyMs-6wsF6u7K_jKDkJrRMgUXzrKaRFLNcHyhjNeJWZ9IMuN_HPMufhBtIuxtzPeIUxEE75oFH74uCKxvMAmw3-FWwYcaoX2kmJ7_l4l5sgx5zwI9SaNCO1NHyyY" />
+                    <div class="text-xs">
+                        <h3 class="uppercase font-medium mb-1 truncate">Diamonds and White Gold Astra Eternity Ring</h3>
+                        <p class="text-gray-500 mb-1">18K White Gold</p>
+                        <p class="text-gray-500 mb-2">Diamonds</p>
+                        <p class="font-semibold">690€</p>
+                    </div>
+                </div>
+                <!-- Product Card 2 -->
+                <div class="group relative">
+                    <div class="absolute top-2 left-2 z-10 bg-black text-white text-[10px] px-1 py-0.5 uppercase">Fine
+                        Jewelry</div>
+                    <button class="absolute top-2 right-2 z-10 text-gray-400 hover:text-red-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        </svg>
+                    </button>
+                    <img alt="Related Ring 2" class="w-full object-cover mb-4"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0QnBPjYM1cUjGVMDvX7D2hwHnQO1IB0uP1eTS42bsdeYBbXbOo5hv-b_Pkg3_BwbSr6UHmTcnwiqATpPOcWJwjdgl1uZlKNBr126y6oV_YMlkkvchoFLRr3BdJav1tBMaEK9h5P5VfORq-oswYywknjCwhFIELsuYxvoizh1GFtPgCzvXWRjUca3khei7IuiE1MakkjjAK-p__YuC1xMpwRWsHd63BlIqzi_gKYyGUs-jULXNQ3M1Z9N-SaxL3JdkPSJ5Yx1Wx2IJ" />
+                    <div class="text-xs">
+                        <h3 class="uppercase font-medium mb-1 truncate">Diamonds and White Gold Eternity Mini Ring</h3>
+                        <p class="text-gray-500 mb-1">18K White Gold</p>
+                        <p class="text-gray-500 mb-2">Diamonds</p>
+                        <p class="font-semibold">450€</p>
+                        <div class="flex gap-1 mt-2">
+                            <span class="w-3 h-3 rounded-full bg-yellow-400 inline-block border border-gray-200"></span>
+                            <span class="w-3 h-3 rounded-full bg-gray-300 inline-block border border-gray-400"></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Product Card 3 -->
+                <div class="group relative">
+                    <div class="absolute top-2 left-2 z-10 bg-black text-white text-[10px] px-1 py-0.5 uppercase">Fine
+                        Jewelry</div>
+                    <button class="absolute top-2 right-2 z-10 text-gray-400 hover:text-red-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        </svg>
+                    </button>
+                    <img alt="Related Ring 3" class="w-full object-cover mb-4"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMELMWtTty1bVn5QFLL1BiJgrp1yFnoxf6NpozaGTu5vB-sH3UNpcqrcnV2vtyN0ieudvfsftqaB1ikEzD1Rhtj969EAoN10UtyG-xvoigAzsLN-9IF8j2K4qlyQ_Y7dCRxYkfFNBYuFwXIIFVUmyxeXpbOLGN6toriWwb68eMADARpBMEIJnFqaxVovsK6x86mDmnlDRy5tnBDajIVYzZxSC669b3diJeR1324yGgHFmbfcP4w_-SvPc0hHschhDP7DRTNbXyIVy8" />
+                    <div class="text-xs">
+                        <h3 class="uppercase font-medium mb-1 truncate">Diamonds and Gold Eternity Mini Ring</h3>
+                        <p class="text-gray-500 mb-1">18K Gold</p>
+                        <p class="text-gray-500 mb-2">Diamonds</p>
+                        <p class="font-semibold">450€</p>
+                        <div class="flex gap-1 mt-2">
+                            <span class="w-3 h-3 rounded-full bg-yellow-400 inline-block border border-gray-400"></span>
+                            <span class="w-3 h-3 rounded-full bg-gray-300 inline-block border border-gray-200"></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Product Card 4 -->
+                <div class="group relative">
+                    <div class="absolute top-2 left-2 z-10 bg-black text-white text-[10px] px-1 py-0.5 uppercase">Fine
+                        Jewelry</div>
+                    <button class="absolute top-2 right-2 z-10 text-gray-400 hover:text-red-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                            <path
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        </svg>
+                    </button>
+                    <img alt="Related Ring 4" class="w-full object-cover mb-4"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMi1yefQKZpb-RyQrZQMvsEZiQH6yg0E0gqMD6uIl3s701aQ8XBkiGtetF_QsUXFZU53BM884hXtDaPuaz1AyDbCbcN3wj6a8JNRB6HZBu2-8Q18g-HDnE3xwDjA3zAo6AQkQAEzluDQ83RKTYo20SdjyKuRqWistmtlaYCIH5K6XhtXxrqMgDAepTNibZcZsTjJ_qddbdJ48AItP6w4onx885v4V25e5z3lFm_IF0R6_3EogRRzMzK6dARyBSa5Bq-6QCtrMMBrG0" />
+                    <div class="text-xs">
+                        <h3 class="uppercase font-medium mb-1 truncate">Diamonds and White Gold Eternity Medium Ring
+                        </h3>
+                        <p class="text-gray-500 mb-1">18K White Gold</p>
+                        <p class="text-gray-500 mb-2">Diamonds</p>
+                        <p class="font-semibold">1.090€</p>
+                        <div class="flex gap-1 mt-2">
+                            <span class="w-3 h-3 rounded-full bg-gray-300 inline-block border border-gray-400"></span>
+                            <span class="w-3 h-3 rounded-full bg-yellow-400 inline-block border border-gray-200"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- END: You May Also Like -->
+    </main>
+    <!-- BEGIN: Footer -->
+    <footer class="bg-gray-100 pt-16 pb-32 text-xs">
+        <div class="container mx-auto px-4 md:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 mb-16">
+                <!-- Column 1 -->
+                <div class="col-span-2 lg:col-span-1">
+                    <div class="mb-4">
+                        <span class="font-bold uppercase">Language:</span> <a class="underline" href="#">English</a>
+                    </div>
+                    <div class="mb-4">
+                        <span class="font-bold uppercase">Country:</span> <a class="underline" href="#">Greece (EUR
+                            €)</a>
+                    </div>
+                    <a class="font-bold uppercase underline" href="#">Download our App</a>
+                </div>
+                <!-- Column 2 -->
+                <div>
+                    <h4 class="font-bold uppercase mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><a class="hover:text-black" href="#">Email</a></li>
+                        <li><a class="hover:text-black" href="#">WhatsApp</a></li>
+                        <li><a class="hover:text-black" href="#">Live Chat</a></li>
+                    </ul>
+                </div>
+                <!-- Column 3 -->
+                <div>
+                    <h4 class="font-bold uppercase mb-4">Information</h4>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><a class="hover:text-black" href="#">FAQ</a></li>
+                        <li><a class="hover:text-black" href="#">Size guide</a></li>
+                        <li><a class="hover:text-black" href="#">Shipping</a></li>
+                        <li><a class="hover:text-black" href="#">Order status</a></li>
+                        <li><a class="hover:text-black" href="#">Exchanges &amp; returns</a></li>
+                        <li><a class="hover:text-black" href="#">Jewelry care</a></li>
+                        <li><a class="hover:text-black" href="#">General conditions</a></li>
+                        <li><a class="hover:text-black" href="#">Gift card balance</a></li>
+                    </ul>
+                </div>
+                <!-- Column 4 -->
+                <div>
+                    <h4 class="font-bold uppercase mb-4">About Us</h4>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><a class="hover:text-black" href="#">Stores</a></li>
+                        <li><a class="hover:text-black" href="#">The Brand</a></li>
+                        <li><a class="hover:text-black" href="#">Sustainability</a></li>
+                    </ul>
+                </div>
+                <!-- Column 5 -->
+                <div>
+                    <h4 class="font-bold uppercase mb-4">Work With Us</h4>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><a class="hover:text-black" href="#">Careers</a></li>
+                        <li><a class="hover:text-black" href="#">Distribution</a></li>
+                    </ul>
+                </div>
+                <!-- Column 6 -->
+                <div>
+                    <h4 class="font-bold uppercase mb-4">Community</h4>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><a class="hover:text-black" href="#">Instagram</a></li>
+                        <li><a class="hover:text-black" href="#">Tiktok</a></li>
+                        <li><a class="hover:text-black" href="#">Facebook</a></li>
+                        <li><a class="hover:text-black" href="#">Spotify</a></li>
+                        <li><a class="hover:text-black" href="#">Pinterest</a></li>
+                        <li><a class="hover:text-black" href="#">Youtube</a></li>
+                        <li><a class="hover:text-black" href="#">LinkedIn</a></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Newsletter Banner inside Footer visually -->
+            <div class="bg-gray-200 p-8 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="w-full md:w-1/2">
+                    <p class="text-xs uppercase font-medium mb-1">Join the world of PDPAOLA</p>
+                    <h3 class="text-xl md:text-2xl font-bold uppercase tracking-wide">Unlock 10% off your first order
+                    </h3>
+                </div>
+                <div class="w-full md:w-1/2 flex border-b border-black pb-1">
+                    <input class="bg-transparent border-none focus:ring-0 w-full text-sm outline-none"
+                        placeholder="Enter your email" type="email" />
+                    <button class="uppercase text-sm font-semibold tracking-wider flex-shrink-0">Subscribe</button>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- END: Footer -->
+    <!-- BEGIN: Sticky Add to Cart Bar -->
+    <div
+        class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-50 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <div class="hidden md:block">
+            <p class="text-sm font-medium uppercase tracking-wide">Diamonds and White Gold Astra Mini Eternity Ring
+                <span class="ml-4 text-gray-600">690€</span></p>
+        </div>
+        <div class="w-full md:w-auto flex gap-4">
+            <button
+                class="border border-black px-6 py-3 text-sm uppercase tracking-wider font-semibold w-1/3 md:w-auto text-center flex-shrink-0">
+                Size 08
+            </button>
+            <button
+                class="bg-black text-white px-8 py-3 text-sm uppercase tracking-wider font-semibold w-2/3 md:w-64 text-center hover:bg-gray-800 transition">
+                Select Size
+            </button>
+        </div>
+    </div>
+    <!-- END: Sticky Add to Cart Bar -->
+    <!-- Chat Bubble -->
+    <div class="fixed bottom-24 right-4 z-40">
+        <button
+            class="bg-white border border-gray-200 shadow-lg rounded-full px-4 py-2 text-sm font-medium flex items-center gap-2 hover:bg-gray-50">
+            Hello, how can we help you?
+        </button>
+    </div>
+</body>
+
+</html>

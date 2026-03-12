@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { memo } from "react";
 
 type Variant = {
   media?: { download_url?: string; preview_url?: string }[];
@@ -18,7 +19,7 @@ interface DisplayCardProps {
   product: Product;
 }
 
-const DisplayCard = ({ product }: DisplayCardProps) => {
+const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
   const { title, base_price, category, subcategory, variants } = product;
 
   const firstVariant = variants?.[0];
@@ -52,6 +53,6 @@ const DisplayCard = ({ product }: DisplayCardProps) => {
       </div>
     </Link>
   );
-};
+});
 
 export default DisplayCard;

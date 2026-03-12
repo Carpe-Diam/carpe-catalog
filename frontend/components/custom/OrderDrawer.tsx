@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import {
   Drawer,
   DrawerTrigger,
@@ -32,7 +32,7 @@ interface OrderRequestDrawerProps {
   product: Product;
 }
 
-export function OrderRequestDrawer({ variant, product }: OrderRequestDrawerProps) {
+export const OrderRequestDrawer = memo(function OrderRequestDrawer({ variant, product }: OrderRequestDrawerProps) {
   const [open, setOpen] = useState(false);
   const [communication, setCommunication] = useState("call");
   const [orderType, setOrderType] = useState("purchase");
@@ -45,9 +45,9 @@ export function OrderRequestDrawer({ variant, product }: OrderRequestDrawerProps
     message: "",
   });
 
-  const handleChange = (field: keyof typeof form, value: string) => {
+  const handleChange = useCallback((field: keyof typeof form, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
   const contactField = () => {
     switch (communication) {
@@ -82,7 +82,7 @@ export function OrderRequestDrawer({ variant, product }: OrderRequestDrawerProps
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     try {
       const res = await fetch("/api/order-request", {
         method: "POST",
@@ -112,7 +112,7 @@ export function OrderRequestDrawer({ variant, product }: OrderRequestDrawerProps
       console.error("❌ SUBMIT ERROR:", err);
       alert("Error sending request");
     }
-  };
+  }, [form, communication, orderType, product.title, variant.variant_sku, variant.total_cost]);
 
 //  const handleSubmitGs = async () => {
 //   try {
@@ -265,4 +265,4 @@ export function OrderRequestDrawer({ variant, product }: OrderRequestDrawerProps
       </DrawerContent>
     </Drawer>
   );
-}
+});
