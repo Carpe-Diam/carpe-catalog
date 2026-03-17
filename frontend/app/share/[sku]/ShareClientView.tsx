@@ -3,11 +3,12 @@
 import Image from "next/image";
 import { useEffect, useState, useRef, memo } from "react";
 import { cn } from "@/lib/utils";
-import { Play, X, Download } from "lucide-react";
+import { Play, X, Download, Share2 } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { toJpeg } from "html-to-image";
 import { jsPDF } from "jspdf";
+import QRCode from "qrcode";
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
@@ -38,7 +39,6 @@ interface Variant {
   total_cost: number;
   media: Media[];
   diamond_weight?: number | null;
-  net_weight?: number | null;
 }
 
 interface Product {
@@ -109,6 +109,16 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [pageUrl, setPageUrl] = useState("");
+
+  // Generate QR code for the current page URL
+  useEffect(() => {
+    const url = window.location.href;
+    setPageUrl(url);
+    QRCode.toDataURL(url, { width: 400, margin: 2 }).then(setQrDataUrl).catch(console.error);
+  }, []);
 
   const handleDownloadPDF = async () => {
     const element = document.getElementById("share-page-content");
@@ -117,22 +127,20 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
     try {
       setIsDownloading(true);
       setDownloadError(null);
-      
-      // Use html-to-image specifically to Jpeg to avoid massive file sizes
-      // We pass some explicit styles to avoid SVG parsing issues with Next.js images
+
       const imgData = await toJpeg(element, {
         quality: 0.95,
         backgroundColor: '#ffffff',
-        pixelRatio: 2, // High DPI
+        pixelRatio: 2,
       });
-      
+
       const img = new window.Image();
       img.src = imgData;
       await new Promise((resolve) => { img.onload = resolve; });
 
       const pdf = new jsPDF({
         orientation: img.width > img.height ? "landscape" : "portrait",
-        unit: "mm", 
+        unit: "mm",
         format: "a4",
       });
 
@@ -140,10 +148,18 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
       const pdfHeight = (img.height * pdfWidth) / img.width;
 
       pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
-      
+
+      // Add QR code to the PDF (bottom-right corner)
+      if (qrDataUrl) {
+        const qrSize = 30; // mm
+        const qrX = pdfWidth - qrSize - 8;
+        const qrY = Math.min(pdfHeight, pdf.internal.pageSize.getHeight()) - qrSize - 8;
+        pdf.addImage(qrDataUrl, "PNG", qrX, qrY, qrSize, qrSize);
+      }
+
       const title = product.title || "Product";
       const filename = `${title.replace(/[^a-z0-9]/gi, '_')}.pdf`;
-      
+
       pdf.save(filename);
     } catch (error: any) {
       console.error("Error generating PDF:", error);
@@ -195,7 +211,15 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
         <Image src="/ud-logo.svg" alt="Logo" width={70} height={28} unoptimized />
         <div className="flex items-center gap-4">
           <span className="text-xs uppercase tracking-widest text-gray-500">Ref: {variant?.variant_sku}</span>
-          <button 
+          <button
+            onClick={() => setQrModalOpen(true)}
+            data-html2canvas-ignore="true"
+            className="flex items-center gap-2 text-xs uppercase tracking-widest border border-gray-300 text-gray-700 px-4 py-2 hover:bg-gray-100 transition cursor-pointer"
+          >
+            <Share2 className="w-4 h-4" />
+            Share QR
+          </button>
+          <button
             onClick={handleDownloadPDF}
             disabled={isDownloading}
             data-html2canvas-ignore="true"
@@ -229,10 +253,21 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
               <div className="stagger-reveal mt-6">
                 <ShareDetailsSection product={product} variant={variant} />
               </div>
+
             </div>
           </div>
         </section>
       </main>
+
+      {/* QR Code Share Modal */}
+      {qrModalOpen && qrDataUrl && (
+        <QrShareModal
+          qrDataUrl={qrDataUrl}
+          pageUrl={pageUrl}
+          productTitle={product.title || "Product"}
+          onClose={() => setQrModalOpen(false)}
+        />
+      )}
 
       {/* Lightbox */}
       {lightboxOpen && (
@@ -512,6 +547,118 @@ const ShareLightbox = memo(function ShareLightbox({
             unoptimized
           />
         )}
+      </div>
+    </div>
+  );
+});
+
+/* --------- QR SHARE MODAL --------- */
+
+const QrShareModal = memo(function QrShareModal({
+  qrDataUrl,
+  pageUrl,
+  productTitle,
+  onClose,
+}: {
+  qrDataUrl: string;
+  pageUrl: string;
+  productTitle: string;
+  onClose: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(pageUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+      const input = document.createElement("input");
+      input.value = pageUrl;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleDownloadQr = () => {
+    const link = document.createElement("a");
+    link.download = `${productTitle.replace(/[^a-z0-9]/gi, "_")}_QR.png`;
+    link.href = qrDataUrl;
+    link.click();
+  };
+
+  const handleShare = async () => {
+    if (!navigator.share) return;
+    // Convert data URL to blob for native share
+    const res = await fetch(qrDataUrl);
+    const blob = await res.blob();
+    const file = new File([blob], `${productTitle.replace(/[^a-z0-9]/gi, "_")}_QR.png`, { type: "image/png" });
+
+    try {
+      await navigator.share({
+        title: productTitle,
+        text: `Check out ${productTitle}`,
+        url: pageUrl,
+        files: [file],
+      });
+    } catch {
+      // User cancelled or share failed — try without files
+      try {
+        await navigator.share({ title: productTitle, text: `Check out ${productTitle}`, url: pageUrl });
+      } catch { /* user cancelled */ }
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" onClick={onClose}>
+      <div
+        className="bg-white rounded-xl shadow-2xl max-w-sm w-full mx-4 p-6 flex flex-col items-center gap-5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close */}
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition">
+          <X className="w-5 h-5" />
+        </button>
+
+        <h3 className="text-sm uppercase tracking-widest font-medium text-gray-800">Share this product</h3>
+
+        {/* QR Code */}
+        <img src={qrDataUrl} alt="QR code" className="w-52 h-52" />
+
+        <p className="text-xs text-gray-400 text-center">Scan to open this page directly</p>
+
+        {/* Action buttons */}
+        <div className="w-full flex flex-col gap-2">
+          {typeof navigator !== "undefined" && typeof navigator.share === "function" && (
+            <button
+              onClick={handleShare}
+              className="w-full flex items-center justify-center gap-2 text-xs uppercase tracking-widest bg-black text-white px-4 py-3 hover:bg-gray-800 transition cursor-pointer rounded-lg"
+            >
+              <Share2 className="w-4 h-4" />
+              Share
+            </button>
+          )}
+
+          <button
+            onClick={handleDownloadQr}
+            className="w-full flex items-center justify-center gap-2 text-xs uppercase tracking-widest border border-gray-300 text-gray-700 px-4 py-3 hover:bg-gray-50 transition cursor-pointer rounded-lg"
+          >
+            <Download className="w-4 h-4" />
+            Download QR Image
+          </button>
+
+          <button
+            onClick={handleCopyLink}
+            className="w-full flex items-center justify-center gap-2 text-xs uppercase tracking-widest border border-gray-300 text-gray-700 px-4 py-3 hover:bg-gray-50 transition cursor-pointer rounded-lg"
+          >
+            {copied ? "Copied!" : "Copy Link"}
+          </button>
+        </div>
       </div>
     </div>
   );

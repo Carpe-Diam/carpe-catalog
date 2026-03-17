@@ -24,40 +24,6 @@ export interface Media {
   download_url?: string | null;
 }
 
-export interface BillOfMaterialsRow {
-  group?: string | null;
-  sub_group?: string | null;
-  sub_sub_group?: string | null;
-  shape?: string | null;
-  size?: string | null;
-  weight?: number | null;
-  pieces?: number | null;
-  total_weight?: number | null;
-  rate_per_unit?: number | null;
-  price?: number | null;
-  gross_weight?: number | null;
-  a_sell_rate_per_unit?: number | null;
-  b_sell_rate_per_unit?: number | null;
-  c_sell_rate_per_unit?: number | null;
-  d_sell_rate_per_unit?: number | null;
-}
-
-export interface OtherOperationsRow {
-  operations?: string | null;
-  sub_operations?: string | null;
-  weight?: number | null;
-  rate_per_unit?: number | null;
-  price?: number | null;
-  a_sell_rate_per_unit?: number | null;
-  b_sell_rate_per_unit?: number | null;
-  c_sell_rate_per_unit?: number | null;
-  d_sell_rate_per_unit?: number | null;
-  sell_price_a?: number | null;
-  sell_price_b?: number | null;
-  sell_price_c?: number | null;
-  sell_price_d?: number | null;
-}
-
 export interface Variant {
   variant_sku: string;
   sku_segments: string[];
@@ -65,8 +31,6 @@ export interface Variant {
   dia_quality?: string | null;
   metal_type?: string | null;
   metal_color?: string | null;
-
-  /* details */
   setting?: string | null;
   diamond_count?: number | null;
   model?: string | null;
@@ -76,40 +40,9 @@ export interface Variant {
   sub_group?: string | null;
   parsed_size?: string | null;
   sub_sub_group?: string | null;
-  product_url?: string | null;
-  product_variant_name?: string | null;
-  cad_person_name?: string | null;
-  ring_size?: string | null;
-  style_size_inch?: string | null;
-  website_name?: string | null;
-  website_description?: string | null;
-  raw_material_details?: string | null;
-  work_drive_download_link?: string | null;
-  portal_user?: string | null;
-
-  /* pricing + media */
   total_cost: number;
   media: Media[];
-  sell_price_a?: number | null;
-  sell_price_b?: number | null;
-  sell_price_c?: number | null;
-  sell_price_d?: number | null;
-  total_sell_price_a?: number | null;
-  total_sell_price_b?: number | null;
-  total_sell_price_c?: number | null;
-  total_sell_price_d?: number | null;
-  cost_price?: number | null;
-  operations_total_price?: number | null;
-
-  /* weights */
-  net_weight?: number | null;
   diamond_weight?: number | null;
-  polki_weight?: number | null;
-  stone_weight?: number | null;
-
-  /* subforms */
-  bill_of_materials?: BillOfMaterialsRow[];
-  other_operations?: OtherOperationsRow[];
 }
 
 /* -------------------------------------------------------------------------- */
@@ -148,6 +81,7 @@ export interface Product {
   base_price?: number | null;
 
   subcategory?: string | null;
+  record_image?: string | null;
   variants: Variant[];
 }
 
@@ -191,8 +125,24 @@ export default function ProductClient({ product }: ProductClientProps) {
   /* -------------------------- Media Logic -------------------------- */
   const mediaArray = useMemo(() => {
     const rawMediaArray: Media[] = selectedVariant?.media ?? [];
-    return rawMediaArray.filter(m => m.file_name?.toLowerCase().includes('catalog-image'));
-  }, [selectedVariant]);
+    const catalogMedia = rawMediaArray.filter(m => m.file_name?.toLowerCase().includes('catalog-image'));
+
+    // If variant has catalog images, use those
+    if (catalogMedia.length > 0) return catalogMedia;
+
+    // Fallback: use the product record image
+    if (product.record_image) {
+      return [{
+        id: `product-record-${product.parent_sku}`,
+        file_name: 'product-record-image',
+        file_type: 'image/jpeg',
+        preview_url: product.record_image,
+        download_url: product.record_image,
+      }] as Media[];
+    }
+
+    return [];
+  }, [selectedVariant, product.record_image, product.parent_sku]);
 
   const currentMedia = mediaArray[currentIndex] ?? null;
 

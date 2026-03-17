@@ -51,6 +51,8 @@ export async function GET(req: NextRequest) {
         });
 
         if (!res.ok) {
+            const errorBody = await res.text().catch(() => '');
+            console.error(`[image-proxy] ${res.status} for ${url}: ${errorBody}`);
             return new Response('Image not found', { status: 404 });
         }
 
@@ -63,7 +65,8 @@ export async function GET(req: NextRequest) {
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
             },
         });
-    } catch {
+    } catch (err) {
+        console.error('[image-proxy] Error:', err);
         return new Response('Error fetching image', { status: 500 });
     }
 }

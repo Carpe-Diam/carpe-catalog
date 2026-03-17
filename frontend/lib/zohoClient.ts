@@ -22,46 +22,6 @@ export type Media = {
     download_url: string;
 };
 
-export type BillOfMaterialsRow = {
-    group?: string | null;
-    sub_group?: string | null;
-    sub_sub_group?: string | null;
-    shape?: string | null;
-    size?: string | null;
-    weight?: number | null;
-    pieces?: number | null;
-    total_weight?: number | null;
-    rate_per_unit?: number | null;
-    price?: number | null;
-    gross_weight?: number | null;
-    a_sell_rate_per_unit?: number | null;
-    b_sell_rate_per_unit?: number | null;
-    c_sell_rate_per_unit?: number | null;
-    d_sell_rate_per_unit?: number | null;
-    a_sell_price?: number | null;
-    b_sell_price?: number | null;
-    c_sell_price?: number | null;
-    d_sell_price?: number | null;
-    created_by?: string | null;
-};
-
-export type OtherOperationsRow = {
-    operations?: string | null;
-    sub_operations?: string | null;
-    weight?: number | null;
-    rate_per_unit?: number | null;
-    price?: number | null;
-    a_sell_rate_per_unit?: number | null;
-    b_sell_rate_per_unit?: number | null;
-    c_sell_rate_per_unit?: number | null;
-    d_sell_rate_per_unit?: number | null;
-    sell_price_a?: number | null;
-    sell_price_b?: number | null;
-    sell_price_c?: number | null;
-    sell_price_d?: number | null;
-    created_by?: string | null;
-};
-
 export type Variant = {
     variant_sku: string;
     sku_segments: string[];
@@ -80,55 +40,7 @@ export type Variant = {
     sub_sub_group?: string | null;
     total_cost: number;
     media: Media[];
-    // Additional Zoho fields
-    product_url?: string | null;
-    product_variant_name?: string | null;
-    cad_person_name?: string | null;
-    ring_size?: string | null;
-    style_size_inch?: string | null;
-    website_name?: string | null;
-    website_description?: string | null;
-    raw_material_details?: string | null;
-    work_drive_download_link?: string | null;
-    portal_user?: string | null;
-    product_design?: any | null;
-    owner?: any | null;
-    connected_to?: any | null;
-    created_by?: string | null;
-    modified_by?: string | null;
-    modified_date?: string | null;
-    modified_bom_date?: string | null;
-    modified_name_reason?: string | null;
-    additional_instructions?: string | null;
-    engraving_instruction?: string | null;
-    finding_instruction?: string | null;
-    finish_instruction?: string | null;
-    rhodium_instruction?: string | null;
-    tag?: string | null;
-    variant_image?: string | null;
-    email?: string | null;
-    email_opt_out?: boolean | null;
-    secondary_email?: string | null;
-    total_price?: number | null;
-    // Pricing
-    sell_price_a?: number | null;
-    sell_price_b?: number | null;
-    sell_price_c?: number | null;
-    sell_price_d?: number | null;
-    total_sell_price_a?: number | null;
-    total_sell_price_b?: number | null;
-    total_sell_price_c?: number | null;
-    total_sell_price_d?: number | null;
-    cost_price?: number | null;
-    operations_total_price?: number | null;
-    // Weights
-    net_weight?: number | null;
     diamond_weight?: number | null;
-    polki_weight?: number | null;
-    stone_weight?: number | null;
-    // Subforms
-    bill_of_materials?: BillOfMaterialsRow[];
-    other_operations?: OtherOperationsRow[];
 };
 
 export type Product = {
@@ -139,65 +51,9 @@ export type Product = {
     subcategory?: string | null;
     base_price?: number | null;
     others?: string | null;
-    variants: Variant[];
-    // Additional Zoho fields
-    website_name?: string | null;
-    collection?: string[] | null;
-    finish?: string | null;
-    cad_attachment?: any | null;
-    cad_person?: string | null;
-    cad_person_name?: string | null;
-    cad_reference_images?: any | null;
-    carat_weight?: number | null;
-    commission_rate?: number | null;
-    connected_to?: any | null;
-    created_by?: string | null;
-    customer_remarks?: string | null;
-    description?: string | null;
-    designer?: string | null;
-    gross_wt_calculation?: number | null;
-    group?: string | null;
-    handler?: any | null;
-    lock_finding?: string | null;
-    main_variant?: any | null;
-    making_charges?: number | null;
-    manufacturer?: string | null;
-    modified_by?: string | null;
-    net_wt_calculation?: number | null;
-    portal_user?: any | null;
-    product_active?: boolean | null;
-    product_category?: string | null;
-    product_code?: string | null;
-    record_image?: string | null;
-    product_name?: string | null;
-    owner?: any | null;
-    qty_ordered?: number | null;
-    qty_in_demand?: number | null;
-    qty_in_stock?: number | null;
-    reference_image?: any | null;
-    reorder_level?: number | null;
-    rhodium?: string | null;
-    sales_end_date?: string | null;
-    sales_start_date?: string | null;
-    sell_rate_per_unit?: number | null;
-    shape?: string | null;
-    size?: string | null;
-    sketch_image?: any | null;
-    style_size?: string | null;
-    sub_group?: string | null;
-    sub_sub_group?: string | null;
-    support_expiry_date?: string | null;
-    support_start_date?: string | null;
-    tag?: string | null;
-    tax?: string[] | null;
-    taxable?: boolean | null;
-    total_cost?: number | null;
     type_of_order?: string | null;
-    unit_price?: number | null;
-    usage_unit?: string | null;
-    variant?: any | null;
-    vendor_name?: any | null;
-    wt_in_material_unit?: number | null;
+    record_image?: string | null;
+    variants: Variant[];
 };
 
 /* -------------------------------------------------------------------------- */
@@ -327,7 +183,7 @@ export function getMediaUrl(url: string | null | undefined): string {
 /*                           DATA TRANSFORMATION                              */
 /* -------------------------------------------------------------------------- */
 
-// Product fields to fetch from Zoho CRM
+// Product fields to fetch from Zoho CRM (only fields used in the catalog)
 const PRODUCT_FIELDS = [
     'id',
     'Product_Name',
@@ -336,72 +192,21 @@ const PRODUCT_FIELDS = [
     'Sub_Category',
     'Website_name',
     'Product_Active',
-    'Collection',
-    'Finish',
-    'CAD_attachment',
-    'CAD_person',
-    'CAD_person_name',
-    'CAD_Reference_Images',
-    'Carat_Weight',
-    'Commission_Rate',
-    'Connected_To__s',
-    'Created_By',
-    'customer_remarks',
-    'Description',
-    'Designer',
-    'Gross_Wt_calculation',
-    'Group',
-    'Handler',
-    'Lock_Finding',
-    'Main_Variant',
-    'Making_Charges',
-    'Manufacturer',
-    'Modified_By',
-    'Net_Wt_Calculation',
-    'Portal_User',
-    'Product_Category',
-    'Record_Image',
-    'Owner',
-    'Qty_Ordered',
-    'Qty_in_Demand',
-    'Qty_in_Stock',
-    'Reference_Image',
-    'Reorder_Level',
-    'Rhodium',
-    'Sales_End_Date',
-    'Sales_Start_Date',
-    'Sell_Rate_Per_Unit',
-    'Shape',
-    'Size',
-    'Sketch_Image',
-    'Style_Size',
-    'Sub_Group',
-    'Sub_Sub_Group',
-    'Support_Expiry_Date',
-    'Support_Start_Date',
-    'Tag',
-    'Tax',
-    'Taxable',
-    'Total_Cost',
+    'Show_on_Catalog',
     'Type_of_Order',
-    'Unit_Price',
-    'Usage_Unit',
-    'Variant',
-    'Vendor_Name',
-    'Wt_in_Material_Unit',
+    'Record_Image',
 ];
 
-// Variant fields to fetch from Zoho CRM
+// Variant fields to fetch from Zoho CRM (only fields used in the catalog)
 const VARIANT_FIELDS = [
     'id',
     'Name',
     'Product_Design',
-    'Product_URL',
+    'Show_on_Catalog',
     'Variant_Image',
     'Record_Image',
     // Images / File uploads
     'CAD_attachment',
-    'CAD_person_name',
     'Image_Upload_3',      // CAD image (File Upload)
     'Catalog_Images',
     'Creative_Image',
@@ -410,49 +215,16 @@ const VARIANT_FIELDS = [
     'White_Background_Image',
     'Video',
     // Weights
-    'Gross_Weight',        // Stone Weight (Formula)
-    'Total_Diamonds',      // Diamond Weight (Formula)
-    'Net_Weight',
-    'Polki_Weight',
+    'Gross_Weight',        // weight_grams + stone_weight
+    'Total_Diamonds',      // diamond_count + diamond_weight
     // Pricing
-    'Cost_Price',
     'Total_Price',
     'A_Sell_Price',
     'B_Sell_Price',
     'C_Sell_Price',
     'D_Sell_Price',
-    'Total_Sell_Price_A',
-    'Total_Sell_Price_B',
-    'Total_Sell_Price_C',
-    'Total_Sell_Price_D',
-    'Operations_Price',
     // Details
-    'Ring_Size',
     'Style_Size_Inch',
-    'Website_name',
-    'Website_description',
-    'Website_Raw_material_details',
-    'Work_Drive_Download_Link',
-    'Portal_User',
-    'Owner',
-    'Connected_To__s',
-    'Created_By',
-    'Modified_By',
-    'Modified_Date',
-    'Modified_BOM_Date',
-    'Modified_Name_Reason',
-    'Additional_Instructions',
-    'Engraving_Instruction',
-    'Finding_Instruction',
-    'Finish_Instruction',
-    'Rhodium_Instruction',
-    'Tag',
-    'Email',
-    'Email_Opt_Out',
-    'Secondary_Email',
-    // Subforms
-    'Bill_Of_Materials',
-    'Other_Operations',
 ];
 
 /**
@@ -717,69 +489,16 @@ function transformVariant(zohoVariant: any, parentSku: string = ''): Variant {
     }
     const skuSegments = skuSuffix ? skuSuffix.split('-') : [];
 
-    // Transform Bill of Materials subform rows
-    const billOfMaterials: BillOfMaterialsRow[] = (zohoVariant.Bill_Of_Materials || []).map((row: any) => ({
-        group: row.Group ?? null,
-        sub_group: row.Sub_Group ?? null,
-        sub_sub_group: row.Sub_Sub_Group ?? null,
-        shape: row.Shape ?? null,
-        size: row.Size ?? null,
-        weight: row.Weight ?? null,
-        pieces: row.Pieces ?? null,
-        total_weight: row.Total_Weights ?? null,
-        rate_per_unit: row.Rate_Per_Unit ?? null,
-        price: row.Price ?? null,
-        gross_weight: row.Gross_Weight ?? null,
-        a_sell_rate_per_unit: row.A_Sell_Rate_Per_Unit ?? null,
-        b_sell_rate_per_unit: row.B_Sell_Rate_Per_Unit ?? null,
-        c_sell_rate_per_unit: row.C_Sell_Rate_Per_Unit ?? null,
-        d_sell_rate_per_unit: row.D_Sell_Rate_Per_Unit ?? null,
-        a_sell_price: row.A_Sell_Price ?? null,
-        b_sell_price: row.B_Sell_Price ?? null,
-        c_sell_price: row.C_Sell_Price ?? null,
-        d_sell_price: row.D_Sell_Price ?? null,
-        created_by: row.Created_By ?? null,
-    }));
-
-    // Transform Other Operations subform rows
-    const otherOperations: OtherOperationsRow[] = (zohoVariant.Other_Operations || []).map((row: any) => ({
-        operations: row.Operations ?? null,
-        sub_operations: row.Sub_Operations ?? null,
-        weight: row.Weight ?? null,
-        rate_per_unit: row.Rate_Per_Unit ?? null,
-        price: row.Price ?? null,
-        a_sell_rate_per_unit: row.A_Sell_Rate_Per_Unit ?? null,
-        b_sell_rate_per_unit: row.B_Sell_Rate_Per_Unit ?? null,
-        c_sell_rate_per_unit: row.C_Sell_Rate_Per_Unit ?? null,
-        d_sell_rate_per_unit: row.D_Sell_Rate_Per_Unit ?? null,
-        sell_price_a: row.Sell_Price_A ?? null,
-        sell_price_b: row.Sell_Price_B ?? null,
-        sell_price_c: row.Sell_Price_C ?? null,
-        sell_price_d: row.Sell_Price_D ?? null,
-        created_by: row.Created_By ?? null,
-    }));
-
-    // Portal User (lookup field → extract name)
-    const portalUser = zohoVariant.Portal_User
-        ? (typeof zohoVariant.Portal_User === 'object' ? zohoVariant.Portal_User.name : zohoVariant.Portal_User)
-        : null;
-
-    // Owner (lookup field → extract name)
-    const owner = zohoVariant.Owner
-        ? (typeof zohoVariant.Owner === 'object' ? zohoVariant.Owner.name : zohoVariant.Owner)
-        : null;
-
     return {
         variant_sku: zohoVariant.Name || '',
         sku_segments: skuSegments,
-        product_variant_name: zohoVariant.Name || '',
-        product_url: zohoVariant.Product_URL ?? null,
-        metal_type: zohoVariant.Metal_Type ?? parsed.metalType,
-        metal_color: zohoVariant.Metal_Color ?? parsed.metalColor,
-        dia_quality: zohoVariant.Dia_Quality ?? null,
-        carat_weight: zohoVariant.Carat_Weight ?? parsed.caratWeight,
-        setting: zohoVariant.Setting ?? null,
-        diamond_count: zohoVariant.Diamond_Count ?? zohoVariant.Total_Diamonds ?? null,
+        metal_type: parsed.metalType,
+        metal_color: parsed.metalColor,
+        dia_quality: null,
+        carat_weight: parsed.caratWeight,
+        setting: null,
+        diamond_count: zohoVariant.Total_Diamonds ?? null,
+        model: null,
         weight_grams: zohoVariant.Gross_Weight ?? null,
         stone_type: parsed.stoneType,
         sub_group: parsed.subGroup,
@@ -787,52 +506,7 @@ function transformVariant(zohoVariant: any, parentSku: string = ''): Variant {
         sub_sub_group: parsed.subSubGroup,
         total_cost: lowestPrice,
         dimensions: zohoVariant.Style_Size_Inch ?? null,
-        ring_size: zohoVariant.Ring_Size ?? null,
-        style_size_inch: zohoVariant.Style_Size_Inch ?? null,
-        cad_person_name: zohoVariant.CAD_person_name ?? null,
-        website_name: zohoVariant.Website_name ?? null,
-        website_description: zohoVariant.Website_description ?? null,
-        raw_material_details: zohoVariant.Website_Raw_material_details ?? null,
-        work_drive_download_link: zohoVariant.Work_Drive_Download_Link ?? null,
-        portal_user: portalUser,
-        product_design: zohoVariant.Product_Design ?? null,
-        owner,
-        connected_to: zohoVariant.Connected_To__s ?? null,
-        created_by: zohoVariant.Created_By ?? null,
-        modified_by: zohoVariant.Modified_By ?? null,
-        modified_date: zohoVariant.Modified_Date ?? null,
-        modified_bom_date: zohoVariant.Modified_BOM_Date ?? null,
-        modified_name_reason: zohoVariant.Modified_Name_Reason ?? null,
-        additional_instructions: zohoVariant.Additional_Instructions ?? null,
-        engraving_instruction: zohoVariant.Engraving_Instruction ?? null,
-        finding_instruction: zohoVariant.Finding_Instruction ?? null,
-        finish_instruction: zohoVariant.Finish_Instruction ?? null,
-        rhodium_instruction: zohoVariant.Rhodium_Instruction ?? null,
-        tag: zohoVariant.Tag ?? null,
-        variant_image: zohoVariant.Variant_Image ?? null,
-        email: zohoVariant.Email ?? null,
-        email_opt_out: zohoVariant.Email_Opt_Out ?? null,
-        secondary_email: zohoVariant.Secondary_Email ?? null,
-        total_price: zohoVariant.Total_Price ?? null,
-        // Pricing
-        sell_price_a: zohoVariant.A_Sell_Price ?? null,
-        sell_price_b: zohoVariant.B_Sell_Price ?? null,
-        sell_price_c: zohoVariant.C_Sell_Price ?? null,
-        sell_price_d: zohoVariant.D_Sell_Price ?? null,
-        total_sell_price_a: zohoVariant.Total_Sell_Price_A ?? null,
-        total_sell_price_b: zohoVariant.Total_Sell_Price_B ?? null,
-        total_sell_price_c: zohoVariant.Total_Sell_Price_C ?? null,
-        total_sell_price_d: zohoVariant.Total_Sell_Price_D ?? null,
-        cost_price: zohoVariant.Cost_Price ?? null,
-        operations_total_price: zohoVariant.Operations_Price ?? null,
-        // Weights
-        net_weight: zohoVariant.Net_Weight ?? null,
         diamond_weight: zohoVariant.Total_Diamonds ?? null,
-        polki_weight: zohoVariant.Polki_Weight ?? null,
-        stone_weight: zohoVariant.Gross_Weight ?? null,
-        // Subforms
-        bill_of_materials: billOfMaterials,
-        other_operations: otherOperations,
         media,
     };
 }
@@ -845,24 +519,9 @@ function transformProduct(zohoProduct: any, variants: Variant[]): Product {
     const prices = variants.map((v) => v.total_cost).filter((p) => p > 0);
     const basePrice = prices.length > 0 ? Math.min(...prices) : null;
 
-    // Lookup fields → extract name
-    const handler = zohoProduct.Handler
-        ? (typeof zohoProduct.Handler === 'object' ? zohoProduct.Handler.name : zohoProduct.Handler)
-        : null;
-    const mainVariant = zohoProduct.Main_Variant
-        ? (typeof zohoProduct.Main_Variant === 'object' ? zohoProduct.Main_Variant.name : zohoProduct.Main_Variant)
-        : null;
-    const productOwner = zohoProduct.Owner
-        ? (typeof zohoProduct.Owner === 'object' ? zohoProduct.Owner.name : zohoProduct.Owner)
-        : null;
-    const portalUser = zohoProduct.Portal_User
-        ? (typeof zohoProduct.Portal_User === 'object' ? zohoProduct.Portal_User.name : zohoProduct.Portal_User)
-        : null;
-    const variant = zohoProduct.Variant
-        ? (typeof zohoProduct.Variant === 'object' ? zohoProduct.Variant.name : zohoProduct.Variant)
-        : null;
-    const vendorName = zohoProduct.Vendor_Name
-        ? (typeof zohoProduct.Vendor_Name === 'object' ? zohoProduct.Vendor_Name.name : zohoProduct.Vendor_Name)
+    // Build product record image URL if the product has a record photo
+    const recordImage = zohoProduct.Record_Image
+        ? `/api/image-proxy?module=Products&id=${zohoProduct.id}`
         : null;
 
     return {
@@ -873,63 +532,8 @@ function transformProduct(zohoProduct: any, variants: Variant[]): Product {
         subcategory: zohoProduct.Sub_Category ?? null,
         base_price: basePrice,
         others: null,
-        website_name: zohoProduct.Website_name ?? null,
-        collection: zohoProduct.Collection ?? null,
-        finish: zohoProduct.Finish ?? null,
-        cad_attachment: zohoProduct.CAD_attachment ?? null,
-        cad_person: zohoProduct.CAD_person ?? null,
-        cad_person_name: zohoProduct.CAD_person_name ?? null,
-        cad_reference_images: zohoProduct.CAD_Reference_Images ?? null,
-        carat_weight: zohoProduct.Carat_Weight ?? null,
-        commission_rate: zohoProduct.Commission_Rate ?? null,
-        connected_to: zohoProduct.Connected_To__s ?? null,
-        created_by: zohoProduct.Created_By ?? null,
-        customer_remarks: zohoProduct.customer_remarks ?? null,
-        description: zohoProduct.Description ?? null,
-        designer: zohoProduct.Designer ?? null,
-        gross_wt_calculation: zohoProduct.Gross_Wt_calculation ?? null,
-        group: zohoProduct.Group ?? null,
-        handler,
-        lock_finding: zohoProduct.Lock_Finding ?? null,
-        main_variant: mainVariant,
-        making_charges: zohoProduct.Making_Charges ?? null,
-        manufacturer: zohoProduct.Manufacturer ?? null,
-        modified_by: zohoProduct.Modified_By ?? null,
-        net_wt_calculation: zohoProduct.Net_Wt_Calculation ?? null,
-        portal_user: portalUser,
-        product_active: zohoProduct.Product_Active ?? null,
-        product_category: zohoProduct.Product_Category ?? null,
-        product_code: zohoProduct.Product_Code ?? null,
-        record_image: zohoProduct.Record_Image ?? null,
-        product_name: zohoProduct.Product_Name ?? null,
-        owner: productOwner,
-        qty_ordered: zohoProduct.Qty_Ordered ?? null,
-        qty_in_demand: zohoProduct.Qty_in_Demand ?? null,
-        qty_in_stock: zohoProduct.Qty_in_Stock ?? null,
-        reference_image: zohoProduct.Reference_Image ?? null,
-        reorder_level: zohoProduct.Reorder_Level ?? null,
-        rhodium: zohoProduct.Rhodium ?? null,
-        sales_end_date: zohoProduct.Sales_End_Date ?? null,
-        sales_start_date: zohoProduct.Sales_Start_Date ?? null,
-        sell_rate_per_unit: zohoProduct.Sell_Rate_Per_Unit ?? null,
-        shape: zohoProduct.Shape ?? null,
-        size: zohoProduct.Size ?? null,
-        sketch_image: zohoProduct.Sketch_Image ?? null,
-        style_size: zohoProduct.Style_Size ?? null,
-        sub_group: zohoProduct.Sub_Group ?? null,
-        sub_sub_group: zohoProduct.Sub_Sub_Group ?? null,
-        support_expiry_date: zohoProduct.Support_Expiry_Date ?? null,
-        support_start_date: zohoProduct.Support_Start_Date ?? null,
-        tag: zohoProduct.Tag ?? null,
-        tax: zohoProduct.Tax ?? null,
-        taxable: zohoProduct.Taxable ?? null,
-        total_cost: zohoProduct.Total_Cost ?? null,
         type_of_order: zohoProduct.Type_of_Order ?? null,
-        unit_price: zohoProduct.Unit_Price ?? null,
-        usage_unit: zohoProduct.Usage_Unit ?? null,
-        variant,
-        vendor_name: vendorName,
-        wt_in_material_unit: zohoProduct.Wt_in_Material_Unit ?? null,
+        record_image: recordImage,
         variants,
     };
 }
@@ -997,8 +601,10 @@ export async function getProducts(): Promise<Product[]> {
         PRODUCT_FIELDS
     );
 
-    // 2. Filter to only active products (client-side)
-    const products = allProducts.filter((p: any) => p.Product_Active !== false);
+    // 2. Filter to only active products that are marked to show on catalog
+    const products = allProducts.filter(
+        (p: any) => p.Product_Active !== false && p.Show_on_Catalog === 'Yes'
+    );
 
     if (!products.length) return [];
 
@@ -1008,7 +614,9 @@ export async function getProducts(): Promise<Product[]> {
     await processBatched(products, 5, async (p: any) => {
         const rawVariants = await fetchVariantsForProduct(p.id);
         const parentName = p.Product_Name || '';
-        variantsByProductId[p.id] = rawVariants.map((v: any) =>
+        // Only include variants marked to show on catalog
+        const catalogVariants = rawVariants.filter((v: any) => v.Show_on_Catalog === 'Yes');
+        variantsByProductId[p.id] = catalogVariants.map((v: any) =>
             transformVariant(v, parentName)
         );
     });
@@ -1054,7 +662,9 @@ export async function getProductBySku(parentSku: string): Promise<Product | null
         : mergeRecords(variantChunkResults);
 
     const productName = product.Product_Name || parentSku;
-    const variants = rawVariants.map((v: any) => transformVariant(v, productName));
+    // Only include variants marked to show on catalog
+    const catalogVariants = rawVariants.filter((v: any) => v.Show_on_Catalog === 'Yes');
+    const variants = catalogVariants.map((v: any) => transformVariant(v, productName));
 
     return transformProduct(product, variants);
 }

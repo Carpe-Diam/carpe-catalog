@@ -13,6 +13,7 @@ type Product = {
   subcategory?: string;
   variants?: Variant[];
   parent_sku?: string;
+  record_image?: string | null;
 };
 
 interface DisplayCardProps {
@@ -20,12 +21,14 @@ interface DisplayCardProps {
 }
 
 const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
-  const { title, base_price, category, subcategory, variants } = product;
+  const { title, base_price, category, subcategory, variants, record_image } = product;
 
   const firstVariant = variants?.[0];
   const firstMedia = firstVariant?.media?.[0];
 
+  // Priority: product record image → first variant media → fallback
   const imageUrl =
+    record_image ||
     firstMedia?.download_url || firstMedia?.preview_url ||
     "https://plus.unsplash.com/premium_photo-1728892768695-ebebed48ff90?ixlib=rb-4.1.0&q=80&w=3000";
 
