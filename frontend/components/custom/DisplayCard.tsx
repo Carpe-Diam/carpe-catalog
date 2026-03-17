@@ -46,9 +46,9 @@ const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
           <p className="text-sm text-gray-500">
             {category} {subcategory && `• ${subcategory}`}
           </p>
-          <p className="text-sm pt-1 font-semibold text-gray-800">
+          {/* <p className="text-sm pt-1 font-semibold text-gray-800">
             Starting from ${base_price ?? "N/A"}
-          </p>
+          </p> */}
         </div>
       </div>
     </Link>

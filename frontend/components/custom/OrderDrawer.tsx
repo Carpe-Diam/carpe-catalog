@@ -247,9 +247,8 @@ export const OrderRequestDrawer = memo(function OrderRequestDrawer({ variant, pr
             Requesting: <strong>{product.title}</strong>
             <br />
             Variant: <strong>{variant.variant_sku}</strong>
-            <br />
-            Price: <strong>${variant.total_cost}</strong>
-            <br />
+            {/* Price: <strong>${variant.total_cost}</strong>
+            <br /> */}
             Order Type: <strong>{orderType}</strong>
           </div>
         </div>

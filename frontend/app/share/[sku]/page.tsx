@@ -1,10 +1,6 @@
 import { getProductBySku } from "@/lib/zohoClient";
 import { notFound } from "next/navigation";
-import ShareClientView, {
-  MediaItem,
-  Product,
-  Variant,
-} from "./ShareClientView";
+import ShareClientView from "./ShareClientView";
 
 /* -------------------------------------------------------------------------- */
 /*                                  TYPES                                     */
@@ -46,21 +42,12 @@ export default async function SharePage({
   if (!product) return notFound();
 
   /* ---------------------------------------------------------------------- */
-  /*                        RESOLVE VARIANT & MEDIA                         */
+  /*                        RESOLVE VARIANT                                  */
   /* ---------------------------------------------------------------------- */
 
   const variant =
     product.variants.find((v: any) => v.variant_sku === variantSku) ??
     product.variants[0];
-
-  const formattedMedia: MediaItem[] = (variant?.media ?? []).map((m: any) => {
-    const isVideo = m.file_type?.includes("video") ?? false;
-
-    return {
-      type: isVideo ? "video" : "image",
-      src: isVideo ? m.preview_url : m.download_url || m.preview_url,
-    };
-  });
 
   /* ---------------------------------------------------------------------- */
   /*                              RENDER CLIENT                             */
@@ -68,10 +55,9 @@ export default async function SharePage({
 
   return (
     <ShareClientView
-      media={formattedMedia}
+      product={product}
+      variant={variant}
       orderId={orderId}
-      product={product as Product}
-      variant={variant as Variant}
     />
   );
 }

@@ -590,14 +590,8 @@ const ConfigurationSection = memo(function ConfigurationSection({
           </div>
         </div>
 
-        {/* Add to Bag (OrderRequestDrawer) */}
-        <div className="mb-2">
-          {selectedVariant && (
-            <div className="w-full [&>button]:w-full [&>button]:bg-black [&>button]:text-white [&>button]:uppercase [&>button]:tracking-wider [&>button]:font-semibold [&>button]:py-4 [&>button]:flex [&>button]:justify-center [&>button]:items-center [&>button]:gap-2 [&>button]:hover:bg-gray-800 [&>button]:transition [&>button]:rounded-none">
-              <OrderRequestDrawer variant={selectedVariant} product={product} />
-            </div>
-          )}
-        </div>
+
+
 
         <div className="mb-6">
           <Button
@@ -616,9 +610,9 @@ const ConfigurationSection = memo(function ConfigurationSection({
         </div>
 
         {/* Benefits list */}
-        <div className="text-xs text-center text-gray-500 mb-6 border-b border-gray-200 pb-6">
+        {/* <div className="text-xs text-center text-gray-500 mb-6 border-b border-gray-200 pb-6">
           3 payments of ${(selectedVariant?.total_cost || 0) / 3 || 0} interest-free (0% APR) with <span className="font-bold">Klarna</span>. <a className="underline cursor-pointer">Learn more</a>
-        </div>
+        </div> */}
 
         <ul className="text-sm space-y-3 mb-6 text-gray-700">
           {/* <li className="flex items-center gap-2">

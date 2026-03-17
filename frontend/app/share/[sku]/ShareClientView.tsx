@@ -1,152 +1,249 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useEffect, useState, useRef, memo } from "react";
 import { cn } from "@/lib/utils";
-import { X, Play } from "lucide-react";
+import { Play, X, Download } from "lucide-react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { toJpeg } from "html-to-image";
+import { jsPDF } from "jspdf";
 
 /* -------------------------------------------------------------------------- */
-/*                                 TYPE DEFINITIONS                            */
+/*                                   TYPES                                    */
 /* -------------------------------------------------------------------------- */
 
-type MediaType = "image" | "video";
-
-export interface MediaItem {
-  type: MediaType;
-  src: string;
+interface Media {
+  id: string | number;
+  file_name?: string | null;
+  file_type: string;
+  preview_url: string;
+  download_url?: string | null;
 }
 
-export interface Product {
-  title: string;
-  subcategory: string;
-}
-
-export interface Variant {
+interface Variant {
+  variant_sku: string;
+  sku_segments: string[];
+  carat_weight?: string | number | null;
+  dia_quality?: string | null;
+  metal_type?: string | null;
+  metal_color?: string | null;
+  setting?: string | null;
+  diamond_count?: number | null;
+  model?: string | null;
+  dimensions?: string | null;
+  weight_grams?: number | null;
+  stone_type?: string | null;
+  sub_group?: string | null;
   total_cost: number;
-  setting: string;
-  diamond_count: number;
-  model: string;
-  dimensions: string;
-  weight_grams: number;
-  dia_quality: string;
-  metal_type: string;
-  metal_color: string;
-  carat_weight: string;
+  media: Media[];
+  diamond_weight?: number | null;
+  net_weight?: number | null;
 }
+
+interface Product {
+  title: string;
+  category?: string | null;
+  others?: string | null;
+  parent_sku: string;
+  subcategory?: string | null;
+  base_price?: number | null;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          SKU SEGMENT DECODE MAP                             */
+/* -------------------------------------------------------------------------- */
+
+const SKU_DECODE: Record<string, string> = {
+  G: 'Gold', S: 'Silver', P: 'Platinum', D: 'Diamond',
+  BD: 'Beads', PE: 'Pearl', PO: 'Polki', GE: 'Gemstone',
+  RB: 'Ruby', SA: 'Sapphire', EM: 'Emerald', AM: 'Amethyst',
+  AQ: 'Aquamarine', CI: 'Citrine', GA: 'Garnet', OP: 'Opal',
+  TO: 'Topaz', TU: 'Tourmaline', TZ: 'Tanzanite', MO: 'Moissanite',
+  CZ: 'Cubic Zirconia', ON: 'Onyx', TS: 'Tsavorite', PD: 'Peridot', SP: 'Spinel',
+  W: 'White', Y: 'Yellow', R: 'Rose',
+  GF: 'GlassFilled', H: 'Heated', L: 'LabGrown',
+  NN: 'Nano', N: 'Natural', NA: 'Not Applicable',
+  '95': 'PT950',
+};
+
+function decodeSegment(raw: string): string {
+  return SKU_DECODE[raw] || raw;
+}
+
+function extractStones(segments: string[]) {
+  const stones: { type: string; subGroup: string; size: string }[] = [];
+  let i = 3;
+  while (i + 2 < segments.length) {
+    if (segments[i] && segments[i] !== 'NA') {
+      let decodedType = decodeSegment(segments[i]);
+      let size = segments[i + 2] || '';
+      const decodedSize = decodeSegment(size);
+      if (decodedType === 'Gemstone' && decodedSize !== size) {
+        decodedType = decodedSize;
+        size = '';
+      }
+      stones.push({
+        type: decodedType,
+        subGroup: segments[i + 1] ? decodeSegment(segments[i + 1]) : '',
+        size,
+      });
+    }
+    i += 3;
+  }
+  return stones;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               MAIN COMPONENT                                */
+/* -------------------------------------------------------------------------- */
 
 interface ShareClientViewProps {
-  media: MediaItem[];
-  orderId: string | number;
   product: Product;
   variant: Variant;
+  orderId: string | number;
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                MAIN COMPONENT                              */
-/* -------------------------------------------------------------------------- */
+export default function ShareClientView({ product, variant, orderId }: ShareClientViewProps) {
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
-export default function ShareClientView({
-  media,
-  orderId,
-  product,
-  variant,
-}: ShareClientViewProps) {
-  const [activeIndex, setActiveIndex] = useState<number>(0);
-  const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
+  const handleDownloadPDF = async () => {
+    const element = document.getElementById("share-page-content");
+    if (!element) return;
 
-  const activeMedia = media[activeIndex];
+    try {
+      setIsDownloading(true);
+      setDownloadError(null);
+      
+      // Use html-to-image specifically to Jpeg to avoid massive file sizes
+      // We pass some explicit styles to avoid SVG parsing issues with Next.js images
+      const imgData = await toJpeg(element, {
+        quality: 0.95,
+        backgroundColor: '#ffffff',
+        pixelRatio: 2, // High DPI
+      });
+      
+      const img = new window.Image();
+      img.src = imgData;
+      await new Promise((resolve) => { img.onload = resolve; });
 
-  /* ---------- Lightbox Keyboard Controls ---------- */
+      const pdf = new jsPDF({
+        orientation: img.width > img.height ? "landscape" : "portrait",
+        unit: "mm", 
+        format: "a4",
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (img.height * pdfWidth) / img.width;
+
+      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
+      
+      const title = product.title || "Product";
+      const filename = `${title.replace(/[^a-z0-9]/gi, '_')}.pdf`;
+      
+      pdf.save(filename);
+    } catch (error: any) {
+      console.error("Error generating PDF:", error);
+      setDownloadError(error?.message || String(error) || "Unknown error generating PDF");
+      alert(`Failed to generate PDF: ${error?.message || String(error)}`);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  /* Media — filter to catalog images only */
+  const mediaArray = (variant?.media ?? []).filter(
+    (m) => m.file_name?.toLowerCase().includes('catalog-image')
+  );
+
+  const currentMedia = mediaArray[currentIndex] ?? null;
+  const getMediaUrl = (m: Media | null) => {
+    if (!m) return null;
+    return m.file_type.includes("video") ? m.preview_url : (m.download_url ?? m.preview_url);
+  };
+  const displayMedia = getMediaUrl(currentMedia);
+  const isVideo = currentMedia?.file_type?.includes("video") ?? false;
+
+  /* Lightbox keyboard handler */
   useEffect(() => {
     if (!lightboxOpen) return;
-
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") setLightboxOpen(false);
-      if (e.key === "ArrowLeft")
-        setActiveIndex((i) => (i === 0 ? media.length - 1 : i - 1));
-      if (e.key === "ArrowRight")
-        setActiveIndex((i) => (i === media.length - 1 ? 0 : i + 1));
+      if (e.key === "ArrowLeft") setCurrentIndex((i) => (i === 0 ? mediaArray.length - 1 : i - 1));
+      if (e.key === "ArrowRight") setCurrentIndex((i) => (i === mediaArray.length - 1 ? 0 : i + 1));
     };
-
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [lightboxOpen, media.length]);
+  }, [lightboxOpen, mediaArray.length]);
+
+  /* GSAP stagger animations */
+  const containerRef = useRef<HTMLDivElement>(null);
+  useGSAP(() => {
+    gsap.fromTo('.stagger-reveal',
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power2.out", delay: 0.2 }
+    );
+  }, { scope: containerRef });
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col">
-      {/* ========================= HEADER ========================= */}
-      <header className="max-w-[1200px] flex items-center justify-between p-4 border bg-white rounded-lg">
-        <div className="mx-auto w-full flex items-center justify-between">
-          <Image src="/ud-logo.svg" alt="Logo" width={60} height={40} unoptimized />
-          <span className="text-sm sm:text-base text-black">Order #{orderId}</span>
+    <div id="share-page-content" className="min-h-screen bg-white flex flex-col font-sans text-gray-900" ref={containerRef}>
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-6 py-4">
+        <Image src="/ud-logo.svg" alt="Logo" width={70} height={28} unoptimized />
+        <div className="flex items-center gap-4">
+          <span className="text-xs uppercase tracking-widest text-gray-500">Ref: {variant?.variant_sku}</span>
+          <button 
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
+            data-html2canvas-ignore="true"
+            className="flex items-center gap-2 text-xs uppercase tracking-widest bg-black text-white px-4 py-2 hover:bg-gray-800 transition disabled:opacity-50 cursor-pointer"
+          >
+            <Download className="w-4 h-4" />
+            {isDownloading ? "Generating..." : "Download PDF"}
+          </button>
         </div>
       </header>
 
-      {/* ========================= CONTENT ========================= */}
-      <main className="max-w-[1200px] w-full grid grid-cols-1 lg:grid-cols-2 gap-8 py-6">
+      <main className="flex-grow pb-32">
+        <section className="container mx-auto px-4 md:px-8 flex flex-col lg:flex-row gap-8 lg:gap-12 mb-16 pt-8">
+          {/* Left: Image Gallery (sticky) */}
+          <div className="w-full lg:w-2/3 lg:sticky lg:top-24 self-start">
+            <ShareMediaSection
+              mediaArray={mediaArray}
+              onOpenLightbox={() => setLightboxOpen(true)}
+              setCurrentIndex={setCurrentIndex}
+              productTitle={product.title}
+            />
+          </div>
 
-        {/* LEFT SIDE – MEDIA */}
-        <div className="flex flex-col gap-4">
-          <div className="bg-white border rounded-lg p-2">
+          {/* Right: Info */}
+          <div className="w-full lg:w-1/3 flex flex-col">
+            <div>
+              <div className="stagger-reveal">
+                <ShareHeaderSection product={product} variant={variant} />
+              </div>
 
-            {/* Main Media */}
-            <div
-              className="relative w-full aspect-square rounded-md overflow-hidden bg-gray-100 cursor-zoom-in"
-              onClick={() => activeMedia && setLightboxOpen(true)}
-            >
-              <MediaRenderer media={activeMedia} />
-            </div>
-
-            {/* Thumbnails */}
-            <div className="flex gap-3 overflow-x-auto mt-2">
-              {media.map((m, i) => (
-                <Thumbnail
-                  key={i}
-                  media={m}
-                  isActive={activeIndex === i}
-                  onClick={() => setActiveIndex(i)}
-                />
-              ))}
+              <div className="stagger-reveal mt-6">
+                <ShareDetailsSection product={product} variant={variant} />
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* RIGHT SIDE – PRODUCT INFO */}
-        <div className="space-y-6">
-          <section className="bg-white border rounded-lg p-6">
-            <h1 className="text-xl font-semibold text-gray-900">{product.title}</h1>
-            <p className="text-gray-500 text-sm mt-1">{product.subcategory}</p>
-            <p className="text-2xl font-semibold text-[#883734] mt-4">
-              ${variant.total_cost}
-            </p>
-          </section>
-
-          {/* PRODUCT DETAILS */}
-          <section className="bg-white border rounded-lg p-6">
-            <h3 className="text-base font-medium mb-4">Product Details</h3>
-            <div className="grid grid-cols-2 gap-y-3 text-sm">
-              <Detail label="Category" value={product.subcategory} />
-              <Detail label="Setting Style" value={variant.setting} />
-              <Detail label="Diamond Count" value={`${variant.diamond_count} stones`} />
-              <Detail label="Diameter / Band Width" value={variant.model} />
-              <Detail label="Dimensions" value={variant.dimensions} />
-              <Detail label="Item Weight" value={`${variant.weight_grams} grams`} />
-              <Detail label="Diamond Quality" value={variant.dia_quality} />
-              <Detail label="Metal Type" value={variant.metal_type} />
-              <Detail label="Metal Color" value={variant.metal_color} />
-              <Detail label="Carat Weight" value={variant.carat_weight} />
-            </div>
-          </section>
-        </div>
+        </section>
       </main>
 
-      {/* ========================= LIGHTBOX ========================= */}
+      {/* Lightbox */}
       {lightboxOpen && (
-        <Lightbox
-          mediaArray={media}
-          activeIndex={activeIndex}
-          setActiveIndex={setActiveIndex}
+        <ShareLightbox
+          mediaArray={mediaArray}
+          currentIndex={currentIndex}
+          setCurrentIndex={setCurrentIndex}
           onClose={() => setLightboxOpen(false)}
+          isVideo={isVideo}
+          displayMedia={displayMedia}
+          currentMedia={currentMedia}
         />
       )}
     </div>
@@ -154,195 +251,268 @@ export default function ShareClientView({
 }
 
 /* -------------------------------------------------------------------------- */
-/*                           MEDIA RENDERING HELPERS                          */
+/*                            SUB-COMPONENTS                                   */
 /* -------------------------------------------------------------------------- */
 
-function isIframeVideo(src: string): boolean {
-  return src.includes("drive.google.com") || src.includes("preview");
-}
+/* --------- MEDIA SECTION --------- */
 
-function MediaRenderer({ media }: { media?: MediaItem }) {
-  if (!media)
+const ShareMediaSection = memo(function ShareMediaSection({
+  mediaArray,
+  onOpenLightbox,
+  setCurrentIndex,
+  productTitle,
+}: {
+  mediaArray: Media[];
+  onOpenLightbox: () => void;
+  setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
+  productTitle: string;
+}) {
+  if (!mediaArray.length) {
     return (
-      <div className="w-full h-full flex items-center justify-center text-gray-300">
-        No media
+      <div className="w-full h-96 flex flex-col items-center justify-center text-gray-400 font-serif italic border border-gray-200 bg-gray-50">
+        No media available
       </div>
     );
-
-  if (media.type === "image") {
-    return (
-      <Image src={media.src} alt="Media" fill className="object-cover" />
-    );
-  }
-
-  if (isIframeVideo(media.src)) {
-    return (
-      <iframe
-        src={media.src}
-        allow="autoplay; fullscreen"
-        className="w-full h-full"
-      />
-    );
   }
 
   return (
-    <video
-      src={media.src}
-      autoPlay
-      loop
-      muted
-      playsInline
-      controls
-      className="w-full h-full object-cover"
-    />
-  );
-}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+      {mediaArray.map((m, i) => {
+        const url = m.file_type.includes("video") ? m.preview_url : (m.download_url ?? m.preview_url);
+        const isVid = m.file_type.includes("video");
 
-/* ----------------------- Thumbnail Component ----------------------- */
-
-interface ThumbnailProps {
-  media: MediaItem;
-  isActive: boolean;
-  onClick: () => void;
-}
-
-function Thumbnail({ media, isActive, onClick }: ThumbnailProps) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "relative w-24 h-24 rounded-md overflow-hidden border flex-shrink-0",
-        isActive ? "border-black" : "border-gray-300"
-      )}
-    >
-      {media.type === "image" && (
-        <Image src={media.src} alt="thumbnail" fill className="object-cover" />
-      )}
-
-      {media.type === "video" && (
-        <>
-          {isIframeVideo(media.src) ? (
-            <iframe src={media.src} className="object-cover w-full h-full" />
-          ) : (
-            <video
-              src={media.src}
-              muted
-              autoPlay
-              loop
-              playsInline
-              className="object-cover w-full h-full"
-            />
-          )}
-          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-            <Play className="w-6 h-6 text-white" />
+        return (
+          <div
+            key={m.id}
+            className="w-full relative aspect-[3/4] bg-gray-50 cursor-zoom-in group overflow-hidden"
+            onClick={() => {
+              setCurrentIndex(i);
+              onOpenLightbox();
+            }}
+          >
+            {isVid ? (
+              <>
+                <iframe src={m.preview_url} className="w-full h-full object-cover pointer-events-none" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition">
+                  <Play className="w-12 h-12 text-white/80" />
+                </div>
+              </>
+            ) : (
+              <Image 
+                src={url} 
+                alt={`${productTitle} Image ${i + 1}`} 
+                fill 
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority 
+                className="object-cover object-center group-hover:scale-[1.03] transition-transform duration-500 ease-out" 
+                unoptimized 
+              />
+            )}
           </div>
-        </>
-      )}
-    </button>
+        );
+      })}
+    </div>
   );
-}
+});
 
-/* -------------------------------------------------------------------------- */
-/*                                  LIGHTBOX                                  */
-/* -------------------------------------------------------------------------- */
+/* --------- HEADER SECTION --------- */
 
-interface LightboxProps {
-  mediaArray: MediaItem[];
-  activeIndex: number;
-  setActiveIndex: React.Dispatch<React.SetStateAction<number>>;
-  onClose: () => void;
-}
+const ShareHeaderSection = memo(function ShareHeaderSection({
+  product,
+  variant,
+}: {
+  product: Product;
+  variant: Variant;
+}) {
+  const metalColor = variant?.metal_color?.toLowerCase() || "";
+  const metalType = variant?.metal_type?.toLowerCase() || "";
 
-function Lightbox({
-  mediaArray,
-  activeIndex,
-  setActiveIndex,
-  onClose,
-}: LightboxProps) {
-  const media = mediaArray[activeIndex];
+  const stones = extractStones(variant?.sku_segments || []);
+
+  const stoneDescParts = stones.map((s) => {
+    let desc = s.type.toLowerCase();
+    if (s.subGroup === 'LabGrown') desc = `lab-grown ${desc}`;
+    else if (s.subGroup === 'Natural') desc = `natural ${desc}`;
+    return desc.endsWith('y') ? `${desc.slice(0, -1)}ies` : `${desc}s`;
+  });
+
+  let stoneDesc = "";
+  if (stoneDescParts.length === 1) stoneDesc = stoneDescParts[0];
+  else if (stoneDescParts.length === 2) stoneDesc = `${stoneDescParts[0]} and ${stoneDescParts[1]}`;
+  else if (stoneDescParts.length > 2) stoneDesc = `${stoneDescParts.slice(0, -1).join(', ')} and ${stoneDescParts[stoneDescParts.length - 1]}`;
+
+  const categoryLabel = product.category?.split('-')[0]?.trim()?.toLowerCase() || 'ring';
+
+  const sentence = metalColor && metalType
+    ? `${variant?.carat_weight} kt ${metalColor} ${metalType} ${categoryLabel}${stoneDesc ? ` set with ${stoneDesc}` : ''}.`
+    : "";
 
   return (
-    <div
-      className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
-      onClick={onClose}
-    >
-      <button className="absolute top-4 right-4 text-white" onClick={onClose}>
+    <section>
+      <h1 className="text-xl md:text-2xl font-semibold mb-2 uppercase tracking-wide">
+        {product.title}
+      </h1>
+
+      <div className="mb-4">
+        <span className="inline-block border border-gray-300 px-2 py-1 text-[10px] md:text-xs uppercase tracking-wider text-gray-600">
+          {product.category?.split('-')[0]?.trim() || "FINE JEWELRY"}
+        </span>
+      </div>
+
+      {sentence && (
+        <p className="text-sm text-gray-700 mb-6">
+          {sentence.charAt(0).toUpperCase() + sentence.slice(1)}
+        </p>
+      )}
+
+      {product.others && <p className="text-gray-600 text-sm mb-6">{product.others}</p>}
+    </section>
+  );
+});
+
+/* --------- DETAILS SECTION --------- */
+
+const ShareDetailsSection = memo(function ShareDetailsSection({
+  product,
+  variant,
+}: {
+  product: Product;
+  variant: Variant;
+}) {
+  const v = variant;
+
+  const getSubgroupDisplay = (sg?: string | null) => {
+    if (!sg) return "";
+    if (sg.toLowerCase() === 'labgrown') return "lab-grown";
+    return sg.toLowerCase();
+  };
+
+  const getMetalDisplay = () => {
+    if (!v?.metal_type || !v?.carat_weight || !v?.metal_color) return null;
+    return `${v.carat_weight}K ${v.metal_color} ${v.metal_type} (100% recycled solid gold)`;
+  };
+
+  const stones = extractStones(v?.sku_segments || []);
+
+  return (
+    <section>
+      <div className="mb-6">
+        <p className="text-xs uppercase text-gray-400 mb-2">Ref: {v?.variant_sku}</p>
+        <ul className="text-sm text-gray-700 list-disc pl-4 space-y-1">
+          {getMetalDisplay() && <li>Metal: <span className="underline">{getMetalDisplay()}</span></li>}
+          {stones.map((stone, idx) => {
+            const isDiamond = stone.type === 'Diamond';
+            const isSpecificGemstone = !['Diamond', 'Pearl', 'Gemstone', 'Beads'].includes(stone.type);
+            const prefix = isDiamond || stone.type === 'Pearl' ? stone.type : (isSpecificGemstone ? 'Gemstone' : stone.type);
+            return (
+              <li key={`stone-${idx}`}>
+                {prefix}: {getSubgroupDisplay(stone.subGroup)} <span className="capitalize">{stone.type}</span>
+                {isDiamond && v?.dia_quality ? ` (${v.dia_quality} quality)` : ''}
+              </li>
+            );
+          })}
+          {v?.diamond_weight ? <li>Total diamond weight: {v.diamond_weight} ctw</li> : null}
+          {v?.dimensions && <li>Dimensions: {v.dimensions}</li>}
+          {v?.model && <li>Band width / model: {v.model}</li>}
+          {v?.weight_grams && <li>Weight: {v.weight_grams} g</li>}
+          {product.subcategory && <li>Type: {product.subcategory}</li>}
+          {v?.setting && <li>Setting: {v.setting}</li>}
+        </ul>
+      </div>
+
+      {/* Accordions */}
+      <div className="border-t border-gray-200">
+        <button className="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200 hover:text-gray-600 transition">
+          About Fine Jewelry
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+          </svg>
+        </button>
+        <button className="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200 hover:text-gray-600 transition">
+          More Information
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+          </svg>
+        </button>
+        <button className="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200 hover:text-gray-600 transition">
+          Delivery
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+          </svg>
+        </button>
+      </div>
+
+      {/* Category tags */}
+      <div className="mt-8 flex flex-wrap gap-4 text-[10px] md:text-xs text-gray-500 uppercase tracking-wide">
+        <span className="cursor-pointer hover:underline hover:text-black transition">All rings</span>
+        <span className="cursor-pointer hover:underline hover:text-black transition">Diamond Rings</span>
+        <span className="cursor-pointer hover:underline hover:text-black transition">Eternity Rings</span>
+        <span className="cursor-pointer hover:underline hover:text-black transition">Solitary Rings</span>
+      </div>
+    </section>
+  );
+});
+
+/* --------- LIGHTBOX --------- */
+
+const ShareLightbox = memo(function ShareLightbox({
+  mediaArray,
+  currentIndex,
+  setCurrentIndex,
+  onClose,
+  isVideo,
+  displayMedia,
+  currentMedia,
+}: {
+  mediaArray: Media[];
+  currentIndex: number;
+  setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
+  onClose: () => void;
+  isVideo: boolean;
+  displayMedia: string | null;
+  currentMedia: Media | null;
+}) {
+  return (
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50" onClick={onClose}>
+      <button onClick={onClose} className="absolute top-4 right-4 text-white">
         <X className="w-8 h-8" />
       </button>
 
-      {/* Left arrow */}
       {mediaArray.length > 1 && (
-        <button
-          className="absolute left-4 text-white text-3xl"
-          onClick={(e) => {
-            e.stopPropagation();
-            setActiveIndex((i) => (i === 0 ? mediaArray.length - 1 : i - 1));
-          }}
-        >
-          ‹
-        </button>
-      )}
-
-      {/* Right arrow */}
-      {mediaArray.length > 1 && (
-        <button
-          className="absolute right-4 text-white text-3xl"
-          onClick={(e) => {
-            e.stopPropagation();
-            setActiveIndex((i) => (i === mediaArray.length - 1 ? 0 : i + 1));
-          }}
-        >
-          ›
-        </button>
+        <>
+          <button
+            className="absolute left-4 text-white text-3xl p-2"
+            onClick={(e) => { e.stopPropagation(); setCurrentIndex((i) => (i === 0 ? mediaArray.length - 1 : i - 1)); }}
+          >
+            ‹
+          </button>
+          <button
+            className="absolute right-4 text-white text-3xl p-2"
+            onClick={(e) => { e.stopPropagation(); setCurrentIndex((i) => (i === mediaArray.length - 1 ? 0 : i + 1)); }}
+          >
+            ›
+          </button>
+        </>
       )}
 
       <div className="max-w-5xl w-full px-4" onClick={(e) => e.stopPropagation()}>
-        {media.type === "image" ? (
-          <Image
-            src={media.src}
-            alt="lightbox"
-            width={1600}
-            height={1600}
-            className="w-full max-h-[90vh] object-contain rounded-lg"
-          />
-        ) : isIframeVideo(media.src) ? (
+        {isVideo ? (
           <iframe
-            src={media.src}
+            src={currentMedia?.preview_url}
             allow="autoplay; fullscreen"
             className="w-full aspect-video rounded-lg"
           />
         ) : (
-          <video
-            src={media.src}
-            autoPlay
-            loop
-            muted
-            controls
-            playsInline
+          <Image
+            src={displayMedia ?? ""}
+            alt="Lightbox view"
+            width={1200}
+            height={800}
             className="w-full max-h-[90vh] object-contain rounded-lg"
+            unoptimized
           />
         )}
       </div>
     </div>
   );
-}
-
-/* -------------------------------------------------------------------------- */
-/*                                   DETAILS                                  */
-/* -------------------------------------------------------------------------- */
-
-interface DetailProps {
-  label: string;
-  value?: string | number | null;
-}
-
-function Detail({ label, value }: DetailProps) {
-  if (!value) return null;
-
-  return (
-    <>
-      <p className="text-gray-500">{label}</p>
-      <p className="font-medium text-gray-900">{value}</p>
-    </>
-  );
-}
+});

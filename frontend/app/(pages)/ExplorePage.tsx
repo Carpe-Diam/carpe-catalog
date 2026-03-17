@@ -7,29 +7,100 @@ import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Search } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 import Link from "next/link";
 
 gsap.registerPlugin(ScrollTrigger);
 
+/* -------------------------------------------------------------------------- */
+/*                       CATEGORY ↔ SUBCATEGORY MAP                            */
+/* -------------------------------------------------------------------------- */
+
+// The canonical dependency map from Zoho CRM (screenshot reference).
+// Keys are category values exactly as they appear in the payload.
+const CATEGORY_SUBCATEGORY_MAP: Record<string, string[]> = {
+  'Ring - R': ['Wedding Ring - W', 'Engagement Ring - E'],
+  'Earring - E': [
+    'Hoop Earring - H',
+    'Dangle Earring - D',
+    'Stud Earring - S',
+    'Drop Earring - DE',
+    'Earpin - EP',
+  ],
+  'Pendant - P': ['Engagement Ring - E'],
+};
+
+/** Strip the trailing code from a Zoho label, e.g. "Ring - R" → "Rings" */
+function prettyCategoryName(raw: string): string {
+  const base = raw.split(' - ')[0].trim();
+  // Pluralise simply – works for Ring→Rings, Earring→Earrings, Pendant→Pendants
+  if (base.endsWith('s')) return base;
+  return `${base}s`;
+}
+
+/** Strip the trailing code from a sub-category label */
+function prettySubName(raw: string): string {
+  return raw.split(' - ')[0].trim();
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               MAIN COMPONENT                                */
+/* -------------------------------------------------------------------------- */
+
 export default function ExplorePage({ products }: { products: any[] }) {
   const [query, setQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null);
+
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Filter based on search query
-  const filteredProducts = useMemo(() => {
-    return products.filter(p =>
-      (p?.title ?? "").toLowerCase().includes(query.toLowerCase()) ||
-      (p?.product_category ?? "").toLowerCase().includes(query.toLowerCase())
-    );
-  }, [products, query]);
+  /* -------------------- Derived: categories present in data -------------------- */
 
-  // Categorize products
+  const categoriesInData = useMemo(() => {
+    const cats = new Set<string>();
+    products.forEach(p => { if (p?.category) cats.add(p.category); });
+    // Return them in the order they appear in our canonical map, then any extras
+    const ordered: string[] = [];
+    for (const key of Object.keys(CATEGORY_SUBCATEGORY_MAP)) {
+      if (cats.has(key)) ordered.push(key);
+    }
+    cats.forEach(c => { if (!ordered.includes(c)) ordered.push(c); });
+    return ordered;
+  }, [products]);
+
+  /* -------------------- Derived: filtered products (search) -------------------- */
+
+  const filteredProducts = useMemo(() => {
+    let list = products;
+
+    // Filter by search query first
+    if (query) {
+      const q = query.toLowerCase();
+      list = list.filter(p =>
+        (p?.title ?? "").toLowerCase().includes(q) ||
+        (p?.product_category ?? "").toLowerCase().includes(q) ||
+        (p?.category ?? "").toLowerCase().includes(q) ||
+        (p?.subcategory ?? "").toLowerCase().includes(q)
+      );
+    }
+
+    // Then filter by active category / subcategory
+    if (activeCategory) {
+      list = list.filter(p => p?.category === activeCategory);
+      if (activeSubcategory) {
+        list = list.filter(p => p?.subcategory === activeSubcategory);
+      }
+    }
+
+    return list;
+  }, [products, query, activeCategory, activeSubcategory]);
+
+  /* -------------------- Order-type grouping (kept as-is) -------------------- */
+
   const stockProducts = useMemo(() => filteredProducts.filter(p => p.type_of_order?.toLowerCase().includes('stock')), [filteredProducts]);
   const customProducts = useMemo(() => filteredProducts.filter(p => p.type_of_order?.toLowerCase().includes('customer') || p.type_of_order?.toLowerCase().includes('custom')), [filteredProducts]);
   const sketchProducts = useMemo(() => filteredProducts.filter(p => p.type_of_order?.toLowerCase().includes('sketch')), [filteredProducts]);
 
-  // Products that don't match any of the above
   const otherProducts = useMemo(() => filteredProducts.filter(p =>
     !p.type_of_order?.toLowerCase().includes('stock') &&
     !p.type_of_order?.toLowerCase().includes('customer') &&
@@ -37,8 +108,9 @@ export default function ExplorePage({ products }: { products: any[] }) {
     !p.type_of_order?.toLowerCase().includes('sketch')
   ), [filteredProducts]);
 
+  /* -------------------- GSAP Animations -------------------- */
+
   useGSAP(() => {
-    // Reveal animation for category sections
     const sections = gsap.utils.toArray('.category-section') as HTMLElement[];
     sections.forEach((section) => {
       gsap.fromTo(section,
@@ -57,7 +129,6 @@ export default function ExplorePage({ products }: { products: any[] }) {
       );
     });
 
-    // Stagger items in the grid
     const grids = gsap.utils.toArray('.product-grid') as HTMLElement[];
     grids.forEach(grid => {
       const cards = grid.querySelectorAll('.product-card');
@@ -79,7 +150,9 @@ export default function ExplorePage({ products }: { products: any[] }) {
       }
     });
 
-  }, { scope: containerRef, dependencies: [query] }); // Re-run when query changes
+  }, { scope: containerRef, dependencies: [query, activeCategory, activeSubcategory] });
+
+  /* -------------------- Callbacks -------------------- */
 
   const scrollToCategory = useCallback((id: string) => {
     const el = document.getElementById(id);
@@ -87,6 +160,30 @@ export default function ExplorePage({ products }: { products: any[] }) {
       el.scrollIntoView({ behavior: 'smooth' });
     }
   }, []);
+
+  const handleCategoryClick = useCallback((cat: string | null) => {
+    setActiveCategory(prev => prev === cat ? null : cat);
+    setActiveSubcategory(null);
+  }, []);
+
+  const handleSubcategoryClick = useCallback((sub: string) => {
+    setActiveSubcategory(prev => prev === sub ? null : sub);
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setActiveCategory(null);
+    setActiveSubcategory(null);
+  }, []);
+
+  /* -------------------- Active filter label -------------------- */
+  const activeFilterLabel = useMemo(() => {
+    if (!activeCategory) return null;
+    const catName = prettyCategoryName(activeCategory);
+    if (activeSubcategory) return `${catName} › ${prettySubName(activeSubcategory)}`;
+    return catName;
+  }, [activeCategory, activeSubcategory]);
+
+  /* -------------------- RENDER -------------------- */
 
   return (
     <div className="w-full bg-[#FAFAFA] min-h-screen text-[#1A1A1A] font-sans" ref={containerRef}>
@@ -98,8 +195,9 @@ export default function ExplorePage({ products }: { products: any[] }) {
           </Link>
         </div>
 
-        {/* Category Links */}
-        <div className="hidden md:flex items-center gap-8 text-sm uppercase tracking-widest font-medium text-gray-500">
+        {/* Navigation Links */}
+        <div className="hidden md:flex items-center gap-6 text-sm uppercase tracking-widest font-medium text-gray-500">
+          {/* Order-type links (kept) */}
           {stockProducts.length > 0 && (
             <button onClick={() => scrollToCategory('stock')} className="hover:text-black transition-colors">Stock</button>
           )}
@@ -109,6 +207,23 @@ export default function ExplorePage({ products }: { products: any[] }) {
           {sketchProducts.length > 0 && (
             <button onClick={() => scrollToCategory('sketch')} className="hover:text-black transition-colors">Sketch</button>
           )}
+
+          {/* Divider */}
+          {categoriesInData.length > 0 && (stockProducts.length > 0 || customProducts.length > 0 || sketchProducts.length > 0) && (
+            <div className="w-px h-5 bg-gray-300" />
+          )}
+
+          {/* Category dropdown links */}
+          {categoriesInData.map(cat => (
+            <CategoryNavItem
+              key={cat}
+              category={cat}
+              isActive={activeCategory === cat}
+              activeSubcategory={activeSubcategory}
+              onCategoryClick={handleCategoryClick}
+              onSubcategoryClick={handleSubcategoryClick}
+            />
+          ))}
         </div>
 
         {/* Search */}
@@ -124,6 +239,21 @@ export default function ExplorePage({ products }: { products: any[] }) {
         </div>
       </nav>
 
+      {/* Active filter pill */}
+      {activeFilterLabel && (
+        <div className="flex items-center justify-center gap-2 py-3 bg-[#F5F5F5] border-b border-[#EAEAEA]">
+          <span className="text-xs uppercase tracking-widest text-gray-600">
+            Showing: <strong className="text-black">{activeFilterLabel}</strong>
+          </span>
+          <button
+            onClick={clearFilters}
+            className="ml-2 text-xs text-gray-400 hover:text-black transition-colors underline"
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
       {/* Hero Header */}
       <header className="py-16 md:py-24 px-6 text-center max-w-4xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-serif text-[#111] mb-4">Our Collections</h1>
@@ -131,6 +261,25 @@ export default function ExplorePage({ products }: { products: any[] }) {
           Discover our curated selection of fine jewelry. From instantly available stock pieces to unique custom customer orders and visionary sketches ready to be brought to life.
         </p>
       </header>
+
+      {/* Mobile category filter pills */}
+      <div className="md:hidden px-4 pb-6 flex flex-wrap gap-2">
+        <button
+          onClick={clearFilters}
+          className={`px-3 py-1.5 text-xs uppercase tracking-wider border transition-all ${!activeCategory ? 'border-black text-black' : 'border-gray-300 text-gray-500'}`}
+        >
+          All
+        </button>
+        {categoriesInData.map(cat => (
+          <button
+            key={cat}
+            onClick={() => handleCategoryClick(cat)}
+            className={`px-3 py-1.5 text-xs uppercase tracking-wider border transition-all ${activeCategory === cat ? 'border-black text-black' : 'border-gray-300 text-gray-500'}`}
+          >
+            {prettyCategoryName(cat)}
+          </button>
+        ))}
+      </div>
 
       {/* Categories */}
       <main className="px-6 md:px-12 pb-24 space-y-24 max-w-[1600px] mx-auto">
@@ -159,6 +308,72 @@ export default function ExplorePage({ products }: { products: any[] }) {
     </div>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/*                            CATEGORY NAV ITEM                                */
+/* -------------------------------------------------------------------------- */
+
+interface CategoryNavItemProps {
+  category: string;
+  isActive: boolean;
+  activeSubcategory: string | null;
+  onCategoryClick: (cat: string) => void;
+  onSubcategoryClick: (sub: string) => void;
+}
+
+const CategoryNavItem = memo(function CategoryNavItem({
+  category,
+  isActive,
+  activeSubcategory,
+  onCategoryClick,
+  onSubcategoryClick,
+}: CategoryNavItemProps) {
+  const subcategories = CATEGORY_SUBCATEGORY_MAP[category] ?? [];
+  const prettyName = prettyCategoryName(category);
+
+  return (
+    <div className="relative group">
+      <button
+        onClick={() => onCategoryClick(category)}
+        className={`flex items-center gap-1 transition-colors ${isActive ? 'text-black' : 'hover:text-black'}`}
+      >
+        {prettyName}
+        {subcategories.length > 0 && (
+          <ChevronDown className="w-3 h-3 opacity-50 group-hover:opacity-100 transition-opacity" />
+        )}
+      </button>
+
+      {/* Subcategory dropdown */}
+      {subcategories.length > 0 && (
+        <div className="absolute left-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+          <div className="bg-white border border-[#EAEAEA] shadow-lg min-w-[200px] py-2">
+            {subcategories.map(sub => (
+              <button
+                key={sub}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCategoryClick(category);
+                  onSubcategoryClick(sub);
+                }}
+                className={`block w-full text-left px-4 py-2 text-xs uppercase tracking-wider transition-colors ${
+                  isActive && activeSubcategory === sub
+                    ? 'text-black bg-gray-50 font-semibold'
+                    : 'text-gray-500 hover:text-black hover:bg-gray-50'
+                }`}
+              >
+                {prettySubName(sub)}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
+
+/* -------------------------------------------------------------------------- */
+/*                            CATEGORY SECTION                                 */
+/* -------------------------------------------------------------------------- */
 
 const CategorySection = memo(function CategorySection({ id, title, products }: { id: string, title: string, products: any[] }) {
   return (
