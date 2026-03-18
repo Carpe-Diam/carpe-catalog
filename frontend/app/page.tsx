@@ -1,5 +1,5 @@
 import { getProducts } from "@/lib/zohoClient";
-import ExplorePage from "@/app/(pages)/ExplorePage";
+import HomeClient from "@/components/custom/HomeClient";
 
 export default async function Home() {
   try {
@@ -7,9 +7,7 @@ export default async function Home() {
     console.log("API Response:", products);
 
     return (
-      <div className="bg-white rounded-lg">
-        <ExplorePage products={products ?? []} />
-      </div>
+      <HomeClient products={products ?? []} />
     );
   } catch (error) {
     console.error("Zoho fetch error:", error);

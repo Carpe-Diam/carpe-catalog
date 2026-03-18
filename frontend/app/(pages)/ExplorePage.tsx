@@ -53,6 +53,9 @@ export default function ExplorePage({ products }: { products: any[] }) {
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const splashRef = useRef<HTMLDivElement>(null);
+  const splashLogoRef = useRef<HTMLImageElement>(null);
+  const navLogoRef = useRef<HTMLImageElement>(null);
 
   /* -------------------- Derived: categories present in data -------------------- */
 
@@ -111,6 +114,43 @@ export default function ExplorePage({ products }: { products: any[] }) {
   /* -------------------- GSAP Animations -------------------- */
 
   useGSAP(() => {
+    // Splash screen animation
+    if (splashRef.current && splashLogoRef.current && navLogoRef.current) {
+      const navRect = navLogoRef.current.getBoundingClientRect();
+      const splashRect = splashLogoRef.current.getBoundingClientRect();
+
+      const scaleX = navRect.width / splashRect.width;
+      const scaleY = navRect.height / splashRect.height;
+      
+      const tx = navRect.left + (navRect.width / 2) - (splashRect.left + splashRect.width / 2);
+      const ty = navRect.top + (navRect.height / 2) - (splashRect.top + splashRect.height / 2);
+
+      const tl = gsap.timeline();
+      
+      // Keep body from scrolling during splash
+      document.body.style.overflow = "hidden";
+      
+      tl.to({}, { duration: 0.8 }) // Initial pause to show logo
+        .to(splashLogoRef.current, {
+          x: tx,
+          y: ty,
+          scaleX: scaleX,
+          scaleY: scaleY,
+          duration: 1.2,
+          ease: "power3.inOut"
+        })
+        .to(splashRef.current, {
+          backgroundColor: "rgba(250, 250, 250, 0)",
+          duration: 0.5,
+          ease: "power2.inOut"
+        }, "-=0.6")
+        .add(() => {
+          gsap.set(navLogoRef.current, { opacity: 1 });
+          gsap.set(splashRef.current, { display: "none" });
+          document.body.style.overflow = "";
+        });
+    }
+
     const sections = gsap.utils.toArray('.category-section') as HTMLElement[];
     sections.forEach((section) => {
       gsap.fromTo(section,
@@ -187,11 +227,34 @@ export default function ExplorePage({ products }: { products: any[] }) {
 
   return (
     <div className="w-full bg-[#FAFAFA] min-h-screen text-[#1A1A1A] font-sans" ref={containerRef}>
+      {/* Splash Screen */}
+      <div 
+        ref={splashRef}
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-[#FAFAFA]"
+      >
+        <Image 
+          ref={splashLogoRef}
+          src="/cd-logo.svg" 
+          alt="Carpe Diam Logo" 
+          width={280} 
+          height={112} 
+          unoptimized 
+        />
+      </div>
+
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-[#FAFAFA]/90 backdrop-blur-md border-b border-[#EAEAEA] px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 transition-all">
         <div className="flex items-center w-full md:w-auto justify-between">
           <Link href="/">
-            <Image src="/ud-logo.svg" alt="Logo" width={70} height={28} unoptimized className="cursor-pointer" />
+            <Image 
+              ref={navLogoRef}
+              src="/cd-logo.svg" 
+              alt="Logo" 
+              width={120} 
+              height={48} 
+              unoptimized 
+              className="cursor-pointer opacity-0" 
+            />
           </Link>
         </div>
 
@@ -255,9 +318,9 @@ export default function ExplorePage({ products }: { products: any[] }) {
       )}
 
       {/* Hero Header */}
-      <header className="py-16 md:py-24 px-6 text-center max-w-4xl mx-auto">
+      <header className="py-16 md:py-24 px-6 text-center w-full">
         <h1 className="text-4xl md:text-5xl font-serif text-[#111] mb-4">Our Collections</h1>
-        <p className="text-gray-500 text-sm md:text-base leading-relaxed tracking-wide">
+        <p className="text-gray-500 text-sm md:text-base leading-relaxed tracking-wide max-w-4xl mx-auto">
           Discover our curated selection of fine jewelry. From instantly available stock pieces to unique custom customer orders and visionary sketches ready to be brought to life.
         </p>
       </header>
@@ -282,7 +345,7 @@ export default function ExplorePage({ products }: { products: any[] }) {
       </div>
 
       {/* Categories */}
-      <main className="px-6 md:px-12 pb-24 space-y-24 max-w-[1600px] mx-auto">
+      <main className="px-6 md:px-12 pb-24 space-y-24 w-full">
         {stockProducts.length > 0 && (
           <CategorySection id="stock" title="Stock Products" products={stockProducts} />
         )}
@@ -383,7 +446,7 @@ const CategorySection = memo(function CategorySection({ id, title, products }: {
         <span className="text-sm text-gray-500">{products.length} {products.length === 1 ? 'piece' : 'pieces'}</span>
       </div>
 
-      <div className="product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
+      <div className="product-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 sm:gap-x-6 lg:gap-x-8 gap-y-10 lg:gap-y-12">
         {products.map((product) => (
           <div key={product.parent_sku} className="product-card group relative">
             <DisplayCard product={product} />

@@ -291,15 +291,10 @@ export default function ProductClient({ product }: ProductClientProps) {
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900" ref={containerRef}>
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-6 py-4">
-        <Image src="/ud-logo.svg" alt="Logo" width={70} height={28} unoptimized className="cursor-pointer" onClick={() => router.push('/')} />
-        <span className="text-xs uppercase tracking-widest text-gray-500">Ref: {selectedVariant?.variant_sku}</span>
-      </header>
-
       <main className="flex-grow pb-32">
-        <section className="container mx-auto px-4 md:px-8 flex flex-col lg:flex-row gap-8 lg:gap-12 mb-16 pt-8">
+        <section className="container mx-auto px-4 md:px-8 flex flex-col lg:flex-row gap-8 lg:gap-16 mb-16 pt-12">
           {/* Left: Image Gallery */}
-          <div className="w-full lg:w-2/3 lg:sticky lg:top-24 self-start">
+          <div className="w-full lg:w-[60%] lg:sticky lg:top-32 self-start">
             <MediaSection
               mediaArray={mediaArray}
               onOpenLightbox={handleOpenLightbox}
@@ -463,13 +458,13 @@ const HeaderSection = memo(function HeaderSection({ product, selectedVariant }: 
     : "";
 
   return (
-    <section>
-      <h1 className="text-xl md:text-2xl font-semibold mb-2 uppercase tracking-wide">
+    <section className="mb-10">
+      <h1 className="text-2xl md:text-4xl font-serif italic mb-4 leading-tight">
         {product.title}
       </h1>
-      {/* <p className="text-lg mb-4">
-        ${v?.total_cost ?? product.base_price}
-      </p> */}
+      <p className="text-lg tracking-widest font-medium text-[#C5A059] mb-8">
+        {v?.total_cost ? `$${v.total_cost.toLocaleString()}` : "Price upon request"}
+      </p>
 
       <div className="mb-4">
         <span className="inline-block border border-gray-300 px-2 py-1 text-[10px] md:text-xs uppercase tracking-wider text-gray-600">

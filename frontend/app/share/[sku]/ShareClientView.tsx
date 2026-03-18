@@ -208,7 +208,8 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
     <div id="share-page-content" className="min-h-screen bg-white flex flex-col font-sans text-gray-900" ref={containerRef}>
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-6 py-4">
-        <Image src="/ud-logo.svg" alt="Logo" width={70} height={28} unoptimized />
+        {/* <Image src="/cd-logo.svg" alt="Logo" width={100} height={40} unoptimized /> */}
+        <div className="w-[100px]" /> {/* Spacer to preserve header layout */}
         <div className="flex items-center gap-4">
           <span className="text-xs uppercase tracking-widest text-gray-500">Ref: {variant?.variant_sku}</span>
           <button

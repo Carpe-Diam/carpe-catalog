@@ -50,8 +50,8 @@ export async function GET(req: NextRequest) {
             },
         });
 
-        if (!res.ok) {
-            const errorBody = await res.text().catch(() => '');
+        if (!res.ok || res.status === 204) {
+            const errorBody = res.status !== 204 ? await res.text().catch(() => '') : 'No content';
             console.error(`[image-proxy] ${res.status} for ${url}: ${errorBody}`);
             return new Response('Image not found', { status: 404 });
         }
