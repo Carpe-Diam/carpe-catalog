@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 
@@ -30,6 +30,7 @@ export default function CatalogClient({ products }: { products: any[] }) {
   const [activeOrderType, setActiveOrderType] = useState<string | null>(initOrderType);
   const [activeMetals, setActiveMetals] = useState<string[]>([]);
   const [activeStones, setActiveStones] = useState<string[]>([]);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -132,9 +133,140 @@ export default function CatalogClient({ products }: { products: any[] }) {
         </div>
       </section>
 
+      {/* Mobile Filter Button */}
+      <div className="lg:hidden px-6 py-4 flex items-center gap-3 border-b border-gray-100">
+        <button
+          onClick={() => setMobileFilterOpen(true)}
+          className="flex items-center gap-2 px-4 py-2.5 text-xs uppercase tracking-widest font-medium border border-gray-300 text-gray-700 hover:border-black hover:text-black transition-all"
+        >
+          <SlidersHorizontal className="w-4 h-4" />
+          Filter
+          {(activeCategory || activeOrderType) && (
+            <span className="ml-1 w-1.5 h-1.5 rounded-full bg-[#C5A059]" />
+          )}
+        </button>
+        <span className="text-[11px] uppercase tracking-[0.2em] text-gray-400">
+          {filteredProducts.length} Items
+        </span>
+        {(activeCategory || activeSubcategory || activeOrderType) && (
+          <button
+            onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); }}
+            className="ml-auto text-[10px] uppercase tracking-wider text-gray-400 underline hover:text-black transition-colors"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
+      {/* Mobile Filter Drawer */}
+      {mobileFilterOpen && (
+        <>
+          <div className="fixed inset-0 bg-black/30 z-50 lg:hidden" onClick={() => setMobileFilterOpen(false)} />
+          <div className="fixed top-0 left-0 h-full w-[300px] bg-white z-50 shadow-2xl flex flex-col lg:hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <span className="text-xs uppercase tracking-[0.2em] font-bold text-[#C5A059]">Filters</span>
+              <button onClick={() => setMobileFilterOpen(false)} className="p-1 text-gray-500 hover:text-black">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Filter content — same as sidebar */}
+            <div className="flex-1 overflow-y-auto px-5 py-6 space-y-10">
+              {/* Category */}
+              <div>
+                <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-[#C5A059]">Category</h3>
+                <div className="space-y-3">
+                  {filterData.categories.map(cat => (
+                    <label key={cat} className="flex items-center gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 border-gray-200 rounded-none accent-[#C5A059]"
+                        checked={activeCategory === cat}
+                        onChange={() => {
+                          setActiveCategory(prev => prev === cat ? null : cat);
+                          setActiveSubcategory(null);
+                        }}
+                      />
+                      <span className={`text-xs tracking-wider transition-colors ${activeCategory === cat ? 'text-black font-semibold' : 'text-gray-500 group-hover:text-black'}`}>
+                        {cat.endsWith('s') ? cat : `${cat}s`}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Subcategory */}
+              {(activeCategory || filterData.subcategories.length > 0) && (
+                <div>
+                  <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-[#C5A059]">Subcategory</h3>
+                  <div className="space-y-3">
+                    {filterData.subcategories
+                      .filter(sub => !activeCategory || filterData.categorySubcategoryMap[activeCategory]?.includes(sub))
+                      .map(sub => (
+                        <label key={sub} className="flex items-center gap-3 cursor-pointer group">
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 border-gray-200 rounded-none accent-[#C5A059]"
+                            checked={activeSubcategory === sub}
+                            onChange={() => setActiveSubcategory(prev => prev === sub ? null : sub)}
+                          />
+                          <span className={`text-xs tracking-wider transition-colors ${activeSubcategory === sub ? 'text-black font-semibold' : 'text-gray-500 group-hover:text-black'}`}>
+                            {sub}
+                          </span>
+                        </label>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Order Type */}
+              {filterData.orderTypes.length > 0 && (
+                <div>
+                  <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-[#C5A059]">Type of Order</h3>
+                  <div className="space-y-3">
+                    {filterData.orderTypes.map(ord => (
+                      <label key={ord} className="flex items-center gap-3 cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          className="w-4 h-4 border-gray-200 rounded-none accent-[#C5A059]"
+                          checked={activeOrderType === ord}
+                          onChange={() => setActiveOrderType(prev => prev === ord ? null : ord)}
+                        />
+                        <span className={`text-xs tracking-wider transition-colors ${activeOrderType === ord ? 'text-black font-semibold' : 'text-gray-500 group-hover:text-black'}`}>
+                          {ord}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer buttons */}
+            <div className="p-4 border-t border-gray-100 space-y-2">
+              <button
+                onClick={() => setMobileFilterOpen(false)}
+                className="w-full py-3 text-xs uppercase tracking-widest font-medium bg-black text-white hover:bg-gray-800 transition-all"
+              >
+                View {filteredProducts.length} Results
+              </button>
+              {(activeCategory || activeSubcategory || activeOrderType) && (
+                <button
+                  onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); setActiveMetals([]); setActiveStones([]); }}
+                  className="w-full py-2.5 text-xs uppercase tracking-widest font-medium border border-gray-300 text-gray-600 hover:border-black hover:text-black transition-all"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
       <div className="max-w-[1800px] mx-auto px-6 lg:px-20 py-16 flex flex-col lg:flex-row gap-16">
-        {/* 2. SIDEBAR FILTERS */}
-        <aside className="w-full lg:w-64 flex-shrink-0">
+        {/* 2. SIDEBAR FILTERS — Desktop only */}
+        <aside className="hidden lg:block w-64 flex-shrink-0">
           <div className="sticky top-24 space-y-12">
             {/* Category Filter */}
             <div>

@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -51,6 +51,7 @@ export default function ExplorePage({ products }: { products: any[] }) {
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const splashRef = useRef<HTMLDivElement>(null);
@@ -325,24 +326,122 @@ export default function ExplorePage({ products }: { products: any[] }) {
         </p>
       </header>
 
-      {/* Mobile category filter pills */}
-      <div className="md:hidden px-4 pb-6 flex flex-wrap gap-2">
+      {/* Mobile Filter Button */}
+      <div className="md:hidden px-4 pb-6 flex items-center gap-3">
         <button
-          onClick={clearFilters}
-          className={`px-3 py-1.5 text-xs uppercase tracking-wider border transition-all ${!activeCategory ? 'border-black text-black' : 'border-gray-300 text-gray-500'}`}
+          onClick={() => setMobileFilterOpen(true)}
+          className="flex items-center gap-2 px-4 py-2.5 text-xs uppercase tracking-widest font-medium border border-gray-300 text-gray-700 hover:border-black hover:text-black transition-all"
         >
-          All
+          <SlidersHorizontal className="w-4 h-4" />
+          Filter
+          {activeCategory && (
+            <span className="ml-1 w-1.5 h-1.5 rounded-full bg-black" />
+          )}
         </button>
-        {categoriesInData.map(cat => (
-          <button
-            key={cat}
-            onClick={() => handleCategoryClick(cat)}
-            className={`px-3 py-1.5 text-xs uppercase tracking-wider border transition-all ${activeCategory === cat ? 'border-black text-black' : 'border-gray-300 text-gray-500'}`}
-          >
-            {prettyCategoryName(cat)}
-          </button>
-        ))}
+        {activeFilterLabel && (
+          <span className="text-[10px] uppercase tracking-wider text-gray-500 truncate">
+            {activeFilterLabel}
+          </span>
+        )}
       </div>
+
+      {/* Mobile Filter Drawer */}
+      {mobileFilterOpen && (
+        <>
+          <div className="fixed inset-0 bg-black/30 z-50 md:hidden" onClick={() => setMobileFilterOpen(false)} />
+          <div className="fixed top-0 left-0 h-full w-[280px] bg-white z-50 shadow-2xl flex flex-col md:hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <span className="text-xs uppercase tracking-[0.2em] font-medium text-gray-800">Filters</span>
+              <button onClick={() => setMobileFilterOpen(false)} className="p-1 text-gray-500 hover:text-black">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto py-2">
+              {/* All */}
+              <button
+                onClick={() => { clearFilters(); setMobileFilterOpen(false); }}
+                className={`w-full text-left px-5 py-3 text-xs uppercase tracking-[0.15em] font-medium transition-colors ${!activeCategory ? 'text-black bg-gray-50' : 'text-gray-600 hover:text-black hover:bg-gray-50'}`}
+              >
+                All Products
+              </button>
+
+              {/* Order type links */}
+              {stockProducts.length > 0 && (
+                <button
+                  onClick={() => { scrollToCategory('stock'); setMobileFilterOpen(false); }}
+                  className="w-full text-left px-5 py-3 text-xs uppercase tracking-[0.15em] font-medium text-gray-600 hover:text-black hover:bg-gray-50 transition-colors"
+                >
+                  Stock ({stockProducts.length})
+                </button>
+              )}
+              {customProducts.length > 0 && (
+                <button
+                  onClick={() => { scrollToCategory('custom'); setMobileFilterOpen(false); }}
+                  className="w-full text-left px-5 py-3 text-xs uppercase tracking-[0.15em] font-medium text-gray-600 hover:text-black hover:bg-gray-50 transition-colors"
+                >
+                  Custom ({customProducts.length})
+                </button>
+              )}
+              {sketchProducts.length > 0 && (
+                <button
+                  onClick={() => { scrollToCategory('sketch'); setMobileFilterOpen(false); }}
+                  className="w-full text-left px-5 py-3 text-xs uppercase tracking-[0.15em] font-medium text-gray-600 hover:text-black hover:bg-gray-50 transition-colors"
+                >
+                  Sketch ({sketchProducts.length})
+                </button>
+              )}
+
+              {/* Divider */}
+              <div className="mx-5 my-2 border-t border-gray-100" />
+
+              {/* Categories with subcategories */}
+              <p className="px-5 pt-2 pb-1 text-[9px] uppercase tracking-[0.2em] text-gray-400">Categories</p>
+              {categoriesInData.map(cat => {
+                const subs = CATEGORY_SUBCATEGORY_MAP[cat] ?? [];
+                const isActive = activeCategory === cat;
+
+                return (
+                  <div key={cat}>
+                    <button
+                      onClick={() => { handleCategoryClick(cat); if (subs.length === 0) setMobileFilterOpen(false); }}
+                      className={`w-full text-left px-5 py-3 text-xs uppercase tracking-[0.15em] font-medium transition-colors ${isActive ? 'text-black bg-gray-50' : 'text-gray-600 hover:text-black hover:bg-gray-50'}`}
+                    >
+                      {prettyCategoryName(cat)}
+                    </button>
+
+                    {isActive && subs.length > 0 && (
+                      <div className="bg-gray-50 border-t border-gray-100">
+                        {subs.map(sub => (
+                          <button
+                            key={sub}
+                            onClick={() => { handleSubcategoryClick(sub); setMobileFilterOpen(false); }}
+                            className={`w-full text-left px-8 py-2.5 text-[10px] uppercase tracking-wider transition-colors ${activeSubcategory === sub ? 'text-black font-semibold' : 'text-gray-500 hover:text-black'}`}
+                          >
+                            {prettySubName(sub)}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Clear button at bottom */}
+            {activeCategory && (
+              <div className="p-4 border-t border-gray-100">
+                <button
+                  onClick={() => { clearFilters(); setMobileFilterOpen(false); }}
+                  className="w-full py-2.5 text-xs uppercase tracking-widest font-medium border border-gray-300 text-gray-600 hover:border-black hover:text-black transition-all"
+                >
+                  Clear All Filters
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
       {/* Categories */}
       <main className="px-6 md:px-12 pb-24 space-y-24 w-full">

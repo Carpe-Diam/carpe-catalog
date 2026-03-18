@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState, useRef, memo } from "react";
 import { cn } from "@/lib/utils";
-import { Play, X, Download, Share2, Menu } from "lucide-react";
+import { Play, X, Download, Share2 } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { toJpeg } from "html-to-image";
@@ -113,7 +113,6 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [pageUrl, setPageUrl] = useState("");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Generate QR code for the current page URL
   useEffect(() => {
@@ -225,66 +224,27 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
   return (
     <div id="share-page-content" className="min-h-screen bg-white flex flex-col font-sans text-gray-900" ref={containerRef}>
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200">
-        <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4">
-          <Image src="/cd-logo.svg" alt="Logo" width={90} height={36} unoptimized />
-
-          {/* Desktop actions */}
-          <div className="hidden md:flex items-center gap-4">
-            <span className="text-xs uppercase tracking-widest text-gray-500">Ref: {variant?.variant_sku}</span>
-            <button
-              onClick={() => setQrModalOpen(true)}
-              data-html2canvas-ignore="true"
-              className="flex items-center gap-2 text-xs uppercase tracking-widest border border-gray-300 text-gray-700 px-4 py-2 hover:bg-gray-100 transition cursor-pointer"
-            >
-              <Share2 className="w-4 h-4" />
-              Share QR
-            </button>
-            <button
-              onClick={handleDownloadPDF}
-              disabled={isDownloading}
-              data-html2canvas-ignore="true"
-              className="flex items-center gap-2 text-xs uppercase tracking-widest bg-black text-white px-4 py-2 hover:bg-gray-800 transition disabled:opacity-50 cursor-pointer"
-            >
-              <Download className="w-4 h-4" />
-              {isDownloading ? "Generating..." : "Download PDF"}
-            </button>
-          </div>
-
-          {/* Mobile hamburger */}
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-4 md:px-6 py-3 md:py-4">
+        <span className="text-xs uppercase tracking-widest text-gray-500">Ref: {variant?.variant_sku}</span>
+        <div className="flex items-center gap-2 md:gap-4">
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => setQrModalOpen(true)}
             data-html2canvas-ignore="true"
-            className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-md transition cursor-pointer"
+            className="flex items-center gap-2 text-xs uppercase tracking-widest border border-gray-300 text-gray-700 px-3 md:px-4 py-2 hover:bg-gray-100 transition cursor-pointer"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <Share2 className="w-4 h-4" />
+            <span className="hidden sm:inline">Share QR</span>
+          </button>
+          <button
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
+            data-html2canvas-ignore="true"
+            className="flex items-center gap-2 text-xs uppercase tracking-widest bg-black text-white px-3 md:px-4 py-2 hover:bg-gray-800 transition disabled:opacity-50 cursor-pointer"
+          >
+            <Download className="w-4 h-4" />
+            <span className="hidden sm:inline">{isDownloading ? "Generating..." : "Download PDF"}</span>
           </button>
         </div>
-
-        {/* Mobile dropdown menu */}
-        {mobileMenuOpen && (
-          <div
-            className="md:hidden border-t border-gray-200 bg-white px-4 py-3 flex flex-col gap-3"
-            data-html2canvas-ignore="true"
-          >
-            <span className="text-xs uppercase tracking-widest text-gray-500">Ref: {variant?.variant_sku}</span>
-            <button
-              onClick={() => { setQrModalOpen(true); setMobileMenuOpen(false); }}
-              className="flex items-center gap-2 text-xs uppercase tracking-widest border border-gray-300 text-gray-700 px-4 py-2.5 hover:bg-gray-100 transition cursor-pointer w-full justify-center"
-            >
-              <Share2 className="w-4 h-4" />
-              Share QR
-            </button>
-            <button
-              onClick={() => { handleDownloadPDF(); setMobileMenuOpen(false); }}
-              disabled={isDownloading}
-              className="flex items-center gap-2 text-xs uppercase tracking-widest bg-black text-white px-4 py-2.5 hover:bg-gray-800 transition disabled:opacity-50 cursor-pointer w-full justify-center"
-            >
-              <Download className="w-4 h-4" />
-              {isDownloading ? "Generating..." : "Download PDF"}
-            </button>
-          </div>
-        )}
       </header>
 
       <main className="flex-grow pb-32">
@@ -511,35 +471,6 @@ const ShareDetailsSection = memo(function ShareDetailsSection({
         </ul>
       </div>
 
-      {/* Accordions */}
-      <div className="border-t border-gray-200">
-        <button className="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200 hover:text-gray-600 transition">
-          About Fine Jewelry
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-          </svg>
-        </button>
-        <button className="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200 hover:text-gray-600 transition">
-          More Information
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-          </svg>
-        </button>
-        <button className="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200 hover:text-gray-600 transition">
-          Delivery
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-          </svg>
-        </button>
-      </div>
-
-      {/* Category tags */}
-      <div className="mt-8 flex flex-wrap gap-4 text-[10px] md:text-xs text-gray-500 uppercase tracking-wide">
-        <span className="cursor-pointer hover:underline hover:text-black transition">All rings</span>
-        <span className="cursor-pointer hover:underline hover:text-black transition">Diamond Rings</span>
-        <span className="cursor-pointer hover:underline hover:text-black transition">Eternity Rings</span>
-        <span className="cursor-pointer hover:underline hover:text-black transition">Solitary Rings</span>
-      </div>
     </section>
   );
 });

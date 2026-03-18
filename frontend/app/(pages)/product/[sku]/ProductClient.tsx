@@ -662,41 +662,6 @@ const DetailsSection = memo(function DetailsSection({ product, selectedVariant }
         </ul>
       </div>
 
-      {/* Accordions Mock */}
-      <div className="border-t border-gray-200">
-        <button className="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200 hover:text-gray-600 transition">
-          About Fine Jewelry
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-          </svg>
-        </button>
-        <button className="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200 hover:text-gray-600 transition">
-          More Information
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-          </svg>
-        </button>
-        <button className="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200 hover:text-gray-600 transition">
-          Delivery
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-          </svg>
-        </button>
-        <button className="w-full py-4 flex justify-between items-center text-sm uppercase tracking-wider font-medium border-b border-gray-200 hover:text-gray-600 transition">
-          Responsible Jewellery Council
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-          </svg>
-        </button>
-      </div>
-
-      {/* Categories & Share */}
-      <div className="mt-8 flex flex-wrap gap-4 text-[10px] md:text-xs text-gray-500 uppercase tracking-wide">
-        <span className="cursor-pointer hover:underline hover:text-black transition">All rings</span>
-        <span className="cursor-pointer hover:underline hover:text-black transition">Diamond Rings</span>
-        <span className="cursor-pointer hover:underline hover:text-black transition">Eternity Rings</span>
-        <span className="cursor-pointer hover:underline hover:text-black transition">Solitary Rings</span>
-      </div>
       <div className="mt-6 flex items-center gap-2 text-xs uppercase tracking-wide font-medium cursor-pointer text-gray-600 hover:text-black transition">
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
