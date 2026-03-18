@@ -538,7 +538,7 @@ const ConfigurationSection = memo(function ConfigurationSection({
 
 
 
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <Button
             variant="outline"
             className="w-full border-gray-300 hover:bg-gray-50 uppercase tracking-widest py-4 h-auto rounded-none text-xs font-semibold"
@@ -548,6 +548,29 @@ const ConfigurationSection = memo(function ConfigurationSection({
                 router.push(
                   `/share/${product.parent_sku}?variant=${selectedVariant.variant_sku}&order=${orderId}`
                 );
+            }}
+          >
+            Share to Customer
+          </Button>
+        </div> */}
+
+        <div className="mb-6">
+          <Button
+            variant="outline"
+            className="w-full border-gray-300 hover:bg-gray-50 uppercase tracking-widest py-4 h-auto rounded-none text-xs font-semibold"
+            onClick={() => {
+              const orderId = Math.floor(100000 + Math.random() * 900000);
+              
+              // 1. Build the base URL with the parent SKU and order ID
+              let shareUrl = `/share/${product.parent_sku}?order=${orderId}`;
+              
+              // 2. Append the variant SKU only if a variant is currently selected
+              if (selectedVariant) {
+                shareUrl += `&variant=${selectedVariant.variant_sku}`;
+              }
+              
+              // 3. Push the finalized URL
+              router.push(shareUrl);
             }}
           >
             Share to Customer
