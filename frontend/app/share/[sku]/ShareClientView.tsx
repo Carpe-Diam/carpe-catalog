@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState, useRef, memo } from "react";
 import { cn } from "@/lib/utils";
-import { Play, X, Download, Share2 } from "lucide-react";
+import { Play, X, Download, Share2, Menu } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { toJpeg } from "html-to-image";
@@ -48,6 +48,7 @@ interface Product {
   parent_sku: string;
   subcategory?: string | null;
   base_price?: number | null;
+  record_image?: string | null;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -112,6 +113,7 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [pageUrl, setPageUrl] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Generate QR code for the current page URL
   useEffect(() => {
@@ -170,10 +172,26 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
     }
   };
 
-  /* Media — filter to catalog images only */
-  const mediaArray = (variant?.media ?? []).filter(
-    (m) => m.file_name?.toLowerCase().includes('catalog-image')
-  );
+  /* Media — filter to catalog images, fallback to product record image */
+  const mediaArray = (() => {
+    const catalogMedia = (variant?.media ?? []).filter(
+      (m) => m.file_name?.toLowerCase().includes('catalog-image')
+    );
+    if (catalogMedia.length > 0) return catalogMedia;
+
+    // Fallback: product record image
+    if (product.record_image) {
+      return [{
+        id: `product-record-${product.parent_sku}`,
+        file_name: 'product-record-image',
+        file_type: 'image/jpeg',
+        preview_url: product.record_image,
+        download_url: product.record_image,
+      }] as Media[];
+    }
+
+    return [];
+  })();
 
   const currentMedia = mediaArray[currentIndex] ?? null;
   const getMediaUrl = (m: Media | null) => {
@@ -207,29 +225,66 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
   return (
     <div id="share-page-content" className="min-h-screen bg-white flex flex-col font-sans text-gray-900" ref={containerRef}>
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-6 py-4">
-        {/* <Image src="/cd-logo.svg" alt="Logo" width={100} height={40} unoptimized /> */}
-        <div className="w-[100px]" /> {/* Spacer to preserve header layout */}
-        <div className="flex items-center gap-4">
-          <span className="text-xs uppercase tracking-widest text-gray-500">Ref: {variant?.variant_sku}</span>
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200">
+        <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4">
+          <Image src="/cd-logo.svg" alt="Logo" width={90} height={36} unoptimized />
+
+          {/* Desktop actions */}
+          <div className="hidden md:flex items-center gap-4">
+            <span className="text-xs uppercase tracking-widest text-gray-500">Ref: {variant?.variant_sku}</span>
+            <button
+              onClick={() => setQrModalOpen(true)}
+              data-html2canvas-ignore="true"
+              className="flex items-center gap-2 text-xs uppercase tracking-widest border border-gray-300 text-gray-700 px-4 py-2 hover:bg-gray-100 transition cursor-pointer"
+            >
+              <Share2 className="w-4 h-4" />
+              Share QR
+            </button>
+            <button
+              onClick={handleDownloadPDF}
+              disabled={isDownloading}
+              data-html2canvas-ignore="true"
+              className="flex items-center gap-2 text-xs uppercase tracking-widest bg-black text-white px-4 py-2 hover:bg-gray-800 transition disabled:opacity-50 cursor-pointer"
+            >
+              <Download className="w-4 h-4" />
+              {isDownloading ? "Generating..." : "Download PDF"}
+            </button>
+          </div>
+
+          {/* Mobile hamburger */}
           <button
-            onClick={() => setQrModalOpen(true)}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             data-html2canvas-ignore="true"
-            className="flex items-center gap-2 text-xs uppercase tracking-widest border border-gray-300 text-gray-700 px-4 py-2 hover:bg-gray-100 transition cursor-pointer"
+            className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-md transition cursor-pointer"
           >
-            <Share2 className="w-4 h-4" />
-            Share QR
-          </button>
-          <button
-            onClick={handleDownloadPDF}
-            disabled={isDownloading}
-            data-html2canvas-ignore="true"
-            className="flex items-center gap-2 text-xs uppercase tracking-widest bg-black text-white px-4 py-2 hover:bg-gray-800 transition disabled:opacity-50 cursor-pointer"
-          >
-            <Download className="w-4 h-4" />
-            {isDownloading ? "Generating..." : "Download PDF"}
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
+
+        {/* Mobile dropdown menu */}
+        {mobileMenuOpen && (
+          <div
+            className="md:hidden border-t border-gray-200 bg-white px-4 py-3 flex flex-col gap-3"
+            data-html2canvas-ignore="true"
+          >
+            <span className="text-xs uppercase tracking-widest text-gray-500">Ref: {variant?.variant_sku}</span>
+            <button
+              onClick={() => { setQrModalOpen(true); setMobileMenuOpen(false); }}
+              className="flex items-center gap-2 text-xs uppercase tracking-widest border border-gray-300 text-gray-700 px-4 py-2.5 hover:bg-gray-100 transition cursor-pointer w-full justify-center"
+            >
+              <Share2 className="w-4 h-4" />
+              Share QR
+            </button>
+            <button
+              onClick={() => { handleDownloadPDF(); setMobileMenuOpen(false); }}
+              disabled={isDownloading}
+              className="flex items-center gap-2 text-xs uppercase tracking-widest bg-black text-white px-4 py-2.5 hover:bg-gray-800 transition disabled:opacity-50 cursor-pointer w-full justify-center"
+            >
+              <Download className="w-4 h-4" />
+              {isDownloading ? "Generating..." : "Download PDF"}
+            </button>
+          </div>
+        )}
       </header>
 
       <main className="flex-grow pb-32">
