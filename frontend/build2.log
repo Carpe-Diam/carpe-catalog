@@ -1,0 +1,82 @@
+
+> frontend@0.1.0 build
+> next build
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+   ▲ Next.js 16.0.1 (Turbopack)
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+ ✓ Compiled successfully in 8.2s
+   Running TypeScript ...
+   Collecting page data ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+   Generating static pages (0/8) ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+   Generating static pages (2/8) 
+   Generating static pages (4/8) 
+Zoho fetch error: Error: Zoho token refresh failed: 400 — {"error_description":"You have made too many requests continuously. Please try again after some time.","error":"Access Denied","status":"failure"}
+    at h (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:41020)
+    at async k (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:41311)
+    at async n (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:42056)
+    at async A.revalidate (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:47465)
+    at async (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:26893)
+    at async e (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\[root-of-the-server]__f1c35e6e._.js:1:1377)
+Layout fetch error: Error: Zoho token refresh failed: 400 — {"error_description":"You have made too many requests continuously. Please try again after some time.","error":"Access Denied","status":"failure"}
+    at h (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:41020)
+    at async k (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:41311)
+    at async n (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:42056)
+    at async A.revalidate (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:47465)
+    at async (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:26893)
+    at async i (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\[root-of-the-server]__9ffbe498._.js:1:1771)
+Zoho fetch error: Error: Zoho token refresh failed: 400 — {"error_description":"You have made too many requests continuously. Please try again after some time.","error":"Access Denied","status":"failure"}
+    at h (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:41020)
+    at async k (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:41311)
+    at async n (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:42056)
+    at async A.revalidate (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:47465)
+    at async (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:26893)
+    at async e (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\[root-of-the-server]__d645eddc._.js:1:1389)
+Layout fetch error: Error: Zoho token refresh failed: 400 — {"error_description":"You have made too many requests continuously. Please try again after some time.","error":"Access Denied","status":"failure"}
+    at h (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:41020)
+    at async k (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:41311)
+    at async n (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:42056)
+    at async A.revalidate (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:47465)
+    at async (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:26893)
+    at async i (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\[root-of-the-server]__9ffbe498._.js:1:1771)
+   Generating static pages (6/8) 
+Layout fetch error: Error: Zoho token refresh failed: 400 — {"error_description":"You have made too many requests continuously. Please try again after some time.","error":"Access Denied","status":"failure"}
+    at h (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:41020)
+    at async k (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:41311)
+    at async n (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:42056)
+    at async A.revalidate (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:47465)
+    at async (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\_a737e426._.js:22:26893)
+    at async i (C:\Users\jaytc\OneDrive\Desktop\projects\carpe-catalog\frontend\.next\server\chunks\ssr\[root-of-the-server]__9ffbe498._.js:1:1771)
+ ✓ Generating static pages (8/8) in 10.4s
+   Finalizing page optimization ...
+
+Route (app)                     Revalidate  Expire
+┌ ○ /                                   1h      1y
+├ ○ /_not-found                         1h      1y
+├ ƒ /api/image-proxy
+├ ƒ /api/order-request
+├ ƒ /api/private-collection
+├ ○ /catalog                            1h      1y
+├ ƒ /private-collection/[slug]
+├ ƒ /product/[sku]
+└ ƒ /share/[sku]
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
