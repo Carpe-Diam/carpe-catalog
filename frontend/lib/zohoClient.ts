@@ -6,6 +6,7 @@
  */
 
 import { getAccessToken } from './zohoAuth';
+import { unstable_cache } from 'next/cache';
 
 const ZOHO_API_DOMAIN = process.env.ZOHO_API_DOMAIN || 'https://www.zohoapis.in';
 
@@ -49,6 +50,7 @@ export type Product = {
     title: string;
     category?: string | null;
     subcategory?: string | null;
+    collection?: string[] | null;
     base_price?: number | null;
     others?: string | null;
     type_of_order?: string | null;
@@ -190,11 +192,12 @@ const PRODUCT_FIELDS = [
     'Product_Code',
     'Category',
     'Sub_Category',
+    'Collection',
     'Website_name',
     'Product_Active',
     'Show_on_Catalog',
     'Type_of_Order',
-    'Record_Image',
+    'Product_display_Image',
 ];
 
 // Variant fields to fetch from Zoho CRM (only fields used in the catalog)
@@ -276,6 +279,45 @@ const SUB_GROUP_MAP: Record<string, string> = {
     N: 'Natural',
     NA: 'Not Applicable',
     '95': 'PT950',
+};
+
+// Sub-sub-group codes (colors, diamond grades, stone types)
+const SUB_SUB_GROUP_MAP: Record<string, string> = {
+    // Colors
+    W: 'White',
+    'W/Y': 'White/Yellow',
+    'Y/R': 'Yellow/Rose',
+    'R/W': 'Rose/White',
+    Y: 'Yellow',
+    R: 'Rose',
+    'R/W/Y': 'Rose/White/Yellow',
+    // Diamond grades
+    '1': 'DEVVS',
+    '2': 'GHVVS',
+    '3': 'DEVS',
+    '4': 'GHVS',
+    '5': 'DESI',
+    '6': 'GHSI',
+    // Stone types
+    EM: 'Emerald',
+    REM: 'Russian Emerald',
+    M: 'Malachite',
+    BS: 'Blue Sapphire',
+    YS: 'Yellow Sapphire',
+    TM: 'Tourmaline',
+    AQ: 'Aquamarine',
+    PD: 'Peridot',
+    NG: 'Navgraha',
+    WS: 'White Sapphire',
+    RB: 'Ruby',
+    TS: 'Tsavorite',
+    POP: 'Pink Opal',
+    TQ: 'Turquoise',
+    MX: 'Mix-Shape',
+    BLS: 'Black Sapphire',
+    CO: 'Coral',
+    TN: 'Tanzanite',
+    AM: 'Amethyst',
 };
 
 /**
@@ -373,7 +415,7 @@ function parseVariantSku(variantSku: string, parentSku: string) {
 
     // Segment: Sub Sub Group
     if (idx < parts.length) {
-        const [val, consumed] = matchCode(parts, idx, SUB_GROUP_MAP);
+        const [val, consumed] = matchCode(parts, idx, SUB_SUB_GROUP_MAP);
         if (val) {
             subSubGroup = val;
             idx += consumed;
@@ -519,10 +561,24 @@ function transformProduct(zohoProduct: any, variants: Variant[]): Product {
     const prices = variants.map((v) => v.total_cost).filter((p) => p > 0);
     const basePrice = prices.length > 0 ? Math.min(...prices) : null;
 
-    // Build product record image URL if the product has a record photo
-    const recordImage = zohoProduct.Record_Image
-        ? `/api/image-proxy?module=Products&id=${zohoProduct.id}`
-        : null;
+    // Build product display image URL from the file upload field
+    let recordImage: string | null = null;
+    const displayImg = zohoProduct.Product_display_Image;
+    if (displayImg && Array.isArray(displayImg) && displayImg.length > 0) {
+        const fileId = displayImg[0].file_Id || displayImg[0].id;
+        if (fileId) {
+            recordImage = `/api/image-proxy?module=Products&id=${zohoProduct.id}&attachment_id=${fileId}`;
+        }
+    } else if (displayImg && typeof displayImg === 'string') {
+        recordImage = `/api/image-proxy?module=Products&id=${zohoProduct.id}`;
+    }
+
+    // Zoho multiselect returns an array of strings, or null
+    const collection: string[] | null = Array.isArray(zohoProduct.Collection)
+        ? zohoProduct.Collection
+        : zohoProduct.Collection
+            ? [zohoProduct.Collection]
+            : null;
 
     return {
         id: zohoProduct.id,
@@ -530,6 +586,7 @@ function transformProduct(zohoProduct: any, variants: Variant[]): Product {
         title: zohoProduct.Website_name || zohoProduct.Product_Name || '',
         category: zohoProduct.Category ?? null,
         subcategory: zohoProduct.Sub_Category ?? null,
+        collection,
         base_price: basePrice,
         others: null,
         type_of_order: zohoProduct.Type_of_Order ?? null,
@@ -594,7 +651,8 @@ async function processBatched<T, R>(
 /**
  * Fetch all active products with their variants
  */
-export async function getProducts(): Promise<Product[]> {
+export const getProducts = unstable_cache(
+    async (): Promise<Product[]> => {
     // 1. Fetch all products (bulk, paginated)
     const allProducts = await fetchAllPages(
         '/Products',
@@ -625,12 +683,13 @@ export async function getProducts(): Promise<Product[]> {
     return products.map((p: any) =>
         transformProduct(p, variantsByProductId[p.id] || [])
     );
-}
+}, ['zoho-products'], { revalidate: 3600, tags: ['products'] });
 
 /**
  * Fetch a single product by its parent SKU (Product_Name)
  */
-export async function getProductBySku(parentSku: string): Promise<Product | null> {
+export const getProductBySku = unstable_cache(
+    async (parentSku: string): Promise<Product | null> => {
     // Search for the product by Product_Name (with field chunking)
     const productFieldChunks = chunkFields(PRODUCT_FIELDS);
     const productChunkResults: any[][] = [];
@@ -667,7 +726,7 @@ export async function getProductBySku(parentSku: string): Promise<Product | null
     const variants = catalogVariants.map((v: any) => transformVariant(v, productName));
 
     return transformProduct(product, variants);
-}
+}, ['zoho-product'], { revalidate: 3600, tags: ['product'] });
 
 /**
  * Access a private collection by slug and password

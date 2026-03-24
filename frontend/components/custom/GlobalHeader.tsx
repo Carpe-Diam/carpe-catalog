@@ -6,7 +6,7 @@ import { Search, Heart, ShoppingBag, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 
-export default function GlobalHeader({ categoryTree }: { categoryTree: Record<string, string[]> }) {
+export default function GlobalHeader({ categoryTree, collections = [] }: { categoryTree: Record<string, string[]>; collections?: string[] }) {
   const categories = Object.keys(categoryTree);
   const pathname = usePathname();
   const isHome = pathname === "/";
@@ -31,6 +31,29 @@ export default function GlobalHeader({ categoryTree }: { categoryTree: Record<st
           {/* Desktop nav */}
           <nav className="hidden lg:flex items-center gap-8 text-[11px] uppercase tracking-[0.2em] font-medium text-gray-500">
             <Link href="/catalog" className="hover:text-black transition-colors">All Collections</Link>
+
+            {/* Collections dropdown */}
+            {collections.length > 0 && (
+              <div className="relative group">
+                <span className="flex items-center gap-1 hover:text-black transition-colors py-2 cursor-pointer">
+                  Collections
+                  <ChevronDown className="w-3 h-3 opacity-50 group-hover:opacity-100 transition-opacity" />
+                </span>
+                <div className="absolute left-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="bg-white border border-[#EAEAEA] shadow-lg min-w-[200px] py-2">
+                    {collections.map(col => (
+                      <Link
+                        key={col}
+                        href={`/catalog?collection=${encodeURIComponent(col)}`}
+                        className="block w-full text-left px-4 py-2 text-[10px] uppercase tracking-wider text-gray-500 hover:text-black hover:bg-gray-50 transition-colors"
+                      >
+                        {col}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {categories.slice(0, 4).map(cat => (
               <div key={cat} className="relative group">

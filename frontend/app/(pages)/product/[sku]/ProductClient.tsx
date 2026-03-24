@@ -462,7 +462,7 @@ const HeaderSection = memo(function HeaderSection({ product, selectedVariant }: 
       <h1 className="text-2xl md:text-4xl font-serif italic mb-4 leading-tight">
         {product.title}
       </h1>
-      <p className="text-lg tracking-widest font-medium text-[#C5A059] mb-8">
+      <p className="text-lg tracking-widest font-medium text-black mb-8">
         {v?.total_cost ? `$${v.total_cost.toLocaleString()}` : "Price upon request"}
       </p>
 

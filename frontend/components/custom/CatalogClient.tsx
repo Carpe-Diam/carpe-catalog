@@ -23,11 +23,13 @@ export default function CatalogClient({ products }: { products: any[] }) {
   const initCategory = searchParams.get('category');
   const initSubcategory = searchParams.get('subcategory');
   const initOrderType = searchParams.get('orderType');
+  const initCollection = searchParams.get('collection');
 
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(initCategory);
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(initSubcategory);
   const [activeOrderType, setActiveOrderType] = useState<string | null>(initOrderType);
+  const [activeCollection, setActiveCollection] = useState<string | null>(initCollection);
   const [activeMetals, setActiveMetals] = useState<string[]>([]);
   const [activeStones, setActiveStones] = useState<string[]>([]);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
@@ -41,6 +43,7 @@ export default function CatalogClient({ products }: { products: any[] }) {
     const orderTypes = new Set<string>();
     const metals = new Set<string>();
     const stones = new Set<string>();
+    const collectionSet = new Set<string>();
 
     products.forEach(p => {
       if (p.category) {
@@ -62,6 +65,10 @@ export default function CatalogClient({ products }: { products: any[] }) {
         orderTypes.add(p.type_of_order.split(' - ')[0].trim());
       }
 
+      if (Array.isArray(p.collection)) {
+        p.collection.forEach((c: string) => collectionSet.add(c));
+      }
+
       if (p.metal_type) metals.add(p.metal_type);
       if (p.stone_type) stones.add(p.stone_type);
     });
@@ -76,6 +83,7 @@ export default function CatalogClient({ products }: { products: any[] }) {
       subcategories: Array.from(subs),
       categorySubcategoryMap: formattedMap,
       orderTypes: Array.from(orderTypes),
+      collections: Array.from(collectionSet).sort(),
       metals: Array.from(metals),
       stones: Array.from(stones)
     };
@@ -94,12 +102,14 @@ export default function CatalogClient({ products }: { products: any[] }) {
       const pOrd = p.type_of_order ? p.type_of_order.split(' - ')[0].trim() : null;
       const matchOrd = !activeOrderType || pOrd === activeOrderType;
 
+      const matchCollection = !activeCollection || (Array.isArray(p.collection) && p.collection.includes(activeCollection));
+
       const matchMetal = activeMetals.length === 0 || activeMetals.includes(p.metal_type);
       const matchStone = activeStones.length === 0 || activeStones.includes(p.stone_type);
 
-      return matchQuery && matchCat && matchSub && matchOrd && matchMetal && matchStone;
+      return matchQuery && matchCat && matchSub && matchOrd && matchCollection && matchMetal && matchStone;
     });
-  }, [products, query, activeCategory, activeSubcategory, activeOrderType, activeMetals, activeStones]);
+  }, [products, query, activeCategory, activeSubcategory, activeOrderType, activeCollection, activeMetals, activeStones]);
 
   const toggleMetal = (metal: string) => {
     setActiveMetals(prev => prev.includes(metal) ? prev.filter(m => m !== metal) : [...prev, metal]);
@@ -141,16 +151,16 @@ export default function CatalogClient({ products }: { products: any[] }) {
         >
           <SlidersHorizontal className="w-4 h-4" />
           Filter
-          {(activeCategory || activeOrderType) && (
+          {(activeCategory || activeOrderType || activeCollection) && (
             <span className="ml-1 w-1.5 h-1.5 rounded-full bg-[#C5A059]" />
           )}
         </button>
         <span className="text-[11px] uppercase tracking-[0.2em] text-gray-400">
           {filteredProducts.length} Items
         </span>
-        {(activeCategory || activeSubcategory || activeOrderType) && (
+        {(activeCategory || activeSubcategory || activeOrderType || activeCollection) && (
           <button
-            onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); }}
+            onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); setActiveCollection(null); }}
             className="ml-auto text-[10px] uppercase tracking-wider text-gray-400 underline hover:text-black transition-colors"
           >
             Clear
@@ -165,7 +175,7 @@ export default function CatalogClient({ products }: { products: any[] }) {
           <div className="fixed top-0 left-0 h-full w-[300px] bg-white z-50 shadow-2xl flex flex-col lg:hidden">
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <span className="text-xs uppercase tracking-[0.2em] font-bold text-[#C5A059]">Filters</span>
+              <span className="text-xs uppercase tracking-[0.2em] font-bold text-black">Filters</span>
               <button onClick={() => setMobileFilterOpen(false)} className="p-1 text-gray-500 hover:text-black">
                 <X className="w-5 h-5" />
               </button>
@@ -175,7 +185,7 @@ export default function CatalogClient({ products }: { products: any[] }) {
             <div className="flex-1 overflow-y-auto px-5 py-6 space-y-10">
               {/* Category */}
               <div>
-                <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-[#C5A059]">Category</h3>
+                <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-black">Category</h3>
                 <div className="space-y-3">
                   {filterData.categories.map(cat => (
                     <label key={cat} className="flex items-center gap-3 cursor-pointer group">
@@ -199,7 +209,7 @@ export default function CatalogClient({ products }: { products: any[] }) {
               {/* Subcategory */}
               {(activeCategory || filterData.subcategories.length > 0) && (
                 <div>
-                  <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-[#C5A059]">Subcategory</h3>
+                  <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-black">Subcategory</h3>
                   <div className="space-y-3">
                     {filterData.subcategories
                       .filter(sub => !activeCategory || filterData.categorySubcategoryMap[activeCategory]?.includes(sub))
@@ -223,7 +233,7 @@ export default function CatalogClient({ products }: { products: any[] }) {
               {/* Order Type */}
               {filterData.orderTypes.length > 0 && (
                 <div>
-                  <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-[#C5A059]">Type of Order</h3>
+                  <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-black">Type of Order</h3>
                   <div className="space-y-3">
                     {filterData.orderTypes.map(ord => (
                       <label key={ord} className="flex items-center gap-3 cursor-pointer group">
@@ -241,6 +251,28 @@ export default function CatalogClient({ products }: { products: any[] }) {
                   </div>
                 </div>
               )}
+
+              {/* Collection Filter (Mobile) */}
+              {filterData.collections.length > 0 && (
+                <div>
+                  <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-black">Collection</h3>
+                  <div className="space-y-3">
+                    {filterData.collections.map(col => (
+                      <label key={col} className="flex items-center gap-3 cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          className="w-4 h-4 border-gray-200 rounded-none accent-[#C5A059]"
+                          checked={activeCollection === col}
+                          onChange={() => setActiveCollection(prev => prev === col ? null : col)}
+                        />
+                        <span className={`text-xs tracking-wider transition-colors ${activeCollection === col ? 'text-black font-semibold' : 'text-gray-500 group-hover:text-black'}`}>
+                          {col}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Footer buttons */}
@@ -251,9 +283,9 @@ export default function CatalogClient({ products }: { products: any[] }) {
               >
                 View {filteredProducts.length} Results
               </button>
-              {(activeCategory || activeSubcategory || activeOrderType) && (
+              {(activeCategory || activeSubcategory || activeOrderType || activeCollection) && (
                 <button
-                  onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); setActiveMetals([]); setActiveStones([]); }}
+                  onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); setActiveCollection(null); setActiveMetals([]); setActiveStones([]); }}
                   className="w-full py-2.5 text-xs uppercase tracking-widest font-medium border border-gray-300 text-gray-600 hover:border-black hover:text-black transition-all"
                 >
                   Clear All
@@ -270,7 +302,7 @@ export default function CatalogClient({ products }: { products: any[] }) {
           <div className="sticky top-24 space-y-12">
             {/* Category Filter */}
             <div>
-              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-6 text-[#C5A059]">Category</h3>
+              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-6 text-black">Category</h3>
               <div className="space-y-3">
                 {filterData.categories.map(cat => (
                   <label key={cat} className="flex items-center gap-3 cursor-pointer group">
@@ -294,7 +326,7 @@ export default function CatalogClient({ products }: { products: any[] }) {
             {/* Subcategory Filter */}
             {(activeCategory || filterData.subcategories.length > 0) && (
               <div>
-                <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-6 text-[#C5A059]">Subcategory</h3>
+                <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-6 text-black">Subcategory</h3>
                 <div className="space-y-3">
                   {filterData.subcategories
                     .filter(sub => !activeCategory || filterData.categorySubcategoryMap[activeCategory]?.includes(sub))
@@ -318,7 +350,7 @@ export default function CatalogClient({ products }: { products: any[] }) {
             {/* Order Type Filter */}
             {filterData.orderTypes.length > 0 && (
               <div>
-                <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-6 text-[#C5A059]">Type of Order</h3>
+                <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-6 text-black">Type of Order</h3>
                 <div className="space-y-3">
                   {filterData.orderTypes.map(ord => (
                     <label key={ord} className="flex items-center gap-3 cursor-pointer group">
@@ -337,9 +369,31 @@ export default function CatalogClient({ products }: { products: any[] }) {
               </div>
             )}
 
+            {/* Collection Filter (Desktop) */}
+            {filterData.collections.length > 0 && (
+              <div>
+                <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-6 text-black">Collection</h3>
+                <div className="space-y-3">
+                  {filterData.collections.map(col => (
+                    <label key={col} className="flex items-center gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 border-gray-200 rounded-none accent-[#C5A059] checked:bg-[#C5A059]"
+                        checked={activeCollection === col}
+                        onChange={() => setActiveCollection(prev => prev === col ? null : col)}
+                      />
+                      <span className={`text-xs tracking-wider transition-colors ${activeCollection === col ? 'text-black font-semibold' : 'text-gray-500 group-hover:text-black'}`}>
+                        {col}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Metal Filter */}
             {/* <div>
-              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-6 text-[#C5A059]">Metal</h3>
+              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-6 text-black">Metal</h3>
               <div className="flex flex-wrap gap-2">
                 {filterData.metals.map(metal => (
                   <button
@@ -355,7 +409,7 @@ export default function CatalogClient({ products }: { products: any[] }) {
 
             {/* Stone Type Filter */}
             {/* <div>
-              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-6 text-[#C5A059]">Stone Type</h3>
+              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-6 text-black">Stone Type</h3>
               <div className="space-y-3">
                 {filterData.stones.map(stone => (
                   <label key={stone} className="flex items-center gap-3 cursor-pointer group">
@@ -404,8 +458,8 @@ export default function CatalogClient({ products }: { products: any[] }) {
             <div className="text-center py-32">
               <p className="text-gray-400 font-serif italic uppercase tracking-widest">No styles match your selection</p>
               <button
-                onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); setActiveMetals([]); setActiveStones([]); setQuery(''); }}
-                className="mt-6 text-[11px] uppercase tracking-[0.2em] underline hover:text-[#C5A059] transition-all"
+                onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); setActiveCollection(null); setActiveMetals([]); setActiveStones([]); setQuery(''); }}
+                className="mt-6 text-[11px] uppercase tracking-[0.2em] underline hover:text-black transition-all"
               >
                 Clear All Filters
               </button>
