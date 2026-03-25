@@ -4,20 +4,21 @@
  * Uses the refresh token to automatically obtain and cache access tokens.
  * Access tokens expire every 60 minutes; this module handles transparent refresh.
  *
- * During Next.js builds, multiple worker processes may try to refresh simultaneously.
- * We use a file-based cache and a lock file in /tmp to coordinate across processes.
+ * This implementation uses both a file-based cache for cross-process build coordination
+ * and Next.js's `unstable_cache` for cross-lambda runtime caching on Vercel.
  */
 
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { unstable_cache } from 'next/cache';
 
 const ZOHO_CLIENT_ID = process.env.ZOHO_CLIENT_ID!;
 const ZOHO_CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET!;
 const ZOHO_REFRESH_TOKEN = process.env.ZOHO_REFRESH_TOKEN!;
 const ZOHO_ACCOUNTS_URL = (process.env.ZOHO_ACCOUNTS_URL || 'https://accounts.zoho.in').replace(/\/$/, '');
 
-// File paths for cross-process token caching and locking
+// File paths for cross-process coordination during build (single instance)
 const TOKEN_CACHE_PATH = path.join(os.tmpdir(), 'zoho-token-cache.json');
 const LOCK_FILE_PATH = path.join(os.tmpdir(), 'zoho-token.lock');
 
@@ -43,7 +44,7 @@ function getFileCachedToken(): TokenData | null {
             }
         }
     } catch (e) {
-        // Ignore read/parse errors
+        // Ignore errors
     }
     return null;
 }
@@ -56,24 +57,61 @@ function setFileCachedToken(token: string, expiresAt: number) {
         const data: TokenData = { accessToken: token, expiresAt };
         fs.writeFileSync(TOKEN_CACHE_PATH, JSON.stringify(data), 'utf-8');
     } catch (e) {
-        // Ignore write errors
+        // Ignore errors
     }
 }
 
 /**
+ * Performs the actual OAuth refresh.
+ * Wrapped in unstable_cache below to share across Vercel lambdas.
+ */
+const getCachedZohoToken = unstable_cache(
+    async (): Promise<TokenData> => {
+        const params = new URLSearchParams({
+            grant_type: 'refresh_token',
+            client_id: ZOHO_CLIENT_ID,
+            client_secret: ZOHO_CLIENT_SECRET,
+            refresh_token: ZOHO_REFRESH_TOKEN,
+        });
+
+        console.log(`[ZohoAuth] Refreshing token at runtime from ${ZOHO_ACCOUNTS_URL}...`);
+        
+        const res = await fetch(`${ZOHO_ACCOUNTS_URL}/oauth/v2/token`, {
+            method: 'POST',
+            body: params,
+            cache: 'no-store',
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || data.error) {
+            console.error(`[ZohoAuth] Refresh failed: ${res.status} — ${JSON.stringify(data)}`);
+            throw new Error(`Zoho refresh failed: ${data.error || res.status}`);
+        }
+
+        const expiresAt = Date.now() + (data.expires_in || 3600) * 1000;
+        return { accessToken: data.access_token, expiresAt };
+    },
+    ['zoho-access-token'],
+    {
+        revalidate: 3300, // Revalidate every 55 mins (Zoho tokens last 60 mins)
+        tags: ['zoho-token']
+    }
+);
+
+/**
  * Get a valid Zoho access token.
- * Returns a cached token if still valid, otherwise refreshes automatically.
  */
 export async function getAccessToken(): Promise<string> {
     const now = Date.now();
-    const BUFFER_TIME = 2 * 60 * 1000; // 2 minute buffer
+    const BUFFER_TIME = 2 * 60 * 1000;
 
-    // 1. Check in-memory cache first
+    // 1. Memory check (process-local)
     if (memoryCachedToken && now < memoryTokenExpiresAt - BUFFER_TIME) {
         return memoryCachedToken;
     }
 
-    // 2. Check file cache
+    // 2. File check (build-worker coordination)
     const fileData = getFileCachedToken();
     if (fileData && now < fileData.expiresAt - BUFFER_TIME) {
         memoryCachedToken = fileData.accessToken;
@@ -81,10 +119,25 @@ export async function getAccessToken(): Promise<string> {
         return memoryCachedToken;
     }
 
-    // 3. Deduplicate within the same process
-    if (refreshPromise) {
-        return refreshPromise;
+    // 3. Centralized Next.js Cache (cross-lambda runtime coordination)
+    // This is the primary fix for the "Access Denied" error on Vercel
+    try {
+        const data = await getCachedZohoToken();
+        if (data && data.accessToken) {
+            memoryCachedToken = data.accessToken;
+            memoryTokenExpiresAt = data.expiresAt;
+            
+            // Also update file cache for this worker
+            setFileCachedToken(data.accessToken, data.expiresAt);
+            
+            return data.accessToken;
+        }
+    } catch (e) {
+        console.error('[ZohoAuth] unstable_cache fetch failed, falling back to direct refresh.');
     }
+
+    // 4. Fallback: Direct refresh (with local process deduplication)
+    if (refreshPromise) return refreshPromise;
 
     refreshPromise = (async () => {
         try {
@@ -101,25 +154,14 @@ async function refreshAccessToken(retryCount = 0): Promise<string> {
     const MAX_RETRIES = 5;
     const BUFFER_TIME = 2 * 60 * 1000;
 
-    // Check file cache again right before starting, in case another process refreshed it
-    const fileData = getFileCachedToken();
-    if (fileData && Date.now() < fileData.expiresAt - BUFFER_TIME) {
-        memoryCachedToken = fileData.accessToken;
-        memoryTokenExpiresAt = fileData.expiresAt;
-        return memoryCachedToken;
-    }
-
-    // Cross-process locking: try to acquire lock
+    // Lock file check
     let hasLock = false;
     try {
-        // 'wx' flag fails if file exists
         fs.writeFileSync(LOCK_FILE_PATH, process.pid.toString(), { flag: 'wx' });
         hasLock = true;
     } catch (e) {
-        // Lock exists, wait and retry checking the file cache
         if (retryCount < MAX_RETRIES) {
             const wait = 1000 + Math.random() * 2000;
-            console.log(`[ZohoAuth] Waiting for lock... retry ${retryCount + 1}`);
             await new Promise(resolve => setTimeout(resolve, wait));
             return refreshAccessToken(retryCount + 1);
         }
@@ -133,37 +175,26 @@ async function refreshAccessToken(retryCount = 0): Promise<string> {
             refresh_token: ZOHO_REFRESH_TOKEN,
         });
 
-        console.log(`[ZohoAuth] Fetching fresh token from ${ZOHO_ACCOUNTS_URL}...`);
-        
         const res = await fetch(`${ZOHO_ACCOUNTS_URL}/oauth/v2/token`, {
             method: 'POST',
             body: params,
-            // CRITICAL: Prevent Next.js from caching the token response (especially failures)
             cache: 'no-store',
-            // @ts-ignore - for some versions of next
-            next: { revalidate: 0 }
         });
 
         const data = await res.json();
-
-        // Detect rate limit: Zoho India returns 400 for rate limits on refresh
         const errorDesc = (data.error_description || '').toLowerCase();
         const isRateLimit = res.status === 429 || 
             (res.status === 400 && (errorDesc.includes('too many requests') || errorDesc.includes('access denied')));
 
         if (isRateLimit && retryCount < MAX_RETRIES) {
             const delay = Math.pow(2, retryCount) * 3000 + Math.random() * 3000;
-            console.warn(`[ZohoAuth] Rate limit hit. Retrying in ${Math.round(delay)}ms...`);
+            console.warn(`[ZohoAuth] Fallback rate limit hit. Retrying in ${Math.round(delay)}ms...`);
             await new Promise((resolve) => setTimeout(resolve, delay));
             return refreshAccessToken(retryCount + 1);
         }
 
-        if (!res.ok) {
-            throw new Error(`Zoho token refresh failed: ${res.status} — ${JSON.stringify(data)}`);
-        }
-
-        if (data.error) {
-            throw new Error(`Zoho token error: ${data.error} — ${data.error_description}`);
+        if (!res.ok || data.error) {
+            throw new Error(`Zoho fallback refresh failed: ${data.error || res.status}`);
         }
 
         const expiresAt = Date.now() + (data.expires_in || 3600) * 1000;
@@ -171,10 +202,8 @@ async function refreshAccessToken(retryCount = 0): Promise<string> {
         memoryTokenExpiresAt = expiresAt;
 
         setFileCachedToken(memoryCachedToken!, expiresAt);
-        console.log('✅ [ZohoAuth] Access token refreshed successfully.');
         return memoryCachedToken!;
     } finally {
-        // Release lock
         if (hasLock) {
             try { fs.unlinkSync(LOCK_FILE_PATH); } catch (e) {}
         }
@@ -183,25 +212,17 @@ async function refreshAccessToken(retryCount = 0): Promise<string> {
 
 /**
  * Invalidate the cached token.
- * ONLY invalidates if the provided token matches the current one,
- * preventing race conditions between parallel requests.
  */
 export function invalidateToken(failedToken: string): void {
     if (!failedToken) return;
 
     if (memoryCachedToken === failedToken) {
-        console.log('[ZohoAuth] Invalidating in-memory token.');
         memoryCachedToken = null;
         memoryTokenExpiresAt = 0;
     }
 
     const fileData = getFileCachedToken();
     if (fileData && fileData.accessToken === failedToken) {
-        console.log('[ZohoAuth] Invalidating file-cached token.');
-        try {
-            if (fs.existsSync(TOKEN_CACHE_PATH)) {
-                fs.unlinkSync(TOKEN_CACHE_PATH);
-            }
-        } catch (e) {}
+        try { if (fs.existsSync(TOKEN_CACHE_PATH)) fs.unlinkSync(TOKEN_CACHE_PATH); } catch (e) {}
     }
 }
