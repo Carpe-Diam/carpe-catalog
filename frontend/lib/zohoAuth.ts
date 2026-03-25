@@ -12,10 +12,12 @@ const ZOHO_ACCOUNTS_URL = process.env.ZOHO_ACCOUNTS_URL || 'https://accounts.zoh
 
 let cachedToken: string | null = null;
 let tokenExpiresAt: number = 0;
+let refreshPromise: Promise<string> | null = null;
 
 /**
  * Get a valid Zoho access token.
  * Returns a cached token if still valid, otherwise refreshes automatically.
+ * Deduplicates concurrent refresh calls to avoid Zoho rate limits.
  */
 export async function getAccessToken(): Promise<string> {
     // Return cached token if it hasn't expired (with 5-minute buffer)
@@ -23,6 +25,22 @@ export async function getAccessToken(): Promise<string> {
         return cachedToken;
     }
 
+    // If a refresh is already in flight, wait for it instead of making another call
+    if (refreshPromise) {
+        return refreshPromise;
+    }
+
+    refreshPromise = refreshAccessToken();
+
+    try {
+        const token = await refreshPromise;
+        return token;
+    } finally {
+        refreshPromise = null;
+    }
+}
+
+async function refreshAccessToken(): Promise<string> {
     const params = new URLSearchParams({
         grant_type: 'refresh_token',
         client_id: ZOHO_CLIENT_ID,
@@ -50,4 +68,12 @@ export async function getAccessToken(): Promise<string> {
     tokenExpiresAt = Date.now() + data.expires_in * 1000;
 
     return cachedToken!;
+}
+
+/**
+ * Invalidate the cached token so the next getAccessToken() call forces a refresh.
+ */
+export function invalidateToken(): void {
+    cachedToken = null;
+    tokenExpiresAt = 0;
 }

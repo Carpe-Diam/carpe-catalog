@@ -5,7 +5,7 @@
  * and transforms them into the shape the frontend expects.
  */
 
-import { getAccessToken } from './zohoAuth';
+import { getAccessToken, invalidateToken } from './zohoAuth';
 import { unstable_cache } from 'next/cache';
 
 const ZOHO_API_DOMAIN = process.env.ZOHO_API_DOMAIN || 'https://www.zohoapis.in';
@@ -72,12 +72,41 @@ async function fetchZoho(endpoint: string): Promise<any> {
         headers: {
             Authorization: `Zoho-oauthtoken ${token}`,
         },
-        cache: 'no-store',
+        next: { revalidate: 900 },
     });
 
     // Zoho returns 204 No Content when search finds no results
     if (res.status === 204) {
         return { data: [] };
+    }
+
+    // If token expired/invalid, clear cache, get fresh token, and retry once
+    if (res.status === 401) {
+        invalidateToken();
+        const freshToken = await getAccessToken();
+
+        const retryRes = await fetch(`${ZOHO_API_DOMAIN}/crm/v7${endpoint}`, {
+            headers: {
+                Authorization: `Zoho-oauthtoken ${freshToken}`,
+            },
+            next: { revalidate: 900 },
+        });
+
+        if (retryRes.status === 204) {
+            return { data: [] };
+        }
+
+        if (!retryRes.ok) {
+            const errorText = await retryRes.text();
+            throw new Error(`Zoho API error: ${retryRes.status} — ${errorText}`);
+        }
+
+        const retryText = await retryRes.text();
+        if (!retryText) {
+            return { data: [] };
+        }
+
+        return JSON.parse(retryText);
     }
 
     if (!res.ok) {
@@ -683,7 +712,7 @@ export const getProducts = unstable_cache(
     return products.map((p: any) =>
         transformProduct(p, variantsByProductId[p.id] || [])
     );
-}, ['zoho-products'], { revalidate: 3600, tags: ['products'] });
+}, ['zoho-products'], { revalidate: 900, tags: ['products'] });
 
 /**
  * Fetch a single product by its parent SKU (Product_Name)
@@ -726,7 +755,7 @@ export const getProductBySku = unstable_cache(
     const variants = catalogVariants.map((v: any) => transformVariant(v, productName));
 
     return transformProduct(product, variants);
-}, ['zoho-product'], { revalidate: 3600, tags: ['product'] });
+}, ['zoho-product'], { revalidate: 900, tags: ['product'] });
 
 /**
  * Access a private collection by slug and password
