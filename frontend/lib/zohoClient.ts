@@ -82,14 +82,16 @@ async function fetchZoho(endpoint: string): Promise<any> {
 
     // If token expired/invalid, clear cache, get fresh token, and retry once
     if (res.status === 401) {
-        invalidateToken();
+        console.warn(`[ZohoClient] 401 Unauthorized for ${endpoint}. Invalidating token...`);
+        invalidateToken(token);
         const freshToken = await getAccessToken();
 
         const retryRes = await fetch(`${ZOHO_API_DOMAIN}/crm/v7${endpoint}`, {
             headers: {
                 Authorization: `Zoho-oauthtoken ${freshToken}`,
             },
-            next: { revalidate: 900 },
+            // Prevent caching the retry attempt if it fails
+            cache: 'no-store'
         });
 
         if (retryRes.status === 204) {
