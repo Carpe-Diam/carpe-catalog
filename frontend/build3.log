@@ -1,0 +1,145 @@
+
+> frontend@0.1.0 build
+> next build
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+   ▲ Next.js 16.0.1 (Turbopack)
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+ ✓ Compiled successfully in 10.5s
+   Running TypeScript ...
+   Collecting page data ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+   Generating static pages (0/8) ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+   Generating static pages (2/8) 
+   Generating static pages (4/8) 
+   Generating static pages (6/8) 
+API Response: [
+  {
+    id: '1105156000003439001',
+    parent_sku: 'SR00089',
+    title: 'SR00089',
+    category: 'Ring - R',
+    subcategory: 'Solitaire Ring - SR',
+    collection: [],
+    base_price: null,
+    others: null,
+    type_of_order: 'Stock order - S',
+    record_image: null,
+    variants: [ [Object] ]
+  },
+  {
+    id: '1105156000003141547',
+    parent_sku: 'SBR00041',
+    title: 'Single Motif Clover Bracelet',
+    category: 'Bracelet - BR',
+    subcategory: 'Charm Bracelet - CHB',
+    collection: [],
+    base_price: null,
+    others: null,
+    type_of_order: 'Stock order - S',
+    record_image: null,
+    variants: [ [Object] ]
+  },
+  {
+    id: '1105156000003141452',
+    parent_sku: 'SBR00014',
+    title: 'Ruby Octagon Tennis Bracelet',
+    category: 'Bracelet - BR',
+    subcategory: 'Loose Bracelet - LB',
+    collection: [ 'Essentials' ],
+    base_price: null,
+    others: null,
+    type_of_order: 'Stock order - S',
+    record_image: null,
+    variants: [ [Object] ]
+  },
+  {
+    id: '1105156000003141406',
+    parent_sku: 'SN00025',
+    title: 'Petite Dewdrop necklace',
+    category: 'Necklace - N',
+    subcategory: null,
+    collection: [ 'Essentials' ],
+    base_price: null,
+    others: null,
+    type_of_order: 'Stock order - S',
+    record_image: null,
+    variants: [ [Object] ]
+  },
+  {
+    id: '1105156000003141361',
+    parent_sku: 'SE00102',
+    title: 'SE00102',
+    category: 'Earring - E',
+    subcategory: 'Stud Earring - S',
+    collection: [ 'Essentials' ],
+    base_price: null,
+    others: null,
+    type_of_order: 'Stock order - S',
+    record_image: null,
+    variants: [ [Object] ]
+  },
+  {
+    id: '1105156000003141325',
+    parent_sku: 'SBR00012',
+    title: 'Emerald Pear Tennis Bracelet',
+    category: 'Bracelet - BR',
+    subcategory: null,
+    collection: [ 'Essentials' ],
+    base_price: null,
+    others: null,
+    type_of_order: 'Stock order - S',
+    record_image: null,
+    variants: [ [Object] ]
+  },
+  {
+    id: '1105156000003108347',
+    parent_sku: 'SR00010',
+    title: 'Asscher Half Eternity Ring',
+    category: 'Ring - R',
+    subcategory: null,
+    collection: [ 'Essentials' ],
+    base_price: null,
+    others: null,
+    type_of_order: 'Stock order - S',
+    record_image: null,
+    variants: []
+  }
+]
+ ✓ Generating static pages (8/8) in 13.8s
+   Finalizing page optimization ...
+
+Route (app)                     Revalidate  Expire
+┌ ○ /                                   1h      1y
+├ ○ /_not-found                         1h      1y
+├ ƒ /api/image-proxy
+├ ƒ /api/order-request
+├ ƒ /api/private-collection
+├ ○ /catalog                            1h      1y
+├ ƒ /private-collection/[slug]
+├ ƒ /product/[sku]
+└ ƒ /share/[sku]
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -152,7 +152,7 @@ export default function HomeClient({ products }: { products: any[] }) {
             </div>
           </div>
           <div className="reveal">
-            <p className="text-[9px] uppercase tracking-[0.4em] text-[#D4AF37] mb-6">The Heritage</p>
+            <p className="text-[9px] uppercase tracking-[0.4em] text-black mb-6">The Heritage</p>
             <h2 className="text-4xl md:text-5xl font-serif italic mb-10 leading-tight">
               Uncompromising<br />
               <span className="not-italic font-normal">Artistry</span>
