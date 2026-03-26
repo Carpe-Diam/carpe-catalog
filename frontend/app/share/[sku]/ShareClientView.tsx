@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { Play, X, Download, Share2 } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { toJpeg } from "html-to-image";
 import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
 
@@ -39,6 +38,7 @@ interface Variant {
   total_cost: number;
   media: Media[];
   diamond_weight?: number | null;
+  website_description?: string | null;
 }
 
 interface Product {
@@ -49,6 +49,7 @@ interface Product {
   subcategory?: string | null;
   base_price?: number | null;
   record_image?: string | null;
+  product_description?: string | null;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -122,45 +123,179 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
   }, []);
 
   const handleDownloadPDF = async () => {
-    const element = document.getElementById("share-page-content");
-    if (!element) return;
-
     try {
       setIsDownloading(true);
       setDownloadError(null);
 
-      const imgData = await toJpeg(element, {
-        quality: 0.95,
-        backgroundColor: '#ffffff',
-        pixelRatio: 2,
+      const v = variant;
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const margin = 20;
+      const contentW = pageW - margin * 2;
+      let y = margin;
+
+      // --- Helper: load image as data URL ---
+      const loadImageAsDataUrl = (url: string): Promise<string> =>
+        new Promise((resolve, reject) => {
+          const img = new window.Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            const ctx = canvas.getContext("2d");
+            ctx?.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL("image/jpeg", 0.9));
+          };
+          img.onerror = reject;
+          img.src = url;
+        });
+
+      // --- Product Title ---
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(22);
+      pdf.text(product.title || "Product", margin, y);
+      y += 10;
+
+      // --- Ref ---
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      pdf.setTextColor(150, 150, 150);
+      pdf.text(`REF: ${v?.variant_sku || ""}`, margin, y);
+      y += 8;
+      pdf.setTextColor(0, 0, 0);
+
+      // --- Product Image (first catalog image) ---
+      const imageMedia = mediaArray.filter(m => !m.file_type.includes("video"));
+      if (imageMedia.length > 0) {
+        const imgUrl = imageMedia[0].download_url || imageMedia[0].preview_url;
+        try {
+          const imgDataUrl = await loadImageAsDataUrl(imgUrl);
+          const imgEl = new window.Image();
+          imgEl.src = imgDataUrl;
+          await new Promise(r => { imgEl.onload = r; });
+
+          const aspectRatio = imgEl.naturalHeight / imgEl.naturalWidth;
+          const imgW = Math.min(contentW, 120);
+          const imgH = imgW * aspectRatio;
+
+          // Center the image
+          const imgX = margin + (contentW - imgW) / 2;
+          pdf.addImage(imgDataUrl, "JPEG", imgX, y, imgW, imgH);
+          y += imgH + 10;
+        } catch {
+          // If image fails to load, skip
+          y += 5;
+        }
+      }
+
+      // --- Description sentence ---
+      const metalColor = v?.metal_color?.toLowerCase() || "";
+      const metalType = v?.metal_type?.toLowerCase() || "";
+      const stones = extractStones(v?.sku_segments || []);
+
+      const stoneDescParts = stones.map(s => {
+        let desc = s.type.toLowerCase();
+        if (s.subGroup === 'LabGrown') desc = `lab-grown ${desc}`;
+        else if (s.subGroup === 'Natural') desc = `natural ${desc}`;
+        return desc.endsWith('y') ? `${desc.slice(0, -1)}ies` : `${desc}s`;
       });
 
-      const img = new window.Image();
-      img.src = imgData;
-      await new Promise((resolve) => { img.onload = resolve; });
+      let stoneDesc = "";
+      if (stoneDescParts.length === 1) stoneDesc = stoneDescParts[0];
+      else if (stoneDescParts.length === 2) stoneDesc = `${stoneDescParts[0]} and ${stoneDescParts[1]}`;
+      else if (stoneDescParts.length > 2) stoneDesc = `${stoneDescParts.slice(0, -1).join(', ')} and ${stoneDescParts[stoneDescParts.length - 1]}`;
 
-      const pdf = new jsPDF({
-        orientation: img.width > img.height ? "landscape" : "portrait",
-        unit: "mm",
-        format: "a4",
+      const categoryLabel = product.category?.split('-')[0]?.trim()?.toLowerCase() || 'ring';
+      if (metalColor && metalType) {
+        const sentence = `${v?.carat_weight} kt ${metalColor} ${metalType} ${categoryLabel}${stoneDesc ? ` set with ${stoneDesc}` : ''}.`;
+        pdf.setFontSize(11);
+        pdf.setTextColor(80, 80, 80);
+        const descLines = pdf.splitTextToSize(sentence.charAt(0).toUpperCase() + sentence.slice(1), contentW);
+        pdf.text(descLines, margin, y);
+        y += descLines.length * 5 + 8;
+      }
+
+      // --- Divider ---
+      pdf.setDrawColor(220, 220, 220);
+      pdf.line(margin, y, pageW - margin, y);
+      y += 8;
+
+      // --- Product Details ---
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(12);
+      pdf.text("Product Details", margin, y);
+      y += 8;
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(10);
+
+      const getSubgroupDisplay = (sg?: string) => {
+        if (!sg) return "";
+        if (sg.toLowerCase() === 'labgrown') return "Lab-Grown";
+        const lower = sg.toLowerCase();
+        return lower.replace(/\b\w/g, c => c.toUpperCase());
+      };
+
+      const details: string[] = [];
+
+      const pdfTitleCase = (str: string) => str.replace(/\b\w/g, c => c.toUpperCase());
+
+      // Metal
+      if (v?.metal_type && v?.carat_weight && v?.metal_color) {
+        details.push(`Metal: ${v.carat_weight}K ${pdfTitleCase(v.metal_color)} ${pdfTitleCase(v.metal_type)} (100% Recycled Solid Gold)`);
+      }
+
+      // Gold weight
+      if (v?.weight_grams) {
+        details.push(`Gold Weight: ${v.weight_grams} g`);
+      }
+
+      // Total diamond weight
+      if (v?.diamond_weight) {
+        details.push(`Total Diamond Weight: ${v.diamond_weight} ctw`);
+      }
+
+      // Diamond
+      const diamondStone = stones.find(s => s.type === 'Diamond');
+      if (diamondStone) {
+        let diamondText = `Diamond: ${getSubgroupDisplay(diamondStone.subGroup)} Diamond`;
+        if (v?.dia_quality) diamondText += ` (${pdfTitleCase(v.dia_quality)} Quality)`;
+        details.push(diamondText);
+      }
+
+      // Gemstones (combined)
+      const gemstones = stones.filter(s => s.type !== 'Diamond');
+      if (gemstones.length > 0) {
+        const gemDisplay = gemstones.map(s => {
+          const origin = getSubgroupDisplay(s.subGroup);
+          return origin ? `${pdfTitleCase(origin)} ${pdfTitleCase(s.type)}` : pdfTitleCase(s.type);
+        }).join(', ');
+        details.push(`Gemstones: ${gemDisplay}`);
+      }
+
+      // Render each detail as a bullet point
+      details.forEach(detail => {
+        const lines = pdf.splitTextToSize(`• ${detail}`, contentW - 5);
+        pdf.text(lines, margin + 2, y);
+        y += lines.length * 5 + 2;
       });
 
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (img.height * pdfWidth) / img.width;
-
-      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
-
-      // Add QR code to the PDF (bottom-right corner)
+      // --- QR Code (bottom-right) ---
       if (qrDataUrl) {
-        const qrSize = 30; // mm
-        const qrX = pdfWidth - qrSize - 8;
-        const qrY = Math.min(pdfHeight, pdf.internal.pageSize.getHeight()) - qrSize - 8;
-        pdf.addImage(qrDataUrl, "PNG", qrX, qrY, qrSize, qrSize);
+        const qrSize = 25;
+        const qrX = pageW - margin - qrSize;
+        const qrY2 = pdf.internal.pageSize.getHeight() - margin - qrSize;
+        pdf.addImage(qrDataUrl, "PNG", qrX, qrY2, qrSize, qrSize);
+
+        pdf.setFontSize(7);
+        pdf.setTextColor(150, 150, 150);
+        pdf.text("Scan to view online", qrX, qrY2 + qrSize + 3);
       }
 
       const title = product.title || "Product";
       const filename = `${title.replace(/[^a-z0-9]/gi, '_')}.pdf`;
-
       pdf.save(filename);
     } catch (error: any) {
       console.error("Error generating PDF:", error);
@@ -222,8 +357,8 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
   }, { scope: containerRef });
 
   return (
-    <div id="share-page-content" className="min-h-screen bg-white flex flex-col font-sans text-gray-900" ref={containerRef}>
-      {/* Header */}
+    <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900" ref={containerRef}>
+      {/* Header — outside PDF capture area */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-4 md:px-6 py-3 md:py-4">
         <span className="text-xs uppercase tracking-widest text-gray-500">Ref: {variant?.variant_sku}</span>
         <div className="flex items-center gap-2 md:gap-4">
@@ -247,7 +382,7 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
         </div>
       </header>
 
-      <main className="flex-grow pb-32">
+      <main id="share-page-content" className="flex-grow pb-32 bg-white">
         <section className="container mx-auto px-4 md:px-8 flex flex-col lg:flex-row gap-8 lg:gap-12 mb-16 pt-8">
           {/* Left: Image Gallery (sticky) */}
           <div className="w-full lg:w-2/3 lg:sticky lg:top-24 self-start">
@@ -398,21 +533,18 @@ const ShareHeaderSection = memo(function ShareHeaderSection({
     ? `${variant?.carat_weight} kt ${metalColor} ${metalType} ${categoryLabel}${stoneDesc ? ` set with ${stoneDesc}` : ''}.`
     : "";
 
+  // Prefer variant website_description, then product_description, then auto-generated sentence
+  const description = variant?.website_description || product.product_description || sentence;
+
   return (
     <section>
       <h1 className="text-xl md:text-2xl font-semibold mb-2 uppercase tracking-wide">
         {product.title}
       </h1>
 
-      <div className="mb-4">
-        <span className="inline-block border border-gray-300 px-2 py-1 text-[10px] md:text-xs uppercase tracking-wider text-gray-600">
-          {product.category?.split('-')[0]?.trim() || "FINE JEWELRY"}
-        </span>
-      </div>
-
-      {sentence && (
-        <p className="text-sm text-gray-700 mb-6">
-          {sentence.charAt(0).toUpperCase() + sentence.slice(1)}
+      {description && (
+        <p className="text-lg md:text-xl font-serif italic text-gray-700 mb-6 leading-tight">
+          {description.charAt(0).toUpperCase() + description.slice(1)}
         </p>
       )}
 
@@ -422,6 +554,9 @@ const ShareHeaderSection = memo(function ShareHeaderSection({
 });
 
 /* --------- DETAILS SECTION --------- */
+
+const titleCase = (str: string) =>
+  str.replace(/\b\w/g, c => c.toUpperCase());
 
 const ShareDetailsSection = memo(function ShareDetailsSection({
   product,
@@ -434,16 +569,26 @@ const ShareDetailsSection = memo(function ShareDetailsSection({
 
   const getSubgroupDisplay = (sg?: string | null) => {
     if (!sg) return "";
-    if (sg.toLowerCase() === 'labgrown') return "lab-grown";
-    return sg.toLowerCase();
+    if (sg.toLowerCase() === 'labgrown') return "Lab-Grown";
+    return titleCase(sg.toLowerCase());
   };
 
   const getMetalDisplay = () => {
     if (!v?.metal_type || !v?.carat_weight || !v?.metal_color) return null;
-    return `${v.carat_weight}K ${v.metal_color} ${v.metal_type} (100% recycled solid gold)`;
+    return `${v.carat_weight}K ${titleCase(v.metal_color)} ${titleCase(v.metal_type)} (100% Recycled Solid Gold)`;
   };
 
   const stones = extractStones(v?.sku_segments || []);
+
+  // Separate diamonds and gemstones
+  const diamondStone = stones.find(s => s.type === 'Diamond');
+  const gemstones = stones.filter(s => !['Diamond'].includes(s.type));
+
+  // Build gemstone display: combine all under one "Gemstones" label, comma-separated
+  const gemstoneDisplay = gemstones.map(s => {
+    const origin = getSubgroupDisplay(s.subGroup);
+    return origin ? `${titleCase(origin)} ${titleCase(s.type)}` : titleCase(s.type);
+  }).join(', ');
 
   return (
     <section>
@@ -451,26 +596,17 @@ const ShareDetailsSection = memo(function ShareDetailsSection({
         <p className="text-xs uppercase text-gray-400 mb-2">Ref: {v?.variant_sku}</p>
         <ul className="text-sm text-gray-700 list-disc pl-4 space-y-1">
           {getMetalDisplay() && <li>Metal: <span className="underline">{getMetalDisplay()}</span></li>}
-          {stones.map((stone, idx) => {
-            const isDiamond = stone.type === 'Diamond';
-            const isSpecificGemstone = !['Diamond', 'Pearl', 'Gemstone', 'Beads'].includes(stone.type);
-            const prefix = isDiamond || stone.type === 'Pearl' ? stone.type : (isSpecificGemstone ? 'Gemstone' : stone.type);
-            return (
-              <li key={`stone-${idx}`}>
-                {prefix}: {getSubgroupDisplay(stone.subGroup)} <span className="capitalize">{stone.type}</span>
-                {isDiamond && v?.dia_quality ? ` (${v.dia_quality} quality)` : ''}
-              </li>
-            );
-          })}
-          {v?.diamond_weight ? <li>Total diamond weight: {v.diamond_weight} ctw</li> : null}
-          {v?.dimensions && <li>Dimensions: {v.dimensions}</li>}
-          {v?.model && <li>Band width / model: {v.model}</li>}
-          {v?.weight_grams && <li>Weight: {v.weight_grams} g</li>}
-          {product.subcategory && <li>Type: {product.subcategory}</li>}
-          {v?.setting && <li>Setting: {v.setting}</li>}
+          {v?.weight_grams && <li>Gold Weight: {v.weight_grams} g</li>}
+          {v?.diamond_weight ? <li>Total Diamond Weight: {v.diamond_weight} ctw</li> : null}
+          {diamondStone && (
+            <li>
+              Diamond: {getSubgroupDisplay(diamondStone.subGroup)} {titleCase(diamondStone.type)}
+              {v?.dia_quality ? ` (${titleCase(v.dia_quality)} Quality)` : ''}
+            </li>
+          )}
+          {gemstoneDisplay && <li>Gemstones: {gemstoneDisplay}</li>}
         </ul>
       </div>
-
     </section>
   );
 });

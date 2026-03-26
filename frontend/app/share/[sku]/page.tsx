@@ -31,7 +31,7 @@ export default async function SharePage({
 
   const sku = resolvedParams.sku;
   const variantSku = resolvedSearch.variant;
-  const orderId = resolvedSearch.order ?? "00000";
+  const orderId = "00000";
 
   /* ---------------------------------------------------------------------- */
   /*                         FETCH FROM ZOHO CRM                              */

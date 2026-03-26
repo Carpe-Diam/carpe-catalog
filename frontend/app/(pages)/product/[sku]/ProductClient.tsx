@@ -43,6 +43,7 @@ export interface Variant {
   total_cost: number;
   media: Media[];
   diamond_weight?: number | null;
+  website_description?: string | null;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -82,6 +83,7 @@ export interface Product {
 
   subcategory?: string | null;
   record_image?: string | null;
+  product_description?: string | null;
   variants: Variant[];
 }
 
@@ -324,8 +326,53 @@ export default function ProductClient({ product }: ProductClientProps) {
                 />
               </div>
 
-              <div className="stagger-reveal mt-2">
+              <div className="stagger-reveal mt-2 mb-12">
                 <DetailsSection product={product} selectedVariant={selectedVariant} />
+              </div>
+
+              {/* Scroll Indicator Hint */}
+              <div className="stagger-reveal mt-12 mb-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-gray-400">
+                <div className="w-12 h-px bg-gray-200" />
+                <span>Scroll to discover our process</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Made to Order / Process Section */}
+        <section className="reveal-section py-24 px-6 bg-[#fafafa] overflow-hidden">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-16 items-center">
+            <div className="lg:col-span-3 relative aspect-video lg:aspect-auto lg:h-[600px] overflow-hidden bg-gray-100">
+              <video 
+                src="/product video.mp4" 
+                autoPlay 
+                loop 
+                muted 
+                playsInline 
+                className="w-full h-full object-cover transition-all duration-1000"
+              />
+            </div>
+            <div className="lg:col-span-2 lg:pl-8">
+              <div className="mb-10">
+                <p className="text-[10px] uppercase tracking-[0.4em] text-gray-400 mb-6 font-sans">Our Philosophy</p>
+                <h2 className="text-3xl md:text-4xl font-serif italic mb-2 leading-tight">Made in India.</h2>
+                <h2 className="text-3xl md:text-4xl font-serif italic mb-2 leading-tight">Made to order.</h2>
+                <h2 className="text-3xl md:text-4xl font-serif italic mb-8 leading-tight">Made for you.</h2>
+              </div>
+              
+              <div className="space-y-6 text-gray-600 leading-relaxed font-sans text-sm md:text-base">
+                <p>
+                  Consumers today are gradually evolving from a mass-driven economy to one that is more focused and intentional. This shift encourages brands to engage in more thoughtful conversations around creation and consumption.
+                </p>
+                <p>
+                  The one-size-fits-all model, which often leads to overproduction, is slowly giving way to a more conversational approach—one that is also more sustainable for the health of our planet.
+                </p>
+                <p>
+                  At Carpe Diam, while we have a collection to evolve ourselves and showcase our craftsmanship, we believe in this approach of <span className="italic font-serif">made to order, made for you.</span>
+                </p>
+                <p className="pt-4 border-t border-gray-200">
+                  Creating space for conversation, individuality, and conscious creation.
+                </p>
               </div>
             </div>
           </div>
@@ -457,24 +504,18 @@ const HeaderSection = memo(function HeaderSection({ product, selectedVariant }: 
     ? `${v?.carat_weight} kt ${metalColor} ${metalType} ${categoryLabel}${stoneDesc ? ` set with ${stoneDesc}` : ''}.`
     : "";
 
+  // Prefer variant website_description, then product_description, then auto-generated sentence
+  const description = v?.website_description || product.product_description || sentence;
+
   return (
     <section className="mb-10">
       <h1 className="text-2xl md:text-4xl font-serif italic mb-4 leading-tight">
         {product.title}
       </h1>
-      <p className="text-lg tracking-widest font-medium text-black mb-8">
-        {v?.total_cost ? `$${v.total_cost.toLocaleString()}` : "Price upon request"}
-      </p>
 
-      <div className="mb-4">
-        <span className="inline-block border border-gray-300 px-2 py-1 text-[10px] md:text-xs uppercase tracking-wider text-gray-600">
-          {product.category?.split('-')[0]?.trim() || "FINE JEWELRY"}
-        </span>
-      </div>
-
-      {sentence && (
-        <p className="text-sm text-gray-700 mb-6">
-          {sentence.charAt(0).toUpperCase() + sentence.slice(1)}
+      {description && (
+        <p className="text-lg md:text-xl font-serif italic text-gray-700 mb-6 leading-tight">
+          {description.charAt(0).toUpperCase() + description.slice(1)}
         </p>
       )}
 
@@ -523,17 +564,6 @@ const ConfigurationSection = memo(function ConfigurationSection({
           );
         })}
 
-        {/* Quantity */}
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-2">
-            <p className="text-sm font-medium uppercase tracking-wider">Quantity</p>
-          </div>
-          <div className="flex border border-gray-300 w-fit">
-            <button className="px-4 py-2 hover:bg-gray-50 text-gray-500 transition outline-none" onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
-            <span className="w-10 text-center text-sm flex items-center justify-center font-medium">{quantity}</span>
-            <button className="px-4 py-2 hover:bg-gray-50 text-gray-500 transition outline-none" onClick={() => setQuantity(quantity + 1)}>+</button>
-          </div>
-        </div>
 
 
 
@@ -559,17 +589,12 @@ const ConfigurationSection = memo(function ConfigurationSection({
             variant="outline"
             className="w-full border-gray-300 hover:bg-gray-50 uppercase tracking-widest py-4 h-auto rounded-none text-xs font-semibold"
             onClick={() => {
-              const orderId = Math.floor(100000 + Math.random() * 900000);
-              
-              // 1. Build the base URL with the parent SKU and order ID
-              let shareUrl = `/share/${product.parent_sku}?order=${orderId}`;
-              
-              // 2. Append the variant SKU only if a variant is currently selected
+              let shareUrl = `/share/${product.parent_sku}`;
+
               if (selectedVariant) {
-                shareUrl += `&variant=${selectedVariant.variant_sku}`;
+                shareUrl += `?variant=${selectedVariant.variant_sku}`;
               }
-              
-              // 3. Push the finalized URL
+
               router.push(shareUrl);
             }}
           >
@@ -618,21 +643,34 @@ interface DetailsSectionProps {
   selectedVariant: Variant | null;
 }
 
+const titleCase = (str: string) =>
+  str.replace(/\b\w/g, c => c.toUpperCase());
+
 const DetailsSection = memo(function DetailsSection({ product, selectedVariant }: DetailsSectionProps) {
   const v = selectedVariant;
 
   const getSubgroupDisplay = (sg?: string | null) => {
     if (!sg) return "";
-    if (sg.toLowerCase() === 'labgrown') return "lab-grown";
-    return sg.toLowerCase();
+    if (sg.toLowerCase() === 'labgrown') return "Lab-Grown";
+    return titleCase(sg.toLowerCase());
   };
 
   const getMetalDisplay = () => {
     if (!v?.metal_type || !v?.carat_weight || !v?.metal_color) return null;
-    return `${v.carat_weight}K ${v.metal_color} ${v.metal_type} (100% recycled solid gold)`;
+    return `${v.carat_weight}K ${titleCase(v.metal_color)} ${titleCase(v.metal_type)} (100% Recycled Solid Gold)`;
   };
 
   const stones = extractStones(v?.sku_segments || []);
+
+  // Separate diamonds and gemstones
+  const diamondStone = stones.find(s => s.type === 'Diamond');
+  const gemstones = stones.filter(s => !['Diamond'].includes(s.type));
+
+  // Build gemstone display: combine all under one "Gemstones" label, comma-separated
+  const gemstoneDisplay = gemstones.map(s => {
+    const origin = getSubgroupDisplay(s.subGroup);
+    return origin ? `${titleCase(origin)} ${titleCase(s.type)}` : titleCase(s.type);
+  }).join(', ');
 
   return (
     <section>
@@ -640,33 +678,16 @@ const DetailsSection = memo(function DetailsSection({ product, selectedVariant }
         <p className="text-xs uppercase text-gray-400 mb-2">Ref: {v?.variant_sku}</p>
         <ul className="text-sm text-gray-700 list-disc pl-4 space-y-1">
           {getMetalDisplay() && <li>Metal: <span className="underline">{getMetalDisplay()}</span></li>}
-          {stones.map((stone, idx) => {
-            const isDiamond = stone.type === 'Diamond';
-            const isSpecificGemstone = !['Diamond', 'Pearl', 'Gemstone', 'Beads'].includes(stone.type);
-            const prefix = isDiamond || stone.type === 'Pearl' ? stone.type : (isSpecificGemstone ? 'Gemstone' : stone.type);
-
-            return (
-              <li key={`stone-${idx}`}>
-                {prefix}: {getSubgroupDisplay(stone.subGroup)} <span className="capitalize">{stone.type}</span>
-                {isDiamond && v?.dia_quality ? ` (${v.dia_quality} quality)` : ''}
-              </li>
-            );
-          })}
-          {v?.diamond_weight ? <li>Total diamond weight: {v.diamond_weight} ctw</li> : null}
-          {/* {v?.diamond_count ? <li>Number of diamonds: {v.diamond_count}</li> : null} */}
-          {v?.dimensions && <li>Dimensions: {v.dimensions}</li>}
-          {v?.model && <li>Band width / model: {v.model}</li>}
-          {v?.weight_grams && <li>Weight: {v.weight_grams} g</li>}
-          {product.subcategory && <li>Type: {product.subcategory}</li>}
-          {v?.setting && <li>Setting: {v.setting}</li>}
+          {v?.weight_grams && <li>Gold Weight: {v.weight_grams} g</li>}
+          {v?.diamond_weight ? <li>Total Diamond Weight: {v.diamond_weight} ctw</li> : null}
+          {diamondStone && (
+            <li>
+              Diamond: {getSubgroupDisplay(diamondStone.subGroup)} {titleCase(diamondStone.type)}
+              {v?.dia_quality ? ` (${titleCase(v.dia_quality)} Quality)` : ''}
+            </li>
+          )}
+          {gemstoneDisplay && <li>Gemstones: {gemstoneDisplay}</li>}
         </ul>
-      </div>
-
-      <div className="mt-6 flex items-center gap-2 text-xs uppercase tracking-wide font-medium cursor-pointer text-gray-600 hover:text-black transition">
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-        </svg>
-        Share Product
       </div>
     </section>
   );

@@ -18,6 +18,9 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Carpe Diam",
   description: "A collection of Carpe Diam",
+  icons: {
+    icon: "/Favicon_450x.ico",
+  },
 };
 
 export default async function RootLayout({
@@ -63,7 +66,7 @@ export default async function RootLayout({
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="bg-white text-[#111] antialiased min-h-screen flex flex-col font-sans">
         {/* Global Dynamic Hooked Header */}
-        <GlobalHeader categoryTree={categoryTree} collections={collections} />
+        <GlobalHeader categoryTree={categoryTree} />
 
         <main className="flex-grow">
           {children}

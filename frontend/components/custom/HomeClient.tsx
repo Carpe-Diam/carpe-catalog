@@ -21,10 +21,24 @@ export default function HomeClient({ products }: { products: any[] }) {
       if (p.category) {
         const cat = p.category.split(' - ')[0].trim();
         counts[cat] = (counts[cat] || 0) + 1;
-        // Build a local filename: "Ring" -> "cat-rings.png", "Earring" -> "cat-earrings.png"
+        
         const baseName = cat.split(' ')[0].toLowerCase();
-        const plural = baseName.endsWith('s') ? baseName : baseName + 's';
-        images[cat] = `/images/redesign/cat-${plural}.png`;
+        let image = '';
+        
+        if (baseName === 'bracelet' || baseName === 'bracelets') {
+          image = '/images/redesign/cat-bracelets.jpeg';
+        } else if (baseName === 'earring' || baseName === 'earrings') {
+          image = '/images/redesign/Earrings.jpeg';
+        } else if (baseName === 'necklace' || baseName === 'necklaces') {
+          image = '/images/redesign/Necklace.jpeg';
+        } else if (baseName === 'ring' || baseName === 'rings') {
+          image = '/images/redesign/Ring.jpeg';
+        } else {
+          const plural = baseName.endsWith('s') ? baseName : baseName + 's';
+          image = `/images/redesign/cat-${plural}.png`;
+        }
+        
+        images[cat] = image;
       }
     });
 

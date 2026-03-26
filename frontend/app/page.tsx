@@ -4,7 +4,7 @@ import HomeClient from "@/components/custom/HomeClient";
 export default async function Home() {
   try {
     const products = await getProducts();
-    // console.log("API Response:", products);
+    console.log("API Response:", products);
 
     return (
       <HomeClient products={products ?? []} />

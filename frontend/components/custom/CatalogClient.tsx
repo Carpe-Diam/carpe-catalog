@@ -431,19 +431,10 @@ export default function CatalogClient({ products }: { products: any[] }) {
 
         {/* 3. PRODUCT GRID */}
         <div className="flex-grow">
-          <div className="flex items-center justify-between mb-12 border-b border-gray-100 pb-6">
+          <div className="flex items-center mb-12 border-b border-gray-100 pb-6">
             <span className="text-[11px] uppercase tracking-[0.2em] text-gray-400">
               {filteredProducts.length} Items found
             </span>
-            <div className="flex items-center gap-4 text-[11px] uppercase tracking-[0.2em]">
-              <span className="text-gray-400">Sort by:</span>
-              <select className="bg-transparent font-semibold outline-none cursor-pointer">
-                <option>Featured</option>
-                <option>Newest</option>
-                <option>Price: Low to High</option>
-                <option>Price: High to Low</option>
-              </select>
-            </div>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 gap-y-10">

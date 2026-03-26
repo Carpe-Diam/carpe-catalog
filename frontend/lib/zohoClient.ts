@@ -42,6 +42,7 @@ export type Variant = {
     total_cost: number;
     media: Media[];
     diamond_weight?: number | null;
+    website_description?: string | null;
 };
 
 export type Product = {
@@ -53,6 +54,7 @@ export type Product = {
     collection?: string[] | null;
     base_price?: number | null;
     others?: string | null;
+    product_description?: string | null;
     type_of_order?: string | null;
     record_image?: string | null;
     variants: Variant[];
@@ -229,6 +231,7 @@ const PRODUCT_FIELDS = [
     'Show_on_Catalog',
     'Type_of_Order',
     'Product_display_Image',
+    'Product_Description',
 ];
 
 // Variant fields to fetch from Zoho CRM (only fields used in the catalog)
@@ -259,6 +262,7 @@ const VARIANT_FIELDS = [
     'D_Sell_Price',
     // Details
     'Style_Size_Inch',
+    'Website_description',
 ];
 
 /**
@@ -581,6 +585,7 @@ function transformVariant(zohoVariant: any, parentSku: string = ''): Variant {
         dimensions: zohoVariant.Style_Size_Inch ?? null,
         diamond_weight: zohoVariant.Total_Diamonds ?? null,
         media,
+        website_description: zohoVariant.Website_description ?? null,
     };
 }
 
@@ -620,6 +625,7 @@ function transformProduct(zohoProduct: any, variants: Variant[]): Product {
         collection,
         base_price: basePrice,
         others: null,
+        product_description: zohoProduct.Product_Description ?? null,
         type_of_order: zohoProduct.Type_of_Order ?? null,
         record_image: recordImage,
         variants,

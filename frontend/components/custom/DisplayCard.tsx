@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { memo, useState } from "react";
+import { ImageIcon } from "lucide-react";
 
 type Variant = {
   media?: { download_url?: string; preview_url?: string }[];
@@ -29,23 +30,28 @@ const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
   const firstMedia = firstVariant?.media?.[0];
 
   const preferredUrl = record_image || firstMedia?.download_url || firstMedia?.preview_url;
-  const fallbackUrl = "https://plus.unsplash.com/premium_photo-1728892768695-ebebed48ff90?ixlib=rb-4.1.0&q=80&w=3000";
 
   const [hasError, setHasError] = useState(false);
-  const imageUrl = hasError ? fallbackUrl : (preferredUrl || fallbackUrl);
+  const showFallback = hasError || !preferredUrl;
 
   return (
     <Link href={`/product/${product.parent_sku}`}>
       <div className="group cursor-pointer transition-all">
         <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#F9F9F9]">
-          <Image
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            alt={title || "Product"}
-            src={imageUrl}
-            fill
-            unoptimized
-            onError={() => setHasError(true)}
-          />
+          {showFallback ? (
+            <div className="flex h-full w-full items-center justify-center bg-gray-200">
+              <ImageIcon className="h-12 w-12 text-gray-400" />
+            </div>
+          ) : (
+            <Image
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+              alt={title || "Product"}
+              src={preferredUrl}
+              fill
+              unoptimized
+              onError={() => setHasError(true)}
+            />
+          )}
         </div>
 
         <div className="pt-4 pb-2 text-center lg:text-left">
@@ -54,7 +60,7 @@ const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
             {subcategory || category || "Fine Jewelry"}
           </p>
           <p className="text-xs font-semibold tracking-widest text-gray-900">
-            {base_price ? `$${base_price.toLocaleString()}` : "Price upon request"}
+            {base_price ? `$${base_price.toLocaleString('en-US')}` : "Price upon request"}
           </p>
         </div>
       </div>
