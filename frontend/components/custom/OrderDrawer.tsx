@@ -114,41 +114,6 @@ export const OrderRequestDrawer = memo(function OrderRequestDrawer({ variant, pr
     }
   }, [form, communication, orderType, product.title, variant.variant_sku, variant.total_cost]);
 
-//  const handleSubmitGs = async () => {
-//   try {
-//     const contact =
-//       communication === "email"
-//         ? form.email
-//         : communication === "whatsapp"
-//         ? form.whatsapp
-//         : form.phone;
-
-//     const res = await fetch("/api/order-request", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({
-//         ...form,
-//         contact,
-//         communication,
-//         orderType,
-//         productTitle: product.title,
-//         variantSku: variant.variant_sku,
-//         price: variant.total_cost,
-//         productLink: window.location.href,
-//       }),
-//     });
-
-//     const json = await res.json();
-//     if (!json.success) throw new Error(json.error);
-
-//     alert("Request sent!");
-//     setOpen(false);
-
-//   } catch (err) {
-//     console.error("Submit error:", err);
-//     alert("Error sending request.");
-//   }
-// };
 
   return (
     <Drawer open={open} onOpenChange={setOpen} direction="right">
@@ -247,8 +212,7 @@ export const OrderRequestDrawer = memo(function OrderRequestDrawer({ variant, pr
             Requesting: <strong>{product.title}</strong>
             <br />
             Variant: <strong>{variant.variant_sku}</strong>
-            {/* Price: <strong>${variant.total_cost}</strong>
-            <br /> */}
+            <br />
             Order Type: <strong>{orderType}</strong>
           </div>
         </div>

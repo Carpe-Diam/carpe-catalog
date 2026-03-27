@@ -152,24 +152,6 @@ export default function AppointmentsPage() {
         </div>
       </section>
 
-      {/* 3. CLOSING SECTION */}
-      {/* <section className="py-32 px-6 bg-black text-white text-center">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-serif italic mb-10 leading-snug">
-            Ready to begin?
-          </h2>
-          <p className="text-gray-400 leading-relaxed mb-12">
-            Every piece we create is a collaboration between your vision and our expertise. We look forward to welcome you to the world of Carpe Diam.
-          </p>
-          <a 
-            href="mailto:hello@carpediam.in" 
-            className="inline-block px-12 py-4 border border-white/20 hover:border-white transition-all text-[10px] uppercase tracking-[0.3em]"
-          >
-            Initiate Consultation
-          </a>
-        </div>
-      </section> */}
-
       <footer className="py-20 px-6 text-center text-[10px] uppercase tracking-[0.5em] text-gray-300">
         Carpe Diam ©
       </footer>

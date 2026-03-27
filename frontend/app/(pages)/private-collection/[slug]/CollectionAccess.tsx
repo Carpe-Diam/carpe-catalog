@@ -5,6 +5,7 @@ import DisplayCard from "@/components/custom/DisplayCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Lock, Loader2 } from "lucide-react";
+import { type Product } from "@/lib/zohoClient";
 
 interface CollectionAccessProps {
     slug: string;
@@ -14,7 +15,7 @@ export default function CollectionAccess({ slug }: CollectionAccessProps) {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [collection, setCollection] = useState<any>(null);
+    const [collection, setCollection] = useState<{ title: string; slug: string; products: Product[] } | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,8 +36,8 @@ export default function CollectionAccess({ slug }: CollectionAccessProps) {
 
             const data = await res.json();
             setCollection(data);
-        } catch (err: any) {
-            setError(err.message || "Failed to access collection");
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Failed to access collection");
         } finally {
             setLoading(false);
         }
@@ -52,7 +53,7 @@ export default function CollectionAccess({ slug }: CollectionAccessProps) {
 
                 {collection.products && collection.products.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {collection.products.map((product: any) => (
+                        {collection.products.map((product) => (
                             <DisplayCard key={product.id} product={product} />
                         ))}
                     </div>

@@ -9,6 +9,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Search, ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
+import { type Product } from "@/lib/zohoClient";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -47,7 +48,7 @@ function prettySubName(raw: string): string {
 /*                               MAIN COMPONENT                                */
 /* -------------------------------------------------------------------------- */
 
-export default function ExplorePage({ products }: { products: any[] }) {
+export default function ExplorePage({ products }: { products: Product[] }) {
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null);
@@ -537,7 +538,7 @@ const CategoryNavItem = memo(function CategoryNavItem({
 /*                            CATEGORY SECTION                                 */
 /* -------------------------------------------------------------------------- */
 
-const CategorySection = memo(function CategorySection({ id, title, products }: { id: string, title: string, products: any[] }) {
+const CategorySection = memo(function CategorySection({ id, title, products }: { id: string, title: string, products: Product[] }) {
   return (
     <section id={id} className="category-section scroll-mt-24">
       <div className="flex items-center justify-between mb-8 border-b border-[#EAEAEA] pb-4">

@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
         return new Response(buffer, {
             headers: {
                 'Content-Type': contentType,
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Cache-Control': 'public, max-age=31536000, immutable',
             },
         });
     } catch (err) {

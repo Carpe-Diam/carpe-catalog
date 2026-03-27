@@ -42,16 +42,16 @@ const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
             <div className="flex h-full w-full items-center justify-center bg-gray-200">
               <ImageIcon className="h-12 w-12 text-gray-400" />
             </div>
-          ) : (
+          ) :
             <Image
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
+              className="object-cover bg-none transition-transform duration-700 group-hover:scale-105"
               alt={title || "Product"}
               src={preferredUrl}
               fill
               unoptimized
               onError={() => setHasError(true)}
             />
-          )}
+          }
         </div>
 
         <div className="pt-4 pb-2 text-center lg:text-left">

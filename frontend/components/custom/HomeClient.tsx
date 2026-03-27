@@ -5,12 +5,12 @@ import Link from "next/link";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRef } from "react";
-import { ArrowRight, ChevronLeft, ChevronRight, Instagram, Facebook, Mail } from "lucide-react";
 
 import DisplayCard from "@/components/custom/DisplayCard";
 import { useMemo } from "react";
+import { type Product } from "@/lib/zohoClient";
 
-export default function HomeClient({ products }: { products: any[] }) {
+export default function HomeClient({ products }: { products: Product[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const categories = useMemo(() => {
@@ -149,67 +149,6 @@ export default function HomeClient({ products }: { products: any[] }) {
       </section>
 
 
-      {/* 4. UNCOMPROMISING ARTISTRY (Commented out per user request) */}
-      {/* 
-      <section className="bg-[#111] text-white py-32 px-6 lg:px-20">
-        <div className="max-w-[1800px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          <div className="relative aspect-[4/5] lg:aspect-square reveal">
-            <Image 
-              src="/images/redesign/artistry.png" 
-              alt="Artisan at work" 
-              fill 
-              className="object-cover grayscale hover:grayscale-0 transition-all duration-700" 
-            />
-            <div className="absolute -bottom-10 -right-10 bg-[#D4AF37] p-10 hidden md:block">
-              <h4 className="text-4xl font-serif italic mb-2">40+</h4>
-              <p className="text-[10px] uppercase tracking-widest opacity-80">Years of Artistry</p>
-            </div>
-          </div>
-          <div className="reveal">
-            <p className="text-[9px] uppercase tracking-[0.4em] text-black mb-6">The Heritage</p>
-            <h2 className="text-4xl md:text-5xl font-serif italic mb-10 leading-tight">
-              Uncompromising<br />
-              <span className="not-italic font-normal">Artistry</span>
-            </h2>
-            <p className="text-sm text-gray-400 leading-relaxed mb-12 max-w-lg">
-              Each piece in our collection is meticulously handcrafted by master artisans with decades of experience. We source only the finest, conflict-free diamonds and ethically mined gold to ensure every creation is a testament to sustainable luxury.
-            </p>
-            <ul className="space-y-6 text-[11px] uppercase tracking-[0.2em] font-medium text-gray-300">
-              <li className="flex items-center gap-4">
-                <div className="w-1.5 h-1.5 rotate-45 bg-[#D4AF37]" />
-                Ethically Sourced Gemstones
-              </li>
-              <li className="flex items-center gap-4">
-                <div className="w-1.5 h-1.5 rotate-45 bg-[#D4AF37]" />
-                Bespoke Design Consultancy
-              </li>
-              <li className="flex items-center gap-4">
-                <div className="w-1.5 h-1.5 rotate-45 bg-[#D4AF37]" />
-                Lifetime Maintenance Guarantee
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
-      */}
-
-      {/* 5. NEWSLETTER (Commented out per request) */}
-      {/*
-      <section className="py-32 px-6 text-center reveal">
-        <h2 className="text-2xl font-serif tracking-widest mb-4">JOIN OUR INNER CIRCLE</h2>
-        <p className="text-xs text-gray-400 tracking-widest mb-10 uppercase">Subscribe to receive exclusive collection previews and invitations to private viewing events.</p>
-        <div className="flex flex-col md:flex-row gap-4 justify-center max-w-md mx-auto">
-          <input
-            type="email"
-            placeholder="Your Email Address"
-            className="flex-grow bg-transparent border-b border-gray-200 py-3 text-[11px] uppercase tracking-widest outline-none focus:border-black transition-colors"
-          />
-          <button className="bg-black text-white px-10 py-3 text-[11px] uppercase tracking-[0.2em] font-medium hover:bg-gray-800 transition-all">
-            Subscribe
-          </button>
-        </div>
-      </section>
-      */}
     </div>
   );
 }

@@ -10,6 +10,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Search, ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
+import { type Product } from "@/lib/zohoClient";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,7 +19,7 @@ gsap.registerPlugin(ScrollTrigger);
 /*                               MAIN COMPONENT                                */
 /* -------------------------------------------------------------------------- */
 
-export default function CatalogClient({ products }: { products: any[] }) {
+export default function CatalogClient({ products }: { products: Product[] }) {
   const searchParams = useSearchParams();
   const initCategory = searchParams.get('category');
   const initSubcategory = searchParams.get('subcategory');
@@ -30,8 +31,6 @@ export default function CatalogClient({ products }: { products: any[] }) {
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(initSubcategory);
   const [activeOrderType, setActiveOrderType] = useState<string | null>(initOrderType);
   const [activeCollection, setActiveCollection] = useState<string | null>(initCollection);
-  const [activeMetals, setActiveMetals] = useState<string[]>([]);
-  const [activeStones, setActiveStones] = useState<string[]>([]);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -104,20 +103,9 @@ export default function CatalogClient({ products }: { products: any[] }) {
 
       const matchCollection = !activeCollection || (Array.isArray(p.collection) && p.collection.includes(activeCollection));
 
-      const matchMetal = activeMetals.length === 0 || activeMetals.includes(p.metal_type);
-      const matchStone = activeStones.length === 0 || activeStones.includes(p.stone_type);
-
-      return matchQuery && matchCat && matchSub && matchOrd && matchCollection && matchMetal && matchStone;
+      return matchQuery && matchCat && matchSub && matchOrd && matchCollection;
     });
-  }, [products, query, activeCategory, activeSubcategory, activeOrderType, activeCollection, activeMetals, activeStones]);
-
-  const toggleMetal = (metal: string) => {
-    setActiveMetals(prev => prev.includes(metal) ? prev.filter(m => m !== metal) : [...prev, metal]);
-  };
-
-  const toggleStone = (stone: string) => {
-    setActiveStones(prev => prev.includes(stone) ? prev.filter(s => s !== stone) : [...prev, stone]);
-  };
+  }, [products, query, activeCategory, activeSubcategory, activeOrderType, activeCollection]);
 
   return (
     <div ref={containerRef} className="bg-white min-h-screen font-sans">
@@ -285,7 +273,7 @@ export default function CatalogClient({ products }: { products: any[] }) {
               </button>
               {(activeCategory || activeSubcategory || activeOrderType || activeCollection) && (
                 <button
-                  onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); setActiveCollection(null); setActiveMetals([]); setActiveStones([]); }}
+                  onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); setActiveCollection(null); }}
                   className="w-full py-2.5 text-xs uppercase tracking-widest font-medium border border-gray-300 text-gray-600 hover:border-black hover:text-black transition-all"
                 >
                   Clear All
@@ -391,41 +379,6 @@ export default function CatalogClient({ products }: { products: any[] }) {
               </div>
             )}
 
-            {/* Metal Filter */}
-            {/* <div>
-              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-6 text-black">Metal</h3>
-              <div className="flex flex-wrap gap-2">
-                {filterData.metals.map(metal => (
-                  <button
-                    key={metal}
-                    onClick={() => toggleMetal(metal)}
-                    className={`px-4 py-2 border text-[10px] uppercase tracking-widest transition-all ${activeMetals.includes(metal) ? 'border-black bg-black text-white' : 'border-gray-100 text-gray-400 hover:border-gray-300'}`}
-                  >
-                    {metal}
-                  </button>
-                ))}
-              </div>
-            </div> */}
-
-            {/* Stone Type Filter */}
-            {/* <div>
-              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-6 text-black">Stone Type</h3>
-              <div className="space-y-3">
-                {filterData.stones.map(stone => (
-                  <label key={stone} className="flex items-center gap-3 cursor-pointer group">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4 border-gray-200 rounded-none accent-[#C5A059]"
-                      checked={activeStones.includes(stone)}
-                      onChange={() => toggleStone(stone)}
-                    />
-                    <span className={`text-xs tracking-wider transition-colors ${activeStones.includes(stone) ? 'text-black font-semibold' : 'text-gray-500 group-hover:text-black'}`}>
-                      {stone}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div> */}
           </div>
         </aside>
 
@@ -449,7 +402,7 @@ export default function CatalogClient({ products }: { products: any[] }) {
             <div className="text-center py-32">
               <p className="text-gray-400 font-serif italic uppercase tracking-widest">No styles match your selection</p>
               <button
-                onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); setActiveCollection(null); setActiveMetals([]); setActiveStones([]); setQuery(''); }}
+                onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); setActiveCollection(null); setQuery(''); }}
                 className="mt-6 text-[11px] uppercase tracking-[0.2em] underline hover:text-black transition-all"
               >
                 Clear All Filters

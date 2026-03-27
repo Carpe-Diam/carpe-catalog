@@ -801,8 +801,11 @@ export async function accessPrivateCollection(slug: string, password: string) {
         throw new Error('Collection not found');
     }
 
-    // Verify password
-    if (collection.password !== password) {
+    // Verify password — compare SHA-256 hash to avoid plaintext storage
+    const crypto = await import('crypto');
+    const inputHash = crypto.createHash('sha256').update(password).digest('hex');
+    const storedHash = collection.password_hash ?? collection.password;
+    if (inputHash !== storedHash) {
         throw new Error('Invalid password');
     }
 

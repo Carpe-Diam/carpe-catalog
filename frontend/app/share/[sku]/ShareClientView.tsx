@@ -6,8 +6,6 @@ import { cn } from "@/lib/utils";
 import { Play, X, Download, Share2 } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { jsPDF } from "jspdf";
-import QRCode from "qrcode";
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
@@ -121,7 +119,9 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
   useEffect(() => {
     const url = window.location.href;
     setPageUrl(url);
-    QRCode.toDataURL(url, { width: 400, margin: 2 }).then(setQrDataUrl).catch(console.error);
+    import("qrcode").then(({ default: QRCode }) => {
+      QRCode.toDataURL(url, { width: 400, margin: 2 }).then(setQrDataUrl).catch(console.error);
+    });
   }, []);
 
   const handleDownloadPDF = async () => {
@@ -130,6 +130,7 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
       setDownloadError(null);
 
       const v = variant;
+      const { jsPDF } = await import("jspdf");
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const pageW = pdf.internal.pageSize.getWidth();
       const margin = 20;
@@ -710,15 +711,7 @@ const QrShareModal = memo(function QrShareModal({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // fallback
-      const input = document.createElement("input");
-      input.value = pageUrl;
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand("copy");
-      document.body.removeChild(input);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      // Clipboard API unavailable — silent fail
     }
   };
 
