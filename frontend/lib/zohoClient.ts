@@ -63,6 +63,8 @@ export interface Product {
     type_of_order?: string | null;
     record_image?: string | null;
     variants: Variant[];
+    metal_type?: string | null;
+    stone_type?: string | null;
 }
 
 /* -------------------------------------------------------------------------- */

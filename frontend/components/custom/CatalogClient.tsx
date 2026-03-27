@@ -67,9 +67,6 @@ export default function CatalogClient({ products }: { products: Product[] }) {
       if (Array.isArray(p.collection)) {
         p.collection.forEach((c: string) => collectionSet.add(c));
       }
-
-      if (p.metal_type) metals.add(p.metal_type);
-      if (p.stone_type) stones.add(p.stone_type);
     });
 
     const formattedMap: Record<string, string[]> = {};
