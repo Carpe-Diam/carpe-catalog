@@ -21,10 +21,10 @@ export default function HomeClient({ products }: { products: Product[] }) {
       if (p.category) {
         const cat = p.category.split(' - ')[0].trim();
         counts[cat] = (counts[cat] || 0) + 1;
-        
+
         const baseName = cat.split(' ')[0].toLowerCase();
         let image = '';
-        
+
         if (baseName === 'bracelet' || baseName === 'bracelets') {
           image = '/images/redesign/cat-bracelets.jpeg';
         } else if (baseName === 'earring' || baseName === 'earrings') {
@@ -37,7 +37,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
           const plural = baseName.endsWith('s') ? baseName : baseName + 's';
           image = `/images/redesign/cat-${plural}.png`;
         }
-        
+
         images[cat] = image;
       }
     });

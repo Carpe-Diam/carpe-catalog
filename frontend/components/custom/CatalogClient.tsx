@@ -1,15 +1,12 @@
 'use client';
 
-import { Input } from "@/components/ui/input";
-import { useState, useRef, useMemo, useCallback, memo } from "react";
+import { useState, useRef, useMemo, memo } from "react";
 import DisplayCard from "@/components/custom/DisplayCard";
 import Image from "next/image";
-import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Search, ChevronDown, SlidersHorizontal, X } from "lucide-react";
-import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { SlidersHorizontal, X } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { type Product } from "@/lib/zohoClient";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -67,6 +64,9 @@ export default function CatalogClient({ products }: { products: Product[] }) {
       if (Array.isArray(p.collection)) {
         p.collection.forEach((c: string) => collectionSet.add(c));
       }
+
+      if (p.metal_type) metals.add(p.metal_type);
+      if (p.stone_type) stones.add(p.stone_type);
     });
 
     const formattedMap: Record<string, string[]> = {};
@@ -104,12 +104,14 @@ export default function CatalogClient({ products }: { products: Product[] }) {
     });
   }, [products, query, activeCategory, activeSubcategory, activeOrderType, activeCollection]);
 
+  const heroImage = "/collection1.png"
+
   return (
     <div ref={containerRef} className="bg-white min-h-screen font-sans">
       {/* 1. COLLECTION HERO */}
       <section className="relative h-[50vh] w-full overflow-hidden flex items-center justify-center">
         <Image
-          src="/collection1.png"
+          src={heroImage}
           alt="The Collection"
           fill
           priority

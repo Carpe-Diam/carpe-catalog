@@ -789,7 +789,7 @@ const TrustSignals = memo(function TrustSignals() {
 
   return (
     <div className="container mx-auto px-4 md:px-8 py-16">
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-y-12 gap-x-8 justify-items-center">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-y-12 gap-x-8 justify-items-center">
         {signals.map((item, i) => (
           <div key={i} className="flex flex-col items-center text-center gap-4 group">
             <div className="text-gray-800 transition-transform duration-300 group-hover:-translate-y-1">
