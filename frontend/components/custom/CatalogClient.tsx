@@ -124,7 +124,7 @@ export default function CatalogClient({ products }: { products: any[] }) {
       {/* 1. COLLECTION HERO */}
       <section className="relative h-[50vh] w-full overflow-hidden flex items-center justify-center">
         <Image
-          src="https://images.unsplash.com/photo-1584302179602-e4c3d3fd629d?q=80&w=3000&auto=format&fit=crop"
+          src="/collection1.png"
           alt="The Collection"
           fill
           priority

@@ -35,11 +35,14 @@ export type Variant = {
     model?: string | null;
     dimensions?: string | null;
     weight_grams?: number | null;
+    net_weight?: number | null;
+    polki_weight?: number | null;
     stone_type?: string | null;
     sub_group?: string | null;
     parsed_size?: string | null;
     sub_sub_group?: string | null;
     total_cost: number;
+    sell_price?: number | null;
     media: Media[];
     diamond_weight?: number | null;
     website_description?: string | null;
@@ -252,7 +255,9 @@ const VARIANT_FIELDS = [
     'White_Background_Image',
     'Video',
     // Weights
-    'Gross_Weight',        // weight_grams + stone_weight
+    'Gross_Weight',        // gemstone_weight (stone weight)
+    'Net_Weight',          // gold net weight
+    'Polki_Weight',        // polki weight
     'Total_Diamonds',      // diamond_count + diamond_weight
     // Pricing
     'Total_Price',
@@ -577,11 +582,14 @@ function transformVariant(zohoVariant: any, parentSku: string = ''): Variant {
         diamond_count: zohoVariant.Total_Diamonds ?? null,
         model: null,
         weight_grams: zohoVariant.Gross_Weight ?? null,
+        net_weight: zohoVariant.Net_Weight ?? null,
+        polki_weight: zohoVariant.Polki_Weight ?? null,
         stone_type: parsed.stoneType,
         sub_group: parsed.subGroup,
         parsed_size: parsed.size,
         sub_sub_group: parsed.subSubGroup,
         total_cost: lowestPrice,
+        sell_price: zohoVariant.A_Sell_Price ?? null,
         dimensions: zohoVariant.Style_Size_Inch ?? null,
         diamond_weight: zohoVariant.Total_Diamonds ?? null,
         media,

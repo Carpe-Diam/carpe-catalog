@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Amiri } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import GlobalHeader from "@/components/custom/GlobalHeader";
 import { getProducts } from "@/lib/zohoClient";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
+const amiri = Amiri({
+  variable: "--font-amiri",
+  subsets: ["latin", "arabic"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -38,7 +34,6 @@ export default async function RootLayout({
     
     products?.forEach((p: any) => {
       if (p.category) {
-        // Strip out the random dashes like "Ring - R" -> "Ring"
         const baseCat = p.category.split(' - ')[0].trim();
         if (!tree[baseCat]) tree[baseCat] = new Set();
         
@@ -48,7 +43,6 @@ export default async function RootLayout({
         }
       }
 
-      // Collect unique collection names
       if (Array.isArray(p.collection)) {
         p.collection.forEach((c: string) => collectionSet.add(c));
       }
@@ -63,8 +57,8 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <body className="bg-white text-[#111] antialiased min-h-screen flex flex-col font-sans">
+    <html lang="en" className={`${amiri.variable}`}>
+      <body className="bg-white text-[#111] antialiased min-h-screen flex flex-col font-serif">
         {/* Global Dynamic Hooked Header */}
         <GlobalHeader categoryTree={categoryTree} />
 

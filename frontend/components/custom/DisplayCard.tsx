@@ -59,9 +59,7 @@ const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
           <p className="text-[10px] text-gray-400 italic font-serif mb-2">
             {subcategory || category || "Fine Jewelry"}
           </p>
-          <p className="text-xs font-semibold tracking-widest text-gray-900">
-            {base_price ? `$${base_price.toLocaleString('en-US')}` : "Price upon request"}
-          </p>
+
         </div>
       </div>
     </Link>

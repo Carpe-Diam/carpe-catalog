@@ -41,9 +41,12 @@ export interface Variant {
   parsed_size?: string | null;
   sub_sub_group?: string | null;
   total_cost: number;
+  sell_price?: number | null;
   media: Media[];
   diamond_weight?: number | null;
   website_description?: string | null;
+  net_weight?: number | null;
+  polki_weight?: number | null;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -58,8 +61,9 @@ const SKU_DECODE: Record<string, string> = {
   // Specific Gemstones
   RB: 'Ruby', SA: 'Sapphire', EM: 'Emerald', AM: 'Amethyst',
   AQ: 'Aquamarine', CI: 'Citrine', GA: 'Garnet', OP: 'Opal',
-  TO: 'Topaz', TU: 'Tourmaline', TZ: 'Tanzanite', MO: 'Moissanite',
+  TO: 'Topaz', TZ: 'Tanzanite', MO: 'Moissanite',
   CZ: 'Cubic Zirconia', ON: 'Onyx', TS: 'Tsavorite', PD: 'Peridot', SP: 'Spinel',
+  TM: 'Tourmaline', BS: 'Blue Sapphire',
   // Colors
   W: 'White', Y: 'Yellow', R: 'Rose',
   // Sub Groups
@@ -184,18 +188,18 @@ export default function ProductClient({ product }: ProductClientProps) {
   /* ------------ Segment-based options + variant matching ------------ */
 
   // Find the max number of segments across all variants
-  const maxSegments = useMemo(() => 
+  const maxSegments = useMemo(() =>
     Math.max(...product.variants.map(v => v.sku_segments.length), 0),
-  [product.variants]);
+    [product.variants]);
 
   // For each segment position, get unique values across all variants
   const segmentOptions = useMemo(() => {
     const options: string[][] = [];
     for (let i = 0; i < maxSegments; i++) {
-        const uniqueVals = [...new Set(
+      const uniqueVals = [...new Set(
         product.variants.map(v => v.sku_segments[i]).filter(Boolean)
-        )];
-        options.push(uniqueVals);
+      )];
+      options.push(uniqueVals);
     }
     return options;
   }, [maxSegments, product.variants]);
@@ -279,7 +283,7 @@ export default function ProductClient({ product }: ProductClientProps) {
   /* ------------------------------ RENDER ------------------------------ */
 
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   const handleOpenLightbox = useCallback(() => setLightboxOpen(true), []);
   const handleCloseLightbox = useCallback(() => setLightboxOpen(false), []);
 
@@ -330,53 +334,10 @@ export default function ProductClient({ product }: ProductClientProps) {
                 <DetailsSection product={product} selectedVariant={selectedVariant} />
               </div>
 
-              {/* Scroll Indicator Hint */}
-              <div className="stagger-reveal mt-12 mb-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-gray-400">
-                <div className="w-12 h-px bg-gray-200" />
-                <span>Scroll to discover our process</span>
-              </div>
             </div>
           </div>
         </section>
 
-        {/* Made to Order / Process Section */}
-        <section className="reveal-section py-24 px-6 bg-[#fafafa] overflow-hidden">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-16 items-center">
-            <div className="lg:col-span-3 relative aspect-video lg:aspect-auto lg:h-[600px] overflow-hidden bg-gray-100">
-              <video 
-                src="/product video.mp4" 
-                autoPlay 
-                loop 
-                muted 
-                playsInline 
-                className="w-full h-full object-cover transition-all duration-1000"
-              />
-            </div>
-            <div className="lg:col-span-2 lg:pl-8">
-              <div className="mb-10">
-                <p className="text-[10px] uppercase tracking-[0.4em] text-gray-400 mb-6 font-sans">Our Philosophy</p>
-                <h2 className="text-3xl md:text-4xl font-serif italic mb-2 leading-tight">Made in India.</h2>
-                <h2 className="text-3xl md:text-4xl font-serif italic mb-2 leading-tight">Made to order.</h2>
-                <h2 className="text-3xl md:text-4xl font-serif italic mb-8 leading-tight">Made for you.</h2>
-              </div>
-              
-              <div className="space-y-6 text-gray-600 leading-relaxed font-sans text-sm md:text-base">
-                <p>
-                  Consumers today are gradually evolving from a mass-driven economy to one that is more focused and intentional. This shift encourages brands to engage in more thoughtful conversations around creation and consumption.
-                </p>
-                <p>
-                  The one-size-fits-all model, which often leads to overproduction, is slowly giving way to a more conversational approach—one that is also more sustainable for the health of our planet.
-                </p>
-                <p>
-                  At Carpe Diam, while we have a collection to evolve ourselves and showcase our craftsmanship, we believe in this approach of <span className="italic font-serif">made to order, made for you.</span>
-                </p>
-                <p className="pt-4 border-t border-gray-200">
-                  Creating space for conversation, individuality, and conscious creation.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
 
       {lightboxOpen && (
@@ -507,6 +468,8 @@ const HeaderSection = memo(function HeaderSection({ product, selectedVariant }: 
   // Prefer variant website_description, then product_description, then auto-generated sentence
   const description = v?.website_description || product.product_description || sentence;
 
+  const sellPrice = v?.sell_price;
+
   return (
     <section className="mb-10">
       <h1 className="text-2xl md:text-4xl font-serif italic mb-4 leading-tight">
@@ -514,8 +477,14 @@ const HeaderSection = memo(function HeaderSection({ product, selectedVariant }: 
       </h1>
 
       {description && (
-        <p className="text-lg md:text-xl font-serif italic text-gray-700 mb-6 leading-tight">
+        <p className="text-lg md:text-xl font-serif italic text-gray-700 mb-4 leading-tight">
           {description.charAt(0).toUpperCase() + description.slice(1)}
+        </p>
+      )}
+
+      {sellPrice != null && sellPrice > 0 && (
+        <p className="text-xl font-semibold tracking-wide text-gray-900 mb-6">
+          {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(sellPrice)}
         </p>
       )}
 
@@ -657,7 +626,7 @@ const DetailsSection = memo(function DetailsSection({ product, selectedVariant }
 
   const getMetalDisplay = () => {
     if (!v?.metal_type || !v?.carat_weight || !v?.metal_color) return null;
-    return `${v.carat_weight}K ${titleCase(v.metal_color)} ${titleCase(v.metal_type)} (100% Recycled Solid Gold)`;
+    return `${v.carat_weight}K ${titleCase(v.metal_color)} ${titleCase(v.metal_type)} `;
   };
 
   const stones = extractStones(v?.sku_segments || []);
@@ -678,7 +647,9 @@ const DetailsSection = memo(function DetailsSection({ product, selectedVariant }
         <p className="text-xs uppercase text-gray-400 mb-2">Ref: {v?.variant_sku}</p>
         <ul className="text-sm text-gray-700 list-disc pl-4 space-y-1">
           {getMetalDisplay() && <li>Metal: <span className="underline">{getMetalDisplay()}</span></li>}
-          {v?.weight_grams && <li>Gold Weight: {v.weight_grams} g</li>}
+          {v?.net_weight && <li>Gold Weight: {v.net_weight} g</li>}
+          {v?.polki_weight && <li>Polki Weight: {v.polki_weight} g</li>}
+          {v?.weight_grams && <li>Gemstone Weight: {v.weight_grams} g</li>}
           {v?.diamond_weight ? <li>Total Diamond Weight: {v.diamond_weight} ctw</li> : null}
           {diamondStone && (
             <li>

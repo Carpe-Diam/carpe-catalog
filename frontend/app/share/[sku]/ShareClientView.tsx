@@ -33,6 +33,8 @@ interface Variant {
   model?: string | null;
   dimensions?: string | null;
   weight_grams?: number | null;
+  net_weight?: number | null;
+  polki_weight?: number | null;
   stone_type?: string | null;
   sub_group?: string | null;
   total_cost: number;
@@ -247,9 +249,19 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
         details.push(`Metal: ${v.carat_weight}K ${pdfTitleCase(v.metal_color)} ${pdfTitleCase(v.metal_type)} (100% Recycled Solid Gold)`);
       }
 
-      // Gold weight
+      // Gold weight (net weight)
+      if (v?.net_weight) {
+        details.push(`Gold Weight: ${v.net_weight} g`);
+      }
+
+      // Polki weight
+      if (v?.polki_weight) {
+        details.push(`Polki Weight: ${v.polki_weight} g`);
+      }
+
+      // Gemstone weight
       if (v?.weight_grams) {
-        details.push(`Gold Weight: ${v.weight_grams} g`);
+        details.push(`Gemstone Weight: ${v.weight_grams} g`);
       }
 
       // Total diamond weight
@@ -596,7 +608,9 @@ const ShareDetailsSection = memo(function ShareDetailsSection({
         <p className="text-xs uppercase text-gray-400 mb-2">Ref: {v?.variant_sku}</p>
         <ul className="text-sm text-gray-700 list-disc pl-4 space-y-1">
           {getMetalDisplay() && <li>Metal: <span className="underline">{getMetalDisplay()}</span></li>}
-          {v?.weight_grams && <li>Gold Weight: {v.weight_grams} g</li>}
+          {v?.net_weight && <li>Gold Weight: {v.net_weight} g</li>}
+          {v?.polki_weight && <li>Polki Weight: {v.polki_weight} g</li>}
+          {v?.weight_grams && <li>Gemstone Weight: {v.weight_grams} g</li>}
           {v?.diamond_weight ? <li>Total Diamond Weight: {v.diamond_weight} ctw</li> : null}
           {diamondStone && (
             <li>

@@ -94,14 +94,14 @@ export default function AppointmentsPage() {
               </div>
               <div className="hero-content">
                 <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-gray-400">Phone & WhatsApp</h4>
-                <a href="tel:+919876543210" className="text-sm text-gray-700 hover:text-black transition-colors underline-offset-4 hover:underline block">
-                  +91 98765 43210
+                <a href="https://wa.me/918850157354?text=hi" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-700 hover:text-black transition-colors underline-offset-4 hover:underline block">
+                  +91 88501 57354
                 </a>
               </div>
               <div className="hero-content">
                 <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-gray-400">Instagram</h4>
-                <a href="https://instagram.com/carpediam" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-700 hover:text-black transition-colors underline-offset-4 hover:underline block">
-                  @carpediam
+                <a href="https://www.instagram.com/carpediamjewelry?igsh=Y3BuOW0xd2s2Ymhi" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-700 hover:text-black transition-colors underline-offset-4 hover:underline block">
+                  @carpediamjewelry
                 </a>
               </div>
               <div className="hero-content">
