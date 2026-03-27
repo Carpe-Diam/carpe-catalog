@@ -47,7 +47,7 @@ export default function CollectionAccess({ slug }: CollectionAccessProps) {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="mb-8 text-center">
-                    <h1 className="text-3xl font-serif font-bold mb-2">{collection.Title}</h1>
+                    <h1 className="text-3xl font-serif font-bold mb-2">{collection.title}</h1>
                     {/* Add description if available in the future */}
                 </div>
 

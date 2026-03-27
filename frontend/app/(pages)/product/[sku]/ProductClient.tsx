@@ -8,8 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Play, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Lock, Truck, Package, Handshake, RefreshCw, UserCheck, ShieldCheck } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
@@ -287,10 +291,26 @@ export default function ProductClient({ product }: ProductClientProps) {
   const handleCloseLightbox = useCallback(() => setLightboxOpen(false), []);
 
   useGSAP(() => {
-    // Fade in text content on the right
+    // Initial fade in for top content
     gsap.fromTo('.stagger-reveal',
       { opacity: 0, y: 30 },
       { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power2.out", delay: 0.2 }
+    );
+
+    // Fade in for the "Made to Order" storytelling section on scroll
+    gsap.fromTo('.storytelling-reveal',
+      { opacity: 0, y: 40 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1.2,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: '.storytelling-reveal',
+          start: "top 85%",
+          toggleActions: "play none none none"
+        }
+      }
     );
   }, { scope: containerRef });
 
@@ -337,6 +357,13 @@ export default function ProductClient({ product }: ProductClientProps) {
           </div>
         </section>
 
+        <section className="mb-16 border-t border-gray-100">
+          <TrustSignals />
+        </section>
+
+        <section className="storytelling-reveal">
+          <MadeToOrderSection />
+        </section>
       </main>
 
       {lightboxOpen && (
@@ -554,14 +581,14 @@ const ConfigurationSection = memo(function ConfigurationSection({
           </Button>
         </div>
 
-        <ul className="text-sm space-y-3 mb-6 text-gray-700">
+        {/* <ul className="text-sm space-y-3 mb-6 text-gray-700">
           <li className="flex items-center gap-2">
             <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
             </svg>
             <span>Lifetime personal assistance</span>
           </li>
-        </ul>
+        </ul> */}
       </div>
     </section>
   );
@@ -747,3 +774,61 @@ const Detail = memo(function Detail({ label, value }: DetailProps) {
     </div>
   );
 });
+
+
+
+const TrustSignals = memo(function TrustSignals() {
+  const signals = [
+    { icon: <Lock className="w-6 h-6" strokeWidth={1} />, label: "Insured shipping" },
+    { icon: <Truck className="w-6 h-6" strokeWidth={1} />, label: "Doorstep delivery" },
+    { icon: <Package className="w-6 h-6" strokeWidth={1} />, label: "Thoughtful packaging" },
+    { icon: <Handshake className="w-6 h-6" strokeWidth={1} />, label: "Ethical vendor ecosystem" },
+    { icon: <ShieldCheck className="w-6 h-6 text-[#1A4B9E]" strokeWidth={1} />, label: "BIS hallmark" },
+    { icon: <RefreshCw className="w-6 h-6" strokeWidth={1} />, label: "Lifetime exchange" },
+  ];
+
+  return (
+    <div className="container mx-auto px-4 md:px-8 py-16">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-y-12 gap-x-8 justify-items-center">
+        {signals.map((item, i) => (
+          <div key={i} className="flex flex-col items-center text-center gap-4 group">
+            <div className="text-gray-800 transition-transform duration-300 group-hover:-translate-y-1">
+              {item.icon}
+            </div>
+            <span className="text-[10px] md:text-[11px] uppercase tracking-[0.15em] text-gray-500 font-medium max-w-[130px] leading-tight transition-colors group-hover:text-black">
+              {item.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+});
+
+const MadeToOrderSection = memo(function MadeToOrderSection() {
+  return (
+    <section className="py-24 md:py-32 border-t border-gray-100">
+      <div className="container mx-auto px-4 md:px-8 max-w-4xl text-center">
+        <h2 className="text-lg md:text-xl font-serif italic mb-12 tracking-[0.15em] uppercase text-gray-800">
+          Made in India &bull; Made to order &bull; Made for you
+        </h2>
+
+        <div className="space-y-10 text-lg md:text-xl font-serif italic text-gray-700 leading-relaxed">
+          <p>
+            Consumers today are gradually evolving from a mass-driven economy to one that is more focused and intentional. This shift encourages brands to engage in more thoughtful conversations around creation and consumption.
+          </p>
+          <p>
+            The one-size-fits-all model, which often leads to overproduction, is slowly giving way to a more conversational approach&mdash;one that is also more sustainable for the health of our planet.
+          </p>
+          <p>
+            At Carpe Diam, while we have a collection to evolve ourselves and showcase our craftsmanship, we believe in this approach of <span className="font-bold underline underline-offset-4 decoration-gray-200">made to order, made for you</span>.
+          </p>
+          <p className="pt-4">
+            Creating space for conversation, individuality, and conscious creation.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+});
+

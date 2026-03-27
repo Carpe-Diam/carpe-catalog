@@ -30,6 +30,7 @@ export type Variant = {
     dia_quality?: string | null;
     metal_type?: string | null;
     metal_color?: string | null;
+    metric_size?: string | null;
     setting?: string | null;
     diamond_count?: number | null;
     model?: string | null;
@@ -48,10 +49,11 @@ export type Variant = {
     website_description?: string | null;
 };
 
-export type Product = {
+export interface Product {
     id: string | number;
     parent_sku: string;
     title: string;
+    product_category?: string | null;
     category?: string | null;
     subcategory?: string | null;
     collection?: string[] | null;
@@ -61,7 +63,7 @@ export type Product = {
     type_of_order?: string | null;
     record_image?: string | null;
     variants: Variant[];
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /*                              ZOHO API HELPERS                              */
@@ -235,6 +237,7 @@ const PRODUCT_FIELDS = [
     'Type_of_Order',
     'Product_display_Image',
     'Product_Description',
+    'Product_Category',
 ];
 
 // Variant fields to fetch from Zoho CRM (only fields used in the catalog)
@@ -628,6 +631,7 @@ function transformProduct(zohoProduct: any, variants: Variant[]): Product {
         id: zohoProduct.id,
         parent_sku: zohoProduct.Product_Name || zohoProduct.Product_Code || '',
         title: zohoProduct.Website_name || zohoProduct.Product_Name || '',
+        product_category: zohoProduct.Product_Category ?? null,
         category: zohoProduct.Category ?? null,
         subcategory: zohoProduct.Sub_Category ?? null,
         collection,
@@ -698,80 +702,80 @@ async function processBatched<T, R>(
  */
 export const getProducts = unstable_cache(
     async (): Promise<Product[]> => {
-    // 1. Fetch all products (bulk, paginated)
-    const allProducts = await fetchAllPages(
-        '/Products',
-        PRODUCT_FIELDS
-    );
-
-    // 2. Filter to only active products that are marked to show on catalog
-    const products = allProducts.filter(
-        (p: any) => p.Product_Active !== false && p.Show_on_Catalog === 'Yes'
-    );
-
-    if (!products.length) return [];
-
-    // 3. Fetch variants individually for each product (5 at a time to avoid rate limits)
-    const variantsByProductId: Record<string, Variant[]> = {};
-
-    await processBatched(products, 5, async (p: any) => {
-        const rawVariants = await fetchVariantsForProduct(p.id);
-        const parentName = p.Product_Name || '';
-        // Only include variants marked to show on catalog
-        const catalogVariants = rawVariants.filter((v: any) => v.Show_on_Catalog === 'Yes');
-        variantsByProductId[p.id] = catalogVariants.map((v: any) =>
-            transformVariant(v, parentName)
+        // 1. Fetch all products (bulk, paginated)
+        const allProducts = await fetchAllPages(
+            '/Products',
+            PRODUCT_FIELDS
         );
-    });
 
-    // 4. Combine products with their variants
-    return products.map((p: any) =>
-        transformProduct(p, variantsByProductId[p.id] || [])
-    );
-}, ['zoho-products'], { revalidate: 900, tags: ['products'] });
+        // 2. Filter to only active products that are marked to show on catalog
+        const products = allProducts.filter(
+            (p: any) => p.Product_Active !== false && p.Show_on_Catalog === 'Yes'
+        );
+
+        if (!products.length) return [];
+
+        // 3. Fetch variants individually for each product (5 at a time to avoid rate limits)
+        const variantsByProductId: Record<string, Variant[]> = {};
+
+        await processBatched(products, 5, async (p: any) => {
+            const rawVariants = await fetchVariantsForProduct(p.id);
+            const parentName = p.Product_Name || '';
+            // Only include variants marked to show on catalog
+            const catalogVariants = rawVariants.filter((v: any) => v.Show_on_Catalog === 'Yes');
+            variantsByProductId[p.id] = catalogVariants.map((v: any) =>
+                transformVariant(v, parentName)
+            );
+        });
+
+        // 4. Combine products with their variants
+        return products.map((p: any) =>
+            transformProduct(p, variantsByProductId[p.id] || [])
+        );
+    }, ['zoho-products'], { revalidate: 900, tags: ['products'] });
 
 /**
  * Fetch a single product by its parent SKU (Product_Name)
  */
 export const getProductBySku = unstable_cache(
     async (parentSku: string): Promise<Product | null> => {
-    // Search for the product by Product_Name (with field chunking)
-    const productFieldChunks = chunkFields(PRODUCT_FIELDS);
-    const productChunkResults: any[][] = [];
-    for (const chunk of productFieldChunks) {
-        const response = await fetchZoho(
-            `/Products/search?criteria=((Product_Name:equals:${encodeURIComponent(parentSku)}))&fields=${chunk.join(',')}`
-        );
-        productChunkResults.push(response.data || []);
-    }
-    const products = productChunkResults.length === 1
-        ? productChunkResults[0]
-        : mergeRecords(productChunkResults);
+        // Search for the product by Product_Name (with field chunking)
+        const productFieldChunks = chunkFields(PRODUCT_FIELDS);
+        const productChunkResults: any[][] = [];
+        for (const chunk of productFieldChunks) {
+            const response = await fetchZoho(
+                `/Products/search?criteria=((Product_Name:equals:${encodeURIComponent(parentSku)}))&fields=${chunk.join(',')}`
+            );
+            productChunkResults.push(response.data || []);
+        }
+        const products = productChunkResults.length === 1
+            ? productChunkResults[0]
+            : mergeRecords(productChunkResults);
 
-    if (products.length === 0) return null;
+        if (products.length === 0) return null;
 
-    const product = products[0];
+        const product = products[0];
 
-    // Fetch variants linked to this product (with field chunking)
-    const variantFieldChunks = chunkFields(VARIANT_FIELDS);
-    const variantChunkResults: any[][] = [];
-    for (const chunk of variantFieldChunks) {
-        const response = await fetchZoho(
-            `/Product_Variants/search?criteria=((Product_Design:equals:${product.id}))&fields=${chunk.join(',')}&per_page=200`
-        );
-        variantChunkResults.push(response.data || []);
-    }
-    const rawVariants = variantChunkResults.length === 1
-        ? variantChunkResults[0]
-        : mergeRecords(variantChunkResults);
+        // Fetch variants linked to this product (with field chunking)
+        const variantFieldChunks = chunkFields(VARIANT_FIELDS);
+        const variantChunkResults: any[][] = [];
+        for (const chunk of variantFieldChunks) {
+            const response = await fetchZoho(
+                `/Product_Variants/search?criteria=((Product_Design:equals:${product.id}))&fields=${chunk.join(',')}&per_page=200`
+            );
+            variantChunkResults.push(response.data || []);
+        }
+        const rawVariants = variantChunkResults.length === 1
+            ? variantChunkResults[0]
+            : mergeRecords(variantChunkResults);
 
-    const productName = product.Product_Name || parentSku;
-    // Only include variants marked to show on catalog
-    const catalogVariants = rawVariants.filter((v: any) => v.Show_on_Catalog === 'Yes');
-    const variants = catalogVariants.map((v: any) => transformVariant(v, productName));
+        const productName = product.Product_Name || parentSku;
+        // Only include variants marked to show on catalog
+        const catalogVariants = rawVariants.filter((v: any) => v.Show_on_Catalog === 'Yes');
+        const variants = catalogVariants.map((v: any) => transformVariant(v, productName));
 
-    return transformProduct(product, variants);
-}, ['zoho-product'], { revalidate: 900, tags: ['product'] });
+        return transformProduct(product, variants);
+    }, ['zoho-product'], { revalidate: 900, tags: ['product'] });
 
 /**
  * Access a private collection by slug and password
@@ -801,24 +805,19 @@ export async function accessPrivateCollection(slug: string, password: string) {
         throw new Error('Collection not found');
     }
 
-    // Verify password — compare SHA-256 hash to avoid plaintext storage
-    const crypto = await import('crypto');
-    const inputHash = crypto.createHash('sha256').update(password).digest('hex');
-    const storedHash = collection.password_hash ?? collection.password;
-    if (inputHash !== storedHash) {
+    if (collection.password !== password) {
         throw new Error('Invalid password');
     }
 
-    // Fetch each product by SKU
-    const products: Product[] = [];
-    for (const sku of collection.productSkus || []) {
-        const product = await getProductBySku(sku);
-        if (product) products.push(product);
-    }
+    // Fetch products for this collection
+    const allProducts = await getProducts();
+    const collectionProducts = allProducts.filter((p) =>
+        p.collection?.includes(collection.name)
+    );
 
     return {
-        title: collection.title,
+        title: collection.name,
         slug: collection.slug,
-        products,
+        products: collectionProducts,
     };
 }

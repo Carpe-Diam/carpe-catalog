@@ -4,20 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { memo, useState } from "react";
 import { ImageIcon } from "lucide-react";
-
-type Variant = {
-  media?: { download_url?: string; preview_url?: string }[];
-};
-
-type Product = {
-  title?: string;
-  base_price?: number;
-  category?: string;
-  subcategory?: string;
-  variants?: Variant[];
-  parent_sku?: string;
-  record_image?: string | null;
-};
+import { type Product } from "@/lib/zohoClient";
 
 interface DisplayCardProps {
   product: Product;
