@@ -94,7 +94,7 @@ export default function AppointmentsPage() {
               </div>
               <div className="hero-content">
                 <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-gray-400">Phone & WhatsApp</h4>
-                <a href="https://wa.me/918850157354?text=hi" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-700 hover:text-black transition-colors underline-offset-4 hover:underline block">
+                <a href="https://wa.me/918850157354?text=Hi! I’d like to book an appointment. Could you please help me with the available slots?" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-700 hover:text-black transition-colors underline-offset-4 hover:underline block">
                   +91 88501 57354
                 </a>
               </div>
@@ -106,9 +106,9 @@ export default function AppointmentsPage() {
               </div>
               <div className="hero-content">
                 <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-gray-400">Location</h4>
-                <p className="text-sm text-gray-700">
+                <a href="https://maps.app.goo.gl/cD9RoMc389AP9a9v9" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-700 hover:text-black transition-colors underline-offset-4 hover:underline block">
                   Mumbai, India
-                </p>
+                </a>
               </div>
             </div>
           </div>

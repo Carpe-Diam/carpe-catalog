@@ -4,11 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export default function GlobalHeader({ categoryTree }: { categoryTree: Record<string, string[]> }) {
   const categories = Object.keys(categoryTree);
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const isHome = pathname === "/";
   const [showLogo, setShowLogo] = useState(!isHome);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -22,11 +23,11 @@ export default function GlobalHeader({ categoryTree }: { categoryTree: Record<st
     return () => window.removeEventListener("scroll", onScroll);
   }, [isHome]);
 
-  // Close mobile menu on route change
+  // Close mobile menu on route change (pathname + searchParams to catch category navigation)
   useEffect(() => {
     setMobileOpen(false);
     setExpandedCat(null);
-  }, [pathname]);
+  }, [pathname, searchParams]);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {

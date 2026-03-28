@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useMemo, memo } from "react";
+import { useState, useRef, useMemo, memo, useEffect } from "react";
 import DisplayCard from "@/components/custom/DisplayCard";
 import Image from "next/image";
 import gsap from "gsap";
@@ -31,6 +31,13 @@ export default function CatalogClient({ products }: { products: Product[] }) {
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setActiveCategory(searchParams.get('category'));
+    setActiveSubcategory(searchParams.get('subcategory'));
+    setActiveOrderType(searchParams.get('orderType'));
+    setActiveCollection(searchParams.get('collection'));
+  }, [searchParams]);
 
   const filterData = useMemo(() => {
     const cats = new Set<string>();
