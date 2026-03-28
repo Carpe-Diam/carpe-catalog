@@ -26,6 +26,9 @@ interface Variant {
   dia_quality?: string | null;
   metal_type?: string | null;
   metal_color?: string | null;
+  secondary_metal_type?: string | null;
+  secondary_carat_weight?: string | null;
+  secondary_metal_color?: string | null;
   setting?: string | null;
   diamond_count?: number | null;
   model?: string | null;
@@ -36,6 +39,7 @@ interface Variant {
   stone_type?: string | null;
   sub_group?: string | null;
   total_cost: number;
+  sell_price?: number | null;
   media: Media[];
   diamond_weight?: number | null;
   website_description?: string | null;
@@ -76,6 +80,10 @@ function decodeSegment(raw: string): string {
 function extractStones(segments: string[]) {
   const stones: { type: string; subGroup: string; size: string }[] = [];
   let i = 3;
+  // Skip secondary metal triplet in dual-gold SKUs (e.g. G-14-Y-G-18-Y-...)
+  if (i + 2 < segments.length && segments[i] === 'G' && /^\d+$/.test(segments[i + 1]) && ['W', 'Y', 'R'].includes(segments[i + 2])) {
+    i = 6;
+  }
   while (i + 2 < segments.length) {
     if (segments[i] && segments[i] !== 'NA') {
       let decodedType = decodeSegment(segments[i]);
@@ -166,6 +174,16 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
       pdf.setTextColor(150, 150, 150);
       pdf.text(`REF: ${v?.variant_sku || ""}`, margin, y);
       y += 8;
+
+      // --- Price ---
+      if (v?.sell_price && v.sell_price > 0) {
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(16);
+        pdf.setTextColor(0, 0, 0);
+        const priceTxt = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v.sell_price);
+        pdf.text(priceTxt, margin, y);
+        y += 10;
+      }
       pdf.setTextColor(0, 0, 0);
 
       // --- Product Image (first catalog image) ---
@@ -247,7 +265,13 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
 
       // Metal
       if (v?.metal_type && v?.carat_weight && v?.metal_color) {
-        details.push(`Metal: ${v.carat_weight}K ${pdfTitleCase(v.metal_color)} ${pdfTitleCase(v.metal_type)} (100% Recycled Solid Gold)`);
+        const primaryMetal = `${v.carat_weight}K ${pdfTitleCase(v.metal_color)} ${pdfTitleCase(v.metal_type)}`;
+        if (v?.secondary_metal_type && v?.secondary_carat_weight && v?.secondary_metal_color) {
+          const secondaryMetal = `${v.secondary_carat_weight}K ${pdfTitleCase(v.secondary_metal_color)} ${pdfTitleCase(v.secondary_metal_type)}`;
+          details.push(`Metal: ${primaryMetal}, ${secondaryMetal} `);
+        } else {
+          details.push(`Metal: ${primaryMetal} `);
+        }
       }
 
       // Gold weight (net weight)
@@ -497,14 +521,14 @@ const ShareMediaSection = memo(function ShareMediaSection({
                 </div>
               </>
             ) : (
-              <Image 
-                src={url} 
-                alt={`${productTitle} Image ${i + 1}`} 
-                fill 
+              <Image
+                src={url}
+                alt={`${productTitle} Image ${i + 1}`}
+                fill
                 sizes="(max-width: 768px) 100vw, 50vw"
-                priority 
-                className="object-cover object-center group-hover:scale-[1.03] transition-transform duration-500 ease-out" 
-                unoptimized 
+                priority
+                className="object-cover object-center group-hover:scale-[1.03] transition-transform duration-500 ease-out"
+                unoptimized
               />
             )}
           </div>
@@ -549,11 +573,20 @@ const ShareHeaderSection = memo(function ShareHeaderSection({
   // Prefer variant website_description, then product_description, then auto-generated sentence
   const description = variant?.website_description || product.product_description || sentence;
 
+  const sellPrice = variant?.sell_price;
+
   return (
     <section>
-      <h1 className="text-xl md:text-2xl font-semibold mb-2 uppercase tracking-wide">
-        {product.title}
-      </h1>
+      <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-2 mb-2">
+        <h1 className="text-xl md:text-2xl font-semibold uppercase tracking-wide">
+          {product.title}
+        </h1>
+        {sellPrice != null && sellPrice > 0 && (
+          <p className="text-lg md:text-xl font-semibold tracking-wide text-gray-900">
+            {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(sellPrice)}
+          </p>
+        )}
+      </div>
 
       {description && (
         <p className="text-lg md:text-xl font-serif italic text-gray-700 mb-6 leading-tight">
@@ -588,7 +621,12 @@ const ShareDetailsSection = memo(function ShareDetailsSection({
 
   const getMetalDisplay = () => {
     if (!v?.metal_type || !v?.carat_weight || !v?.metal_color) return null;
-    return `${v.carat_weight}K ${titleCase(v.metal_color)} ${titleCase(v.metal_type)} (100% Recycled Solid Gold)`;
+    const primary = `${v.carat_weight}K ${titleCase(v.metal_color)} ${titleCase(v.metal_type)}`;
+    if (v?.secondary_metal_type && v?.secondary_carat_weight && v?.secondary_metal_color) {
+      const secondary = `${v.secondary_carat_weight}K ${titleCase(v.secondary_metal_color)} ${titleCase(v.secondary_metal_type)}`;
+      return `${primary}, ${secondary} (100% Recycled Solid Gold)`;
+    }
+    return `${primary} (100% Recycled Solid Gold)`;
   };
 
   const stones = extractStones(v?.sku_segments || []);
