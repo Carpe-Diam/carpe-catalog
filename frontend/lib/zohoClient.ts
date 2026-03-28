@@ -30,6 +30,9 @@ export type Variant = {
     dia_quality?: string | null;
     metal_type?: string | null;
     metal_color?: string | null;
+    secondary_metal_type?: string | null;
+    secondary_carat_weight?: string | null;
+    secondary_metal_color?: string | null;
     metric_size?: string | null;
     setting?: string | null;
     diamond_count?: number | null;
@@ -470,7 +473,31 @@ function parseVariantSku(variantSku: string, parentSku: string) {
         }
     }
 
-    return { metalType, caratWeight, metalColor, stoneType, subGroup, size, subSubGroup };
+    // Check for a second metal triplet in dual-gold SKUs (e.g. G-14-Y-G-18-Y-...)
+    let secondaryMetalType: string | null = null;
+    let secondaryCaratWeight: string | null = null;
+    let secondaryMetalColor: string | null = null;
+
+    if (metalType === 'Gold' && idx < parts.length) {
+        const [val, consumed] = matchCode(parts, idx, METAL_TYPE_MAP);
+        if (val === 'Gold') {
+            secondaryMetalType = val;
+            idx += consumed;
+            if (idx < parts.length && /^\d+$/.test(parts[idx])) {
+                secondaryCaratWeight = parts[idx];
+                idx++;
+            }
+            if (idx < parts.length) {
+                const [colorVal, colorConsumed] = matchCode(parts, idx, METAL_COLOR_MAP);
+                if (colorVal) {
+                    secondaryMetalColor = colorVal;
+                    idx += colorConsumed;
+                }
+            }
+        }
+    }
+
+    return { metalType, caratWeight, metalColor, secondaryMetalType, secondaryCaratWeight, secondaryMetalColor, stoneType, subGroup, size, subSubGroup };
 }
 
 /**
@@ -581,6 +608,9 @@ function transformVariant(zohoVariant: any, parentSku: string = ''): Variant {
         sku_segments: skuSegments,
         metal_type: parsed.metalType,
         metal_color: parsed.metalColor,
+        secondary_metal_type: parsed.secondaryMetalType,
+        secondary_carat_weight: parsed.secondaryCaratWeight,
+        secondary_metal_color: parsed.secondaryMetalColor,
         dia_quality: null,
         carat_weight: parsed.caratWeight,
         setting: null,

@@ -34,6 +34,9 @@ export interface Variant {
   dia_quality?: string | null;
   metal_type?: string | null;
   metal_color?: string | null;
+  secondary_metal_type?: string | null;
+  secondary_carat_weight?: string | null;
+  secondary_metal_color?: string | null;
   setting?: string | null;
   diamond_count?: number | null;
   model?: string | null;
@@ -436,6 +439,10 @@ const MediaSection = memo(function MediaSection({ mediaArray, onOpenLightbox, se
 function extractStones(segments: string[]) {
   const stones = [];
   let i = 3;
+  // Skip secondary metal triplet in dual-gold SKUs (e.g. G-14-Y-G-18-Y-...)
+  if (i + 2 < segments.length && segments[i] === 'G' && /^\d+$/.test(segments[i + 1]) && ['W', 'Y', 'R'].includes(segments[i + 2])) {
+    i = 6;
+  }
   while (i + 2 < segments.length) {
     if (segments[i] && segments[i] !== 'NA') {
       let decodedType = decodeSegment(segments[i]);
@@ -577,7 +584,7 @@ const ConfigurationSection = memo(function ConfigurationSection({
               router.push(shareUrl);
             }}
           >
-            Share to Customer
+            Share
           </Button>
         </div>
 
@@ -613,7 +620,12 @@ const DetailsSection = memo(function DetailsSection({ product, selectedVariant }
 
   const getMetalDisplay = () => {
     if (!v?.metal_type || !v?.carat_weight || !v?.metal_color) return null;
-    return `${v.carat_weight}K ${titleCase(v.metal_color)} ${titleCase(v.metal_type)} `;
+    const primary = `${v.carat_weight}K ${titleCase(v.metal_color)} ${titleCase(v.metal_type)}`;
+    if (v?.secondary_metal_type && v?.secondary_carat_weight && v?.secondary_metal_color) {
+      const secondary = `${v.secondary_carat_weight}K ${titleCase(v.secondary_metal_color)} ${titleCase(v.secondary_metal_type)}`;
+      return `${primary}, ${secondary}`;
+    }
+    return `${primary} `;
   };
 
   const stones = extractStones(v?.sku_segments || []);
