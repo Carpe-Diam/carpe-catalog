@@ -584,7 +584,7 @@ const ConfigurationSection = memo(function ConfigurationSection({
               router.push(shareUrl);
             }}
           >
-            Share to Customer
+            Share
           </Button>
         </div>
 
