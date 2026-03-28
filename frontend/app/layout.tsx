@@ -3,6 +3,7 @@ import { Amiri } from "next/font/google";
 import "./globals.css";
 import GlobalHeader from "@/components/custom/GlobalHeader";
 import { getProducts, type Product } from "@/lib/zohoClient";
+import { Suspense } from "react";
 
 const amiri = Amiri({
   variable: "--font-amiri",
@@ -57,7 +58,9 @@ export default async function RootLayout({
     <html lang="en" className={`${amiri.variable}`}>
       <body className="bg-white text-[#111] antialiased min-h-screen flex flex-col font-serif">
         {/* Global Dynamic Hooked Header */}
-        <GlobalHeader categoryTree={categoryTree} />
+        <Suspense fallback={null}>
+          <GlobalHeader categoryTree={categoryTree} />
+        </Suspense>
 
         <main className="flex-grow">
           {children}
