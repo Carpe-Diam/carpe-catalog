@@ -624,9 +624,9 @@ const ShareDetailsSection = memo(function ShareDetailsSection({
     const primary = `${v.carat_weight}K ${titleCase(v.metal_color)} ${titleCase(v.metal_type)}`;
     if (v?.secondary_metal_type && v?.secondary_carat_weight && v?.secondary_metal_color) {
       const secondary = `${v.secondary_carat_weight}K ${titleCase(v.secondary_metal_color)} ${titleCase(v.secondary_metal_type)}`;
-      return `${primary}, ${secondary} (100% Recycled Solid Gold)`;
+      return `${primary}, ${secondary} `;
     }
-    return `${primary} (100% Recycled Solid Gold)`;
+    return `${primary} `;
   };
 
   const stones = extractStones(v?.sku_segments || []);
