@@ -75,7 +75,7 @@ const SKU_DECODE: Record<string, string> = {
   // Sub Groups
   GF: 'GlassFilled', H: 'Heated', L: 'LabGrown',
   NN: 'Nano', N: 'Natural', NA: 'Not Applicable',
-  '95': 'PT950',
+  '95': 'PT950', SY: 'Synthetic'
 };
 
 /** Decode a raw SKU code to its label, or return the raw code if unknown */
