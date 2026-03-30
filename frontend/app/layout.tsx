@@ -25,17 +25,18 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   let categoryTree: Record<string, string[]> = {};
-  
+  let collections: string[] = [];
+
   try {
     const products = await getProducts();
     const tree: Record<string, Set<string>> = {};
     const collectionSet = new Set<string>();
-    
+
     products?.forEach((p: Product) => {
       if (p.category) {
         const baseCat = p.category.split(' - ')[0].trim();
         if (!tree[baseCat]) tree[baseCat] = new Set();
-        
+
         if (p.subcategory) {
           const sub = p.subcategory.split(' - ')[0].trim();
           tree[baseCat].add(sub);
@@ -50,6 +51,7 @@ export default async function RootLayout({
     for (const key in tree) {
       categoryTree[key] = Array.from(tree[key]);
     }
+    collections = Array.from(collectionSet);
   } catch (error) {
     console.error("Layout fetch error:", error);
   }
@@ -59,7 +61,7 @@ export default async function RootLayout({
       <body className="bg-white text-[#111] antialiased min-h-screen flex flex-col font-serif">
         {/* Global Dynamic Hooked Header */}
         <Suspense fallback={null}>
-          <GlobalHeader categoryTree={categoryTree} />
+          <GlobalHeader categoryTree={categoryTree} collections={collections} />
         </Suspense>
 
         <main className="flex-grow">
