@@ -42,7 +42,9 @@ const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
         </div>
 
         <div className="pt-4 pb-2 text-center lg:text-left">
-          <h3 className="text-[11px] uppercase tracking-[0.2em] font-medium mb-1 truncate">{title}</h3>
+          <h3 className="mb-1 text-[11px] font-medium uppercase tracking-[0.08em] leading-snug whitespace-normal break-words">
+            {title}
+          </h3>
           <p className="text-[10px] text-gray-400 italic font-serif mb-2">
             {subcategory || category || "Fine Jewelry"}
           </p>

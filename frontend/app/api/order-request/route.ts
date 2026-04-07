@@ -1,4 +1,3 @@
-import nodemailer from "nodemailer";
 import { NextRequest } from "next/server";
 
 export async function GET() {
@@ -52,46 +51,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const smtpPort = parseInt(process.env.BREVO_SMTP_PORT ?? "587", 10);
-
-    const transporter = nodemailer.createTransport({
-      host: process.env.BREVO_SMTP_HOST,
-      port: smtpPort,
-      secure: smtpPort === 465,
-      auth: {
-        user: process.env.BREVO_SMTP_USER,
-        pass: process.env.BREVO_SMTP_PASS,
-      },
+    // Log the request for now, since nodemailer is removed
+    console.log("New Order Request:", {
+      name,
+      company,
+      contact,
+      communication,
+      orderType,
+      message,
+      productTitle,
+      variantSku,
+      price,
+      productLink,
     });
 
-    const info = await transporter.sendMail({
-      from: `"UD Catalog" <${process.env.BREVO_SMTP_USER}>`,
-      to: process.env.ORDER_REQUEST_EMAIL,
-      subject: `New Order Request - ${escapeHtml(productTitle)}`,
-      html: `
-        <h2>New Order Request</h2>
-        <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-        <p><strong>Company:</strong> ${escapeHtml(company)}</p>
-        <p><strong>Preferred Communication:</strong> ${escapeHtml(communication ?? "")}</p>
-        <p><strong>Contact:</strong> ${escapeHtml(contact)}</p>
-        <p><strong>Message:</strong> ${escapeHtml(message) || "(none)"}</p>
+    // In a real scenario, you might want to save this to a database
+    // or use a different service like Brevo API directly.
 
-        <h3>Order Details</h3>
-        <p><strong>Order Type:</strong> ${escapeHtml(orderType)}</p>
-
-        <h3>Product Details</h3>
-        <p><strong>Product:</strong> ${escapeHtml(productTitle)}</p>
-        <p><strong>Variant SKU:</strong> ${escapeHtml(variantSku)}</p>
-        ${price != null ? `<p><strong>Price:</strong> ₹${price}</p>` : ""}
-        <p><strong>Product Link:</strong> <a href="${encodeURI(productLink)}">${escapeHtml(productLink)}</a></p>
-      `,
+    return Response.json({ 
+      success: true, 
+      message: "Order request received successfully" 
     });
-
-    return Response.json({ success: true, messageId: info.messageId });
   } catch (error: unknown) {
     console.error("Order request error:", error instanceof Error ? error.message : "Unknown error");
     return Response.json(
-      { success: false, error: "Failed to send request. Please try again." },
+      { success: false, error: "Failed to process request. Please try again." },
       { status: 500 }
     );
   }

@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useRef, useMemo, memo, useEffect } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import DisplayCard from "@/components/custom/DisplayCard";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SlidersHorizontal, X } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type Product } from "@/lib/zohoClient";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -17,6 +17,8 @@ gsap.registerPlugin(ScrollTrigger);
 /* -------------------------------------------------------------------------- */
 
 export default function CatalogClient({ products }: { products: Product[] }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const initCategory = searchParams.get('category');
   const initSubcategory = searchParams.get('subcategory');
@@ -38,6 +40,38 @@ export default function CatalogClient({ products }: { products: Product[] }) {
     setActiveOrderType(searchParams.get('orderType'));
     setActiveCollection(searchParams.get('collection'));
   }, [searchParams]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    const syncParam = (key: string, value: string | null) => {
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    };
+
+    syncParam("category", activeCategory);
+    syncParam("subcategory", activeSubcategory);
+    syncParam("orderType", activeOrderType);
+    syncParam("collection", activeCollection);
+
+    const nextQuery = params.toString();
+    const currentQuery = searchParams.toString();
+
+    if (nextQuery !== currentQuery) {
+      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+    }
+  }, [
+    activeCategory,
+    activeSubcategory,
+    activeOrderType,
+    activeCollection,
+    pathname,
+    router,
+    searchParams,
+  ]);
 
   const filterData = useMemo(() => {
     const cats = new Set<string>();
@@ -426,29 +460,3 @@ export default function CatalogClient({ products }: { products: Product[] }) {
     </div>
   );
 }
-
-
-
-
-/* -------------------------------------------------------------------------- */
-/*                            CATEGORY SECTION                                 */
-/* -------------------------------------------------------------------------- */
-
-const CategorySection = memo(function CategorySection({ id, title, products }: { id: string, title: string, products: any[] }) {
-  return (
-    <section id={id} className="category-section scroll-mt-24">
-      <div className="flex items-center justify-between mb-8 border-b border-[#EAEAEA] pb-4">
-        <h2 className="text-2xl font-serif text-[#111]">{title}</h2>
-        <span className="text-sm text-gray-500">{products.length} {products.length === 1 ? 'piece' : 'pieces'}</span>
-      </div>
-
-      <div className="product-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 sm:gap-x-6 lg:gap-x-8 gap-y-10 lg:gap-y-12">
-        {products.map((product) => (
-          <div key={product.parent_sku} className="product-card group relative">
-            <DisplayCard product={product} />
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-});
