@@ -35,7 +35,6 @@ const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
               alt={title || "Product"}
               src={preferredUrl}
               fill
-              unoptimized
               onError={() => setHasError(true)}
             />
           }

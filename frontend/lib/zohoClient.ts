@@ -7,6 +7,7 @@
 
 import { getAccessToken, invalidateToken } from './zohoAuth';
 import { unstable_cache } from 'next/cache';
+import { R2_ENABLED, syncToR2, parseProxyUrl } from './r2';
 
 const ZOHO_API_DOMAIN = process.env.ZOHO_API_DOMAIN || 'https://www.zohoapis.in';
 
@@ -729,6 +730,64 @@ async function processBatched<T, R>(
     return results;
 }
 
+/* -------------------------------------------------------------------------- */
+/*                           R2 IMAGE SYNC                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * After products are built (with proxy URLs), sync all images to R2 and
+ * replace proxy URLs with public CDN URLs in-place.
+ * No-op when R2 is not configured (dev / missing env vars).
+ */
+async function syncAllImagesToR2(products: Product[]): Promise<void> {
+    if (!R2_ENABLED) return;
+
+    // Index every proxy URL → the objects that reference it
+    const urlToRefs = new Map<string, Array<{ obj: Record<string, any>; field: string }>>();
+
+    const track = (url: string | null | undefined, obj: Record<string, any>, field: string) => {
+        if (!url?.startsWith('/api/image-proxy')) return;
+        const refs = urlToRefs.get(url) ?? [];
+        refs.push({ obj, field });
+        urlToRefs.set(url, refs);
+    };
+
+    for (const product of products) {
+        track(product.record_image, product as unknown as Record<string, any>, 'record_image');
+        for (const variant of product.variants) {
+            for (const media of variant.media) {
+                track(media.preview_url, media as unknown as Record<string, any>, 'preview_url');
+                track(media.download_url, media as unknown as Record<string, any>, 'download_url');
+            }
+        }
+    }
+
+    const urls = Array.from(urlToRefs.keys());
+    if (!urls.length) return;
+
+    console.log(`[R2] Syncing ${urls.length} images to R2...`);
+
+    // Process in parallel batches of 10 to avoid overwhelming Zoho API
+    const BATCH = 10;
+    for (let i = 0; i < urls.length; i += BATCH) {
+        await Promise.all(
+            urls.slice(i, i + BATCH).map(async (proxyUrl) => {
+                const parsed = parseProxyUrl(proxyUrl);
+                if (!parsed) return;
+
+                const cdnUrl = await syncToR2(parsed.r2Key, parsed.zohoUrl);
+                if (!cdnUrl) return;
+
+                for (const { obj, field } of urlToRefs.get(proxyUrl)!) {
+                    obj[field] = cdnUrl;
+                }
+            })
+        );
+    }
+
+    console.log(`[R2] Image sync complete.`);
+}
+
 /**
  * Fetch all active products with their variants
  */
@@ -761,10 +820,15 @@ export const getProducts = unstable_cache(
         });
 
         // 4. Combine products with their variants
-        return products.map((p: any) =>
+        const result = products.map((p: any) =>
             transformProduct(p, variantsByProductId[p.id] || [])
         );
-    }, ['zoho-products'], { revalidate: 900, tags: ['products'] });
+
+        // 5. Sync all images to R2 (replaces proxy URLs with CDN URLs in-place)
+        await syncAllImagesToR2(result);
+
+        return result;
+    }, ['zoho-products'], { revalidate: 3600, tags: ['products'] });
 
 /**
  * Fetch a single product by its parent SKU (Product_Name)
@@ -806,8 +870,13 @@ export const getProductBySku = unstable_cache(
         const catalogVariants = rawVariants.filter((v: any) => v.Show_on_Catalog === 'Yes');
         const variants = catalogVariants.map((v: any) => transformVariant(v, productName));
 
-        return transformProduct(product, variants);
-    }, ['zoho-product'], { revalidate: 900, tags: ['product'] });
+        const result = transformProduct(product, variants);
+
+        // Sync images to R2
+        await syncAllImagesToR2([result]);
+
+        return result;
+    }, ['zoho-product'], { revalidate: 3600, tags: ['product'] });
 
 /**
  * Access a private collection by slug and password

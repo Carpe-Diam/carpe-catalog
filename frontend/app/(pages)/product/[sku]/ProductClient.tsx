@@ -427,7 +427,7 @@ const MediaSection = memo(function MediaSection({ mediaArray, onOpenLightbox, se
                 </div>
               </>
             ) : (
-              <Image src={url} alt={`${productTitle} Image ${i + 1}`} fill className="object-cover object-center group-hover:scale-[1.03] transition-transform duration-500 ease-out" unoptimized />
+              <Image src={url} alt={`${productTitle} Image ${i + 1}`} fill className="object-cover object-center group-hover:scale-[1.03] transition-transform duration-500 ease-out" />
             )}
           </div>
         );
