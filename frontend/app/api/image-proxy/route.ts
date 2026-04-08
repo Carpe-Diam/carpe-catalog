@@ -70,8 +70,9 @@ export async function GET(req: NextRequest) {
                 'Vercel-CDN-Cache-Control': 'public, max-age=31536000, immutable',
             },
         });
-    } catch (err) {
-        console.error('[image-proxy] Error:', err);
+    } catch (err: any) {
+        const message = err?.message ?? String(err);
+        console.error(`[image-proxy] 500 — module=${module} id=${recordId} attachment=${attachmentId ?? 'photo'} — ${message}`);
         return new Response('Error fetching image', { status: 500 });
     }
 }
