@@ -4,6 +4,7 @@ import "./globals.css";
 import GlobalHeader from "@/components/custom/GlobalHeader";
 import { getProducts, type Product } from "@/lib/zohoClient";
 import { Suspense } from "react";
+import { Analytics } from "@vercel/analytics/next"
 
 const amiri = Amiri({
   variable: "--font-amiri",
@@ -68,6 +69,7 @@ export default async function RootLayout({
           {children}
         </main>
 
+        <Analytics />
       </body>
     </html>
   );
