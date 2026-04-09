@@ -726,6 +726,7 @@ const Lightbox = memo(function Lightbox({
             width={1200}
             height={800}
             className="w-full max-h-[90vh] object-contain rounded-lg"
+            unoptimized={(displayMedia ?? '').startsWith('/api/image-proxy')}
           />
         )}
       </div>
