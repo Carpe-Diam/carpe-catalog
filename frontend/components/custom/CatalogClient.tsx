@@ -122,7 +122,6 @@ export default function CatalogClient({ products }: { products: Product[] }) {
           alt="The Collection"
           fill
           priority
-          unoptimized
           className="object-cover"
         />
         <div className="absolute inset-0 bg-black/30" />

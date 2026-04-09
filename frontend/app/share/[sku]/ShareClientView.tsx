@@ -528,7 +528,7 @@ const ShareMediaSection = memo(function ShareMediaSection({
                 sizes="(max-width: 768px) 100vw, 50vw"
                 priority
                 className="object-cover object-center group-hover:scale-[1.03] transition-transform duration-500 ease-out"
-                unoptimized
+                unoptimized={url.startsWith('/api/image-proxy')}
               />
             )}
           </div>
@@ -720,7 +720,7 @@ const ShareLightbox = memo(function ShareLightbox({
             width={1200}
             height={800}
             className="w-full max-h-[90vh] object-contain rounded-lg"
-            unoptimized
+            unoptimized={(displayMedia ?? '').startsWith('/api/image-proxy')}
           />
         )}
       </div>
