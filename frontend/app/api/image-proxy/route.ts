@@ -62,11 +62,17 @@ export async function GET(req: NextRequest) {
         return new Response(buffer, {
             headers: {
                 'Content-Type': contentType,
-                'Cache-Control': 'public, max-age=31536000, immutable',
+                // Tell Vercel's CDN to cache at the edge (s-maxage) and serve
+                // stale while revalidating in background (stale-while-revalidate).
+                // This is the fallback path — R2 is the primary CDN when configured.
+                'Cache-Control': 'public, max-age=86400, s-maxage=31536000, stale-while-revalidate=86400',
+                'CDN-Cache-Control': 'public, max-age=31536000, immutable',
+                'Vercel-CDN-Cache-Control': 'public, max-age=31536000, immutable',
             },
         });
-    } catch (err) {
-        console.error('[image-proxy] Error:', err);
+    } catch (err: any) {
+        const message = err?.message ?? String(err);
+        console.error(`[image-proxy] 500 — module=${module} id=${recordId} attachment=${attachmentId ?? 'photo'} — ${message}`);
         return new Response('Error fetching image', { status: 500 });
     }
 }

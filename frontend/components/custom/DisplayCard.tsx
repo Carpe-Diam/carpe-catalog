@@ -21,6 +21,9 @@ const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
   const [hasError, setHasError] = useState(false);
   const showFallback = hasError || !preferredUrl;
 
+  // Proxy URLs can't go through Next.js image optimization — only R2/external URLs can
+  const isProxyUrl = (preferredUrl ?? '').startsWith('/api/image-proxy');
+
   return (
     <Link href={`/product/${product.parent_sku}`}>
       <div className="group cursor-pointer transition-all">
@@ -35,7 +38,7 @@ const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
               alt={title || "Product"}
               src={preferredUrl}
               fill
-              unoptimized
+              unoptimized={isProxyUrl}
               onError={() => setHasError(true)}
             />
           }
