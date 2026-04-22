@@ -56,7 +56,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
     /* 1. Logo fades in slowly */
     tl.from(".hero-logo", {
       opacity: 0,
-      scale: 0.85,
+      scale: 0.45,
       duration: 2,
       ease: "power2.out",
     });
@@ -107,23 +107,23 @@ export default function HomeClient({ products }: { products: Product[] }) {
             <img
               src="/cd-logo.svg"
               alt="Carpe Diam"
-              className="hero-logo w-[280px] md:w-[420px] lg:w-[500px]"
+              className="hero-logo w-[200px] md:w-[300px] lg:w-[350px]"
             />
             {/* Underline that reveals on load */}
             <div
-              className="hero-underline mt-4 md:mt-6 h-[1px] w-[200px] md:w-[320px] bg-black/30 origin-left"
+              className="hero-underline mt-4 md:mt-6 h-[1px] w-[180px] md:w-[280px] bg-black/30 origin-left"
             />
           </div>
-
           {/* Simple text link */}
-          <Link href="/catalog" className="hero-cta mt-10 text-[11px] uppercase tracking-[0.25em] text-gray-500 hover:text-black transition-colors">
+          {/* <Link href="/catalog" className="hero-cta mt-10 text-[11px] uppercase tracking-[0.25em] text-gray-500 hover:text-black transition-colors">
             Explore Collection →
-          </Link>
+          </Link> */}
+          <p className="hero-cta mt-10 text-[14px] ">Before it opens to the world — it opens for you. <br />Welcome to the Carpe Diam private collection.</p>
         </div>
       </section>
 
       {/* 2. SHOP BY CATEGORY */}
-      <section className="py-24 px-6 lg:px-20 max-w-[1800px] mx-auto">
+      <section className="py-7 px-6 lg:px-20 max-w-[1800px] mx-auto">
         <div className="cat-heading text-center mb-16">
           <h2 className="text-2xl md:text-3xl font-serif tracking-widest mb-4">CATEGORY</h2>
           <div className="w-12 h-px bg-gray-300 mx-auto" />

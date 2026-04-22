@@ -58,7 +58,7 @@ export default function OurStoryPage() {
       {/* 1. HERO SECTION */}
       <section className="relative min-h-[70vh] flex flex-col items-center justify-center px-6 text-center pt-20">
         <div className="max-w-4xl mx-auto">
-          <p className="hero-text text-[10px] uppercase tracking-[0.5em] text-gray-400 mb-12">The House of Carpe Diam</p>
+          <p className="hero-text text-[10px] tracking-[0.5em] text-gray-400 mb-12">The House of Carpe Diam</p>
           <h1 className="hero-text text-3xl md:text-5xl lg:text-6xl font-serif italic leading-tight mb-16">
             "Carpe Diam began not as a business idea, but as a shared way of seeing."
           </h1>
@@ -116,10 +116,10 @@ export default function OurStoryPage() {
       <section className="reveal-section py-32 px-6 bg-black text-white overflow-hidden">
         <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <div className="relative aspect-[4/5] overflow-hidden reveal-image">
-            <Image 
-              src="/Vision.webp" 
-              alt="Joohi's Creative Vision" 
-              fill 
+            <Image
+              src="/Vision.webp"
+              alt="Joohi's Creative Vision"
+              fill
               className="object-cover"
             />
           </div>

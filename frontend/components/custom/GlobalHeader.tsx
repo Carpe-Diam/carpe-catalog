@@ -66,7 +66,7 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
           </button>
 
           {/* Desktop nav -- centered */}
-          <nav className="hidden lg:flex items-center gap-8 text-[11px] uppercase tracking-[0.2em] font-medium text-gray-500">
+          <nav className="hidden lg:flex items-center gap-8 text-[11px] tracking-[0.2em] font-medium text-gray-500">
 
             {/* Collections dropdown */}
             {hasCollections && (
@@ -81,7 +81,7 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
                       <Link
                         key={col}
                         href={`/catalog?collection=${encodeURIComponent(col)}`}
-                        className="block w-full text-left px-4 py-2 text-[10px] uppercase tracking-wider text-gray-500 hover:text-black hover:bg-gray-50 transition-colors"
+                        className="block w-full text-left px-4 py-2 text-[10px]  tracking-wider text-gray-500 hover:text-black hover:bg-gray-50 transition-colors"
                       >
                         {col}
                       </Link>
@@ -104,7 +104,7 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
                       <div key={cat} className="group/cat relative">
                         <Link
                           href={`/catalog?category=${encodeURIComponent(cat)}`}
-                          className="flex items-center justify-between px-4 py-2 text-[10px] uppercase tracking-wider text-gray-500 hover:text-black hover:bg-gray-50 transition-colors"
+                          className="flex items-center justify-between px-4 py-2 text-[10px]  tracking-wider text-gray-500 hover:text-black hover:bg-gray-50 transition-colors"
                         >
                           {cat.endsWith('s') ? cat : `${cat}s`}
                           {categoryTree[cat].length > 0 && (
@@ -118,7 +118,7 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
                                 <Link
                                   key={sub}
                                   href={`/catalog?category=${encodeURIComponent(cat)}&subcategory=${encodeURIComponent(sub)}`}
-                                  className="block px-4 py-2 text-[10px] uppercase tracking-wider text-gray-500 hover:text-black hover:bg-gray-50 transition-colors"
+                                  className="block px-4 py-2 text-[10px] tracking-wider text-gray-500 hover:text-black hover:bg-gray-50 transition-colors"
                                 >
                                   {sub}
                                 </Link>
@@ -147,7 +147,7 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
       {/* Mobile menu -- outside header to avoid backdrop-filter stacking context issue */}
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 top-[80px] z-[400] bg-white overflow-y-auto">
-          <nav className="flex flex-col py-6 px-6 text-[12px] uppercase tracking-[0.2em] font-medium text-gray-600">
+          <nav className="flex flex-col py-6 px-6 text-[12px]  tracking-[0.2em] font-medium text-gray-600">
 
             {/* Collections */}
             {hasCollections && (
