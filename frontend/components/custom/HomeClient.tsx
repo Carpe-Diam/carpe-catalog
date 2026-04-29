@@ -107,7 +107,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
             <img
               src="/cd-logo.svg"
               alt="Carpe Diam"
-              className="hero-logo w-[200px] md:w-[300px] lg:w-[350px]"
+              className="hero-logo w-[250px] md:w-[400x] lg:w-[400px]"
             />
             {/* Underline that reveals on load */}
             <div

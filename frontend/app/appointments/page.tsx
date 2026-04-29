@@ -114,8 +114,8 @@ export default function AppointmentsPage() {
           </div>
         </div>
       </section>
-
-      {/* 2. THE PROCESS */}
+      {/*
+       2. THE PROCESS 
       <section className="py-32 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-24">
@@ -151,7 +151,7 @@ export default function AppointmentsPage() {
           </div>
         </div>
       </section>
-
+ */}
       <footer className="py-20 px-6 text-center text-[10px] uppercase tracking-[0.5em] text-gray-300">
         Carpe Diam ©
       </footer>

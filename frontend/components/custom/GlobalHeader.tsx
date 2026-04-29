@@ -66,7 +66,7 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
           </button>
 
           {/* Desktop nav -- centered */}
-          <nav className="hidden lg:flex items-center gap-8 text-[11px] tracking-[0.2em] font-medium text-gray-500">
+          <nav className="hidden lg:flex items-center gap-8 text-[15px] tracking-[0.2em] font-medium text-gray-500">
 
             {/* Collections dropdown */}
             {hasCollections && (
@@ -138,8 +138,8 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
               <Link href="/catalog?collection=Bespoke" className="hover:text-black transition-colors py-2">Bespoke</Link>
             )}
 
-            <Link href="/our-story" className="hover:text-black transition-colors py-2">Our Story</Link>
-            <Link href="/appointments" className="hover:text-black transition-colors py-2">Appointments</Link>
+            {/*  <Link href="/our-story" className="hover:text-black transition-colors py-2">Our Story</Link> */}
+            <Link href="/appointments" className="hover:text-black transition-colors py-2">Contact Us</Link>
           </nav>
         </div>
       </header>
@@ -245,7 +245,7 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
               Our Story
             </Link>
             <Link href="/appointments" className="py-4 border-b border-gray-100 hover:text-black transition-colors">
-              Appointments
+              Contact Us
             </Link>
           </nav>
         </div>
