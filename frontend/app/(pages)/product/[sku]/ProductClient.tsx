@@ -318,7 +318,7 @@ export default function ProductClient({ product }: ProductClientProps) {
   }, { scope: containerRef });
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900" ref={containerRef}>
+    <div className="min-h-screen bg-white flex flex-col font-sans text-black-900" ref={containerRef}>
       <main className="flex-grow pb-32">
         <section className="container mx-auto px-4 md:px-8 flex flex-col lg:flex-row gap-8 lg:gap-16 mb-16 pt-12">
           {/* Left: Image Gallery */}
@@ -360,7 +360,7 @@ export default function ProductClient({ product }: ProductClientProps) {
           </div>
         </section>
 
-        <section className="mb-16 border-t border-gray-100">
+        <section className="mb-16 border-t border-black-100">
           <TrustSignals />
         </section>
 
@@ -398,7 +398,7 @@ interface MediaSectionProps {
 const MediaSection = memo(function MediaSection({ mediaArray, onOpenLightbox, setCurrentIndex, productTitle }: MediaSectionProps) {
   if (!mediaArray.length) {
     return (
-      <div className="w-full h-96 flex flex-col items-center justify-center text-gray-400 font-serif italic border border-gray-200 bg-gray-50">
+      <div className="w-full h-96 flex flex-col items-center justify-center text-black-400 font-serif italic border border-black-200 bg-black-50">
         No media available
       </div>
     );
@@ -413,7 +413,7 @@ const MediaSection = memo(function MediaSection({ mediaArray, onOpenLightbox, se
         return (
           <div
             key={m.id}
-            className="w-full relative aspect-[3/4] bg-gray-50 cursor-zoom-in group overflow-hidden"
+            className="w-full relative aspect-[3/4] bg-black-50 cursor-zoom-in group overflow-hidden"
             onClick={() => {
               setCurrentIndex(i);
               onOpenLightbox();
@@ -510,18 +510,18 @@ const HeaderSection = memo(function HeaderSection({ product, selectedVariant }: 
       </h1>
 
       {description && (
-        <p className="text-lg md:text-xl font-serif italic text-gray-700 mb-4 leading-tight">
+        <p className="text-lg md:text-xl font-serif italic text-black-700 mb-4 leading-tight">
           {description.charAt(0).toUpperCase() + description.slice(1)}
         </p>
       )}
 
       {sellPrice != null && sellPrice > 0 && (
-        <p className="text-xl font-semibold tracking-wide text-gray-900 mb-6">
+        <p className="text-xl font-semibold tracking-wide text-black-900 mb-6">
           {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(sellPrice)}
         </p>
       )}
 
-      {product.others && <p className="text-gray-600 text-sm mb-6">{product.others}</p>}
+      {product.others && <p className="text-black-600 text-sm mb-6">{product.others}</p>}
     </section>
   );
 });
@@ -573,7 +573,7 @@ const ConfigurationSection = memo(function ConfigurationSection({
         <div className="mb-6">
           <Button
             variant="outline"
-            className="w-full border-gray-300 hover:bg-gray-50 uppercase tracking-widest py-4 h-auto rounded-none text-xs font-semibold"
+            className="w-full border-black-300 hover:bg-black-50 uppercase tracking-widest py-4 h-auto rounded-none text-xs font-semibold"
             onClick={() => {
               let shareUrl = `/share/${product.parent_sku}`;
 
@@ -588,9 +588,9 @@ const ConfigurationSection = memo(function ConfigurationSection({
           </Button>
         </div>
 
-        {/* <ul className="text-sm space-y-3 mb-6 text-gray-700">
+        {/* <ul className="text-sm space-y-3 mb-6 text-black-700">
           <li className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-black-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
             </svg>
             <span>Lifetime personal assistance</span>
@@ -643,8 +643,8 @@ const DetailsSection = memo(function DetailsSection({ product, selectedVariant }
   return (
     <section>
       <div className="mb-6">
-        <p className="text-xs uppercase text-gray-400 mb-2">Ref: {v?.variant_sku}</p>
-        <ul className="text-sm text-gray-700 list-disc pl-4 space-y-1">
+        <p className="text-xs uppercase text-black-400 mb-2">Ref: {v?.variant_sku}</p>
+        <ul className="text-sm text-black-700 list-disc pl-4 space-y-1">
           {getMetalDisplay() && <li>Metal: <span className="underline">{getMetalDisplay()}</span></li>}
           {v?.net_weight && <li>Gold Weight: {v.net_weight} g</li>}
           {v?.polki_weight && <li>Polki Weight: {v.polki_weight} g</li>}
@@ -753,7 +753,7 @@ const ConfigGroup = memo(function ConfigGroup({ title, options, selected, onSele
     <div className="mb-6">
       <div className="flex justify-between items-center mb-2">
         <p className="text-sm font-medium uppercase tracking-wider">{title}</p>
-        {title === 'Ring Size' && <span className="text-[10px] md:text-xs text-gray-500 cursor-pointer underline">Size guide</span>}
+        {title === 'Ring Size' && <span className="text-[10px] md:text-xs text-black-500 cursor-pointer underline">Size guide</span>}
       </div>
       <div className="flex flex-wrap gap-2">
         {options.map(option => (
@@ -762,7 +762,7 @@ const ConfigGroup = memo(function ConfigGroup({ title, options, selected, onSele
             onClick={() => onSelect(option)}
             className={cn(
               "border px-4 py-2 text-xs md:text-sm text-center transition-all min-w-[3rem]",
-              selected === option ? "border-black text-black" : "border-gray-300 text-gray-500 hover:border-black hover:text-black"
+              selected === option ? "border-black text-black" : "border-black-300 text-black-500 hover:border-black hover:text-black"
             )}
           >
             {shouldDecode ? decodeSegment(option) : option}
@@ -782,7 +782,7 @@ const Detail = memo(function Detail({ label, value }: DetailProps) {
   if (!value) return null;
   return (
     <div className="flex justify-between items-center py-2 border-b border-[#EAEAEA] last:border-0">
-      <span className="text-gray-500">{label}</span>
+      <span className="text-black-500">{label}</span>
       <span className="font-medium text-[#111]">{value}</span>
     </div>
   );
@@ -805,10 +805,10 @@ const TrustSignals = memo(function TrustSignals() {
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-y-12 gap-x-8 justify-items-center">
         {signals.map((item, i) => (
           <div key={i} className="flex flex-col items-center text-center gap-4 group">
-            <div className="text-gray-800 transition-transform duration-300 group-hover:-translate-y-1">
+            <div className="text-black-800 transition-transform duration-300 group-hover:-translate-y-1">
               {item.icon}
             </div>
-            <span className="text-[10px] md:text-[11px] uppercase tracking-[0.15em] text-gray-500 font-medium max-w-[130px] leading-tight transition-colors group-hover:text-black">
+            <span className="text-[10px] md:text-[11px] uppercase tracking-[0.15em] text-black-500 font-medium max-w-[130px] leading-tight transition-colors group-hover:text-black">
               {item.label}
             </span>
           </div>
@@ -820,13 +820,13 @@ const TrustSignals = memo(function TrustSignals() {
 
 const MadeToOrderSection = memo(function MadeToOrderSection() {
   return (
-    <section className="py-24 md:py-32 border-t border-gray-100">
+    <section className="py-24 md:py-32 border-t border-black-100">
       <div className="container mx-auto px-4 md:px-8 max-w-4xl text-center">
-        <h2 className="text-lg md:text-xl font-serif italic mb-12 tracking-[0.15em] uppercase text-gray-800">
+        <h2 className="text-lg md:text-xl font-serif italic mb-12 tracking-[0.15em] uppercase text-black-800">
           Made in India &bull; Made to order &bull; Made for you
         </h2>
 
-        <div className="space-y-10 text-lg md:text-xl font-serif italic text-gray-700 leading-relaxed">
+        <div className="space-y-10 text-lg md:text-xl font-serif italic text-black-700 leading-relaxed">
           <p>
             Consumers today are gradually evolving from a mass-driven economy to one that is more focused and intentional. This shift encourages brands to engage in more thoughtful conversations around creation and consumption.
           </p>
@@ -834,7 +834,7 @@ const MadeToOrderSection = memo(function MadeToOrderSection() {
             The one-size-fits-all model, which often leads to overproduction, is slowly giving way to a more conversational approach&mdash;one that is also more sustainable for the health of our planet.
           </p>
           <p>
-            At Carpe Diam, while we have a collection to evolve ourselves and showcase our craftsmanship, we believe in this approach of <span className="font-bold underline underline-offset-4 decoration-gray-200">made to order, made for you</span>.
+            At Carpe Diam, while we have a collection to evolve ourselves and showcase our craftsmanship, we believe in this approach of <span className="font-bold underline underline-offset-4 decoration-black-200">made to order, made for you</span>.
           </p>
           <p className="pt-4">
             Creating space for conversation, individuality, and conscious creation.

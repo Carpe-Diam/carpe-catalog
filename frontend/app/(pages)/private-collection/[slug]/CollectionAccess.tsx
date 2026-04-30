@@ -58,7 +58,7 @@ export default function CollectionAccess({ slug }: CollectionAccessProps) {
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center text-gray-500 py-12">
+                    <div className="text-center text-black-500 py-12">
                         No products found in this collection.
                     </div>
                 )}

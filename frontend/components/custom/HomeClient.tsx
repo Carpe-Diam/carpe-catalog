@@ -115,7 +115,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
             />
           </div>
           {/* Simple text link */}
-          {/* <Link href="/catalog" className="hero-cta mt-10 text-[11px] uppercase tracking-[0.25em] text-gray-500 hover:text-black transition-colors">
+          {/* <Link href="/catalog" className="hero-cta mt-10 text-[11px] uppercase tracking-[0.25em] text-black-500 hover:text-black transition-colors">
             Explore Collection →
           </Link> */}
           <p className="hero-cta mt-10 text-[14px] ">Before it opens to the world — it opens for you. <br />Welcome to the Carpe Diam private collection.</p>
@@ -126,7 +126,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
       <section className="py-7 px-6 lg:px-20 max-w-[1800px] mx-auto">
         <div className="cat-heading text-center mb-16">
           <h2 className="text-2xl md:text-3xl font-serif tracking-widest mb-4">CATEGORY</h2>
-          <div className="w-12 h-px bg-gray-300 mx-auto" />
+          <div className="w-12 h-px bg-black-300 mx-auto" />
         </div>
         <div className="cat-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {categories.map((cat) => (

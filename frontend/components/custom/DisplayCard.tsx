@@ -29,8 +29,8 @@ const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
       <div className="group cursor-pointer transition-all">
         <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#F9F9F9]">
           {showFallback ? (
-            <div className="flex h-full w-full items-center justify-center bg-gray-200">
-              <ImageIcon className="h-12 w-12 text-gray-400" />
+            <div className="flex h-full w-full items-center justify-center bg-black-200">
+              <ImageIcon className="h-12 w-12 text-black-400" />
             </div>
           ) :
             <Image
@@ -46,7 +46,7 @@ const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
 
         <div className="pt-4 pb-2 text-center lg:text-left">
           <h3 className="text-[11px] uppercase tracking-[0.2em] font-medium mb-1 whitespace-normal break-words">{title}</h3>
-          <p className="text-[10px] text-gray-400 italic font-serif mb-2">
+          <p className="text-[10px] text-black-400 italic font-serif mb-2">
             {subcategory || category || "Fine Jewelry"}
           </p>
 

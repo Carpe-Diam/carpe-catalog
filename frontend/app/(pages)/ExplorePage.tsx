@@ -123,15 +123,15 @@ export default function ExplorePage({ products }: { products: Product[] }) {
 
       const scaleX = navRect.width / splashRect.width;
       const scaleY = navRect.height / splashRect.height;
-      
+
       const tx = navRect.left + (navRect.width / 2) - (splashRect.left + splashRect.width / 2);
       const ty = navRect.top + (navRect.height / 2) - (splashRect.top + splashRect.height / 2);
 
       const tl = gsap.timeline();
-      
+
       // Keep body from scrolling during splash
       document.body.style.overflow = "hidden";
-      
+
       tl.to({}, { duration: 0.8 }) // Initial pause to show logo
         .to(splashLogoRef.current, {
           x: tx,
@@ -230,17 +230,17 @@ export default function ExplorePage({ products }: { products: Product[] }) {
   return (
     <div className="w-full bg-[#FAFAFA] min-h-screen text-[#1A1A1A] font-sans" ref={containerRef}>
       {/* Splash Screen */}
-      <div 
+      <div
         ref={splashRef}
         className="fixed inset-0 z-[100] flex items-center justify-center bg-[#FAFAFA]"
       >
-        <Image 
+        <Image
           ref={splashLogoRef}
-          src="/cd-logo.svg" 
-          alt="Carpe Diam Logo" 
-          width={280} 
-          height={112} 
-          unoptimized 
+          src="/cd-logo.svg"
+          alt="Carpe Diam Logo"
+          width={280}
+          height={112}
+          unoptimized
         />
       </div>
 
@@ -248,20 +248,20 @@ export default function ExplorePage({ products }: { products: Product[] }) {
       <nav className="sticky top-0 z-50 bg-[#FAFAFA]/90 backdrop-blur-md border-b border-[#EAEAEA] px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 transition-all">
         <div className="flex items-center w-full md:w-auto justify-between">
           <Link href="/">
-            <Image 
+            <Image
               ref={navLogoRef}
-              src="/cd-logo.svg" 
-              alt="Logo" 
-              width={120} 
-              height={48} 
-              unoptimized 
-              className="cursor-pointer opacity-0" 
+              src="/cd-logo.svg"
+              alt="Logo"
+              width={120}
+              height={48}
+              unoptimized
+              className="cursor-pointer opacity-0"
             />
           </Link>
         </div>
 
         {/* Navigation Links */}
-        <div className="hidden md:flex items-center gap-6 text-sm uppercase tracking-widest font-medium text-gray-500">
+        <div className="hidden md:flex items-center gap-6 text-sm uppercase tracking-widest font-medium text-black-500">
           {/* Order-type links (kept) */}
           {stockProducts.length > 0 && (
             <button onClick={() => scrollToCategory('stock')} className="hover:text-black transition-colors">Stock</button>
@@ -275,7 +275,7 @@ export default function ExplorePage({ products }: { products: Product[] }) {
 
           {/* Divider */}
           {categoriesInData.length > 0 && (stockProducts.length > 0 || customProducts.length > 0 || sketchProducts.length > 0) && (
-            <div className="w-px h-5 bg-gray-300" />
+            <div className="w-px h-5 bg-black-300" />
           )}
 
           {/* Category dropdown links */}
@@ -293,7 +293,7 @@ export default function ExplorePage({ products }: { products: Product[] }) {
 
         {/* Search */}
         <div className="relative w-full md:w-auto max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black-400" />
           <Input
             type="text"
             placeholder="Search collections..."
@@ -307,12 +307,12 @@ export default function ExplorePage({ products }: { products: Product[] }) {
       {/* Active filter pill */}
       {activeFilterLabel && (
         <div className="flex items-center justify-center gap-2 py-3 bg-[#F5F5F5] border-b border-[#EAEAEA]">
-          <span className="text-xs uppercase tracking-widest text-gray-600">
+          <span className="text-xs uppercase tracking-widest text-black-600">
             Showing: <strong className="text-black">{activeFilterLabel}</strong>
           </span>
           <button
             onClick={clearFilters}
-            className="ml-2 text-xs text-gray-400 hover:text-black transition-colors underline"
+            className="ml-2 text-xs text-black-400 hover:text-black transition-colors underline"
           >
             Clear
           </button>
@@ -322,7 +322,7 @@ export default function ExplorePage({ products }: { products: Product[] }) {
       {/* Hero Header */}
       <header className="py-16 md:py-24 px-6 text-center w-full">
         <h1 className="text-4xl md:text-5xl font-serif text-[#111] mb-4">Our Collections</h1>
-        <p className="text-gray-500 text-sm md:text-base leading-relaxed tracking-wide max-w-4xl mx-auto">
+        <p className="text-black-500 text-sm md:text-base leading-relaxed tracking-wide max-w-4xl mx-auto">
           Discover our curated selection of fine jewelry. From instantly available stock pieces to unique custom customer orders and visionary sketches ready to be brought to life.
         </p>
       </header>
@@ -331,7 +331,7 @@ export default function ExplorePage({ products }: { products: Product[] }) {
       <div className="md:hidden px-4 pb-6 flex items-center gap-3">
         <button
           onClick={() => setMobileFilterOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 text-xs uppercase tracking-widest font-medium border border-gray-300 text-gray-700 hover:border-black hover:text-black transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 text-xs uppercase tracking-widest font-medium border border-black-300 text-black-700 hover:border-black hover:text-black transition-all"
         >
           <SlidersHorizontal className="w-4 h-4" />
           Filter
@@ -340,7 +340,7 @@ export default function ExplorePage({ products }: { products: Product[] }) {
           )}
         </button>
         {activeFilterLabel && (
-          <span className="text-[10px] uppercase tracking-wider text-gray-500 truncate">
+          <span className="text-[10px] uppercase tracking-wider text-black-500 truncate">
             {activeFilterLabel}
           </span>
         )}
@@ -351,9 +351,9 @@ export default function ExplorePage({ products }: { products: Product[] }) {
         <>
           <div className="fixed inset-0 bg-black/30 z-50 md:hidden" onClick={() => setMobileFilterOpen(false)} />
           <div className="fixed top-0 left-0 h-full w-[280px] bg-white z-50 shadow-2xl flex flex-col md:hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-              <span className="text-xs uppercase tracking-[0.2em] font-medium text-gray-800">Filters</span>
-              <button onClick={() => setMobileFilterOpen(false)} className="p-1 text-gray-500 hover:text-black">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-black-100">
+              <span className="text-xs uppercase tracking-[0.2em] font-medium text-black-800">Filters</span>
+              <button onClick={() => setMobileFilterOpen(false)} className="p-1 text-black-500 hover:text-black">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -362,7 +362,7 @@ export default function ExplorePage({ products }: { products: Product[] }) {
               {/* All */}
               <button
                 onClick={() => { clearFilters(); setMobileFilterOpen(false); }}
-                className={`w-full text-left px-5 py-3 text-xs uppercase tracking-[0.15em] font-medium transition-colors ${!activeCategory ? 'text-black bg-gray-50' : 'text-gray-600 hover:text-black hover:bg-gray-50'}`}
+                className={`w-full text-left px-5 py-3 text-xs uppercase tracking-[0.15em] font-medium transition-colors ${!activeCategory ? 'text-black bg-black-50' : 'text-black-600 hover:text-black hover:bg-black-50'}`}
               >
                 All Products
               </button>
@@ -371,7 +371,7 @@ export default function ExplorePage({ products }: { products: Product[] }) {
               {stockProducts.length > 0 && (
                 <button
                   onClick={() => { scrollToCategory('stock'); setMobileFilterOpen(false); }}
-                  className="w-full text-left px-5 py-3 text-xs uppercase tracking-[0.15em] font-medium text-gray-600 hover:text-black hover:bg-gray-50 transition-colors"
+                  className="w-full text-left px-5 py-3 text-xs uppercase tracking-[0.15em] font-medium text-black-600 hover:text-black hover:bg-black-50 transition-colors"
                 >
                   Stock ({stockProducts.length})
                 </button>
@@ -379,7 +379,7 @@ export default function ExplorePage({ products }: { products: Product[] }) {
               {customProducts.length > 0 && (
                 <button
                   onClick={() => { scrollToCategory('custom'); setMobileFilterOpen(false); }}
-                  className="w-full text-left px-5 py-3 text-xs uppercase tracking-[0.15em] font-medium text-gray-600 hover:text-black hover:bg-gray-50 transition-colors"
+                  className="w-full text-left px-5 py-3 text-xs uppercase tracking-[0.15em] font-medium text-black-600 hover:text-black hover:bg-black-50 transition-colors"
                 >
                   Custom ({customProducts.length})
                 </button>
@@ -387,17 +387,17 @@ export default function ExplorePage({ products }: { products: Product[] }) {
               {sketchProducts.length > 0 && (
                 <button
                   onClick={() => { scrollToCategory('sketch'); setMobileFilterOpen(false); }}
-                  className="w-full text-left px-5 py-3 text-xs uppercase tracking-[0.15em] font-medium text-gray-600 hover:text-black hover:bg-gray-50 transition-colors"
+                  className="w-full text-left px-5 py-3 text-xs uppercase tracking-[0.15em] font-medium text-black-600 hover:text-black hover:bg-black-50 transition-colors"
                 >
                   Sketch ({sketchProducts.length})
                 </button>
               )}
 
               {/* Divider */}
-              <div className="mx-5 my-2 border-t border-gray-100" />
+              <div className="mx-5 my-2 border-t border-black-100" />
 
               {/* Categories with subcategories */}
-              <p className="px-5 pt-2 pb-1 text-[9px] uppercase tracking-[0.2em] text-gray-400">Categories</p>
+              <p className="px-5 pt-2 pb-1 text-[9px] uppercase tracking-[0.2em] text-black-400">Categories</p>
               {categoriesInData.map(cat => {
                 const subs = CATEGORY_SUBCATEGORY_MAP[cat] ?? [];
                 const isActive = activeCategory === cat;
@@ -406,18 +406,18 @@ export default function ExplorePage({ products }: { products: Product[] }) {
                   <div key={cat}>
                     <button
                       onClick={() => { handleCategoryClick(cat); if (subs.length === 0) setMobileFilterOpen(false); }}
-                      className={`w-full text-left px-5 py-3 text-xs uppercase tracking-[0.15em] font-medium transition-colors ${isActive ? 'text-black bg-gray-50' : 'text-gray-600 hover:text-black hover:bg-gray-50'}`}
+                      className={`w-full text-left px-5 py-3 text-xs uppercase tracking-[0.15em] font-medium transition-colors ${isActive ? 'text-black bg-black-50' : 'text-black-600 hover:text-black hover:bg-black-50'}`}
                     >
                       {prettyCategoryName(cat)}
                     </button>
 
                     {isActive && subs.length > 0 && (
-                      <div className="bg-gray-50 border-t border-gray-100">
+                      <div className="bg-black-50 border-t border-black-100">
                         {subs.map(sub => (
                           <button
                             key={sub}
                             onClick={() => { handleSubcategoryClick(sub); setMobileFilterOpen(false); }}
-                            className={`w-full text-left px-8 py-2.5 text-[10px] uppercase tracking-wider transition-colors ${activeSubcategory === sub ? 'text-black font-semibold' : 'text-gray-500 hover:text-black'}`}
+                            className={`w-full text-left px-8 py-2.5 text-[10px] uppercase tracking-wider transition-colors ${activeSubcategory === sub ? 'text-black font-semibold' : 'text-black-500 hover:text-black'}`}
                           >
                             {prettySubName(sub)}
                           </button>
@@ -431,10 +431,10 @@ export default function ExplorePage({ products }: { products: Product[] }) {
 
             {/* Clear button at bottom */}
             {activeCategory && (
-              <div className="p-4 border-t border-gray-100">
+              <div className="p-4 border-t border-black-100">
                 <button
                   onClick={() => { clearFilters(); setMobileFilterOpen(false); }}
-                  className="w-full py-2.5 text-xs uppercase tracking-widest font-medium border border-gray-300 text-gray-600 hover:border-black hover:text-black transition-all"
+                  className="w-full py-2.5 text-xs uppercase tracking-widest font-medium border border-black-300 text-black-600 hover:border-black hover:text-black transition-all"
                 >
                   Clear All Filters
                 </button>
@@ -463,7 +463,7 @@ export default function ExplorePage({ products }: { products: Product[] }) {
         )}
 
         {filteredProducts.length === 0 && (
-          <div className="text-center py-20 text-gray-500">
+          <div className="text-center py-20 text-black-500">
             No products found matching your search.
           </div>
         )}
@@ -518,11 +518,10 @@ const CategoryNavItem = memo(function CategoryNavItem({
                   onCategoryClick(category);
                   onSubcategoryClick(sub);
                 }}
-                className={`block w-full text-left px-4 py-2 text-xs uppercase tracking-wider transition-colors ${
-                  isActive && activeSubcategory === sub
-                    ? 'text-black bg-gray-50 font-semibold'
-                    : 'text-gray-500 hover:text-black hover:bg-gray-50'
-                }`}
+                className={`block w-full text-left px-4 py-2 text-xs uppercase tracking-wider transition-colors ${isActive && activeSubcategory === sub
+                    ? 'text-black bg-black-50 font-semibold'
+                    : 'text-black-500 hover:text-black hover:bg-black-50'
+                  }`}
               >
                 {prettySubName(sub)}
               </button>
@@ -543,7 +542,7 @@ const CategorySection = memo(function CategorySection({ id, title, products }: {
     <section id={id} className="category-section scroll-mt-24">
       <div className="flex items-center justify-between mb-8 border-b border-[#EAEAEA] pb-4">
         <h2 className="text-2xl font-serif text-[#111]">{title}</h2>
-        <span className="text-sm text-gray-500">{products.length} {products.length === 1 ? 'piece' : 'pieces'}</span>
+        <span className="text-sm text-black-500">{products.length} {products.length === 1 ? 'piece' : 'pieces'}</span>
       </div>
 
       <div className="product-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 sm:gap-x-6 lg:gap-x-8 gap-y-10 lg:gap-y-12">

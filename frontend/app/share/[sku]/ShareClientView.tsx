@@ -394,15 +394,15 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
   }, { scope: containerRef });
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900" ref={containerRef}>
+    <div className="min-h-screen bg-white flex flex-col font-sans text-black-900" ref={containerRef}>
       {/* Header — outside PDF capture area */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-4 md:px-6 py-3 md:py-4">
-        <span className="text-xs uppercase tracking-widest text-gray-500">Ref: {variant?.variant_sku}</span>
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-black-200 flex items-center justify-between px-4 md:px-6 py-3 md:py-4">
+        <span className="text-xs uppercase tracking-widest text-black-500">Ref: {variant?.variant_sku}</span>
         <div className="flex items-center gap-2 md:gap-4">
           <button
             onClick={() => setQrModalOpen(true)}
             data-html2canvas-ignore="true"
-            className="flex items-center gap-2 text-xs uppercase tracking-widest border border-gray-300 text-gray-700 px-3 md:px-4 py-2 hover:bg-gray-100 transition cursor-pointer"
+            className="flex items-center gap-2 text-xs uppercase tracking-widest border border-black-300 text-black-700 px-3 md:px-4 py-2 hover:bg-black-100 transition cursor-pointer"
           >
             <Share2 className="w-4 h-4" />
             <span className="hidden sm:inline">Share QR</span>
@@ -411,7 +411,7 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
             onClick={handleDownloadPDF}
             disabled={isDownloading}
             data-html2canvas-ignore="true"
-            className="flex items-center gap-2 text-xs uppercase tracking-widest bg-black text-white px-3 md:px-4 py-2 hover:bg-gray-800 transition disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-2 text-xs uppercase tracking-widest bg-black text-white px-3 md:px-4 py-2 hover:bg-black-800 transition disabled:opacity-50 cursor-pointer"
           >
             <Download className="w-4 h-4" />
             <span className="hidden sm:inline">{isDownloading ? "Generating..." : "Download PDF"}</span>
@@ -492,7 +492,7 @@ const ShareMediaSection = memo(function ShareMediaSection({
 }) {
   if (!mediaArray.length) {
     return (
-      <div className="w-full h-96 flex flex-col items-center justify-center text-gray-400 font-serif italic border border-gray-200 bg-gray-50">
+      <div className="w-full h-96 flex flex-col items-center justify-center text-black-400 font-serif italic border border-black-200 bg-black-50">
         No media available
       </div>
     );
@@ -507,7 +507,7 @@ const ShareMediaSection = memo(function ShareMediaSection({
         return (
           <div
             key={m.id}
-            className="w-full relative aspect-[3/4] bg-gray-50 cursor-zoom-in group overflow-hidden"
+            className="w-full relative aspect-[3/4] bg-black-50 cursor-zoom-in group overflow-hidden"
             onClick={() => {
               setCurrentIndex(i);
               onOpenLightbox();
@@ -582,19 +582,19 @@ const ShareHeaderSection = memo(function ShareHeaderSection({
           {product.title}
         </h1>
         {sellPrice != null && sellPrice > 0 && (
-          <p className="text-lg md:text-xl font-semibold tracking-wide text-gray-900">
+          <p className="text-lg md:text-xl font-semibold tracking-wide text-black-900">
             {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(sellPrice)}
           </p>
         )}
       </div>
 
       {description && (
-        <p className="text-lg md:text-xl font-serif italic text-gray-700 mb-6 leading-tight">
+        <p className="text-lg md:text-xl font-serif italic text-black-700 mb-6 leading-tight">
           {description.charAt(0).toUpperCase() + description.slice(1)}
         </p>
       )}
 
-      {product.others && <p className="text-gray-600 text-sm mb-6">{product.others}</p>}
+      {product.others && <p className="text-black-600 text-sm mb-6">{product.others}</p>}
     </section>
   );
 });
@@ -644,8 +644,8 @@ const ShareDetailsSection = memo(function ShareDetailsSection({
   return (
     <section>
       <div className="mb-6">
-        <p className="text-xs uppercase text-gray-400 mb-2">Ref: {v?.variant_sku}</p>
-        <ul className="text-sm text-gray-700 list-disc pl-4 space-y-1">
+        <p className="text-xs uppercase text-black-400 mb-2">Ref: {v?.variant_sku}</p>
+        <ul className="text-sm text-black-700 list-disc pl-4 space-y-1">
           {getMetalDisplay() && <li>Metal: <span className="underline">{getMetalDisplay()}</span></li>}
           {v?.net_weight && <li>Gold Weight: {v.net_weight} g</li>}
           {v?.polki_weight && <li>Polki Weight: {v.polki_weight} g</li>}
@@ -789,23 +789,23 @@ const QrShareModal = memo(function QrShareModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close */}
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition">
+        <button onClick={onClose} className="absolute top-4 right-4 text-black-400 hover:text-black-700 transition">
           <X className="w-5 h-5" />
         </button>
 
-        <h3 className="text-sm uppercase tracking-widest font-medium text-gray-800">Share this product</h3>
+        <h3 className="text-sm uppercase tracking-widest font-medium text-black-800">Share this product</h3>
 
         {/* QR Code */}
         <img src={qrDataUrl} alt="QR code" className="w-52 h-52" />
 
-        <p className="text-xs text-gray-400 text-center">Scan to open this page directly</p>
+        <p className="text-xs text-black-400 text-center">Scan to open this page directly</p>
 
         {/* Action buttons */}
         <div className="w-full flex flex-col gap-2">
           {typeof navigator !== "undefined" && typeof navigator.share === "function" && (
             <button
               onClick={handleShare}
-              className="w-full flex items-center justify-center gap-2 text-xs uppercase tracking-widest bg-black text-white px-4 py-3 hover:bg-gray-800 transition cursor-pointer rounded-lg"
+              className="w-full flex items-center justify-center gap-2 text-xs uppercase tracking-widest bg-black text-white px-4 py-3 hover:bg-black-800 transition cursor-pointer rounded-lg"
             >
               <Share2 className="w-4 h-4" />
               Share
@@ -814,7 +814,7 @@ const QrShareModal = memo(function QrShareModal({
 
           <button
             onClick={handleDownloadQr}
-            className="w-full flex items-center justify-center gap-2 text-xs uppercase tracking-widest border border-gray-300 text-gray-700 px-4 py-3 hover:bg-gray-50 transition cursor-pointer rounded-lg"
+            className="w-full flex items-center justify-center gap-2 text-xs uppercase tracking-widest border border-black-300 text-black-700 px-4 py-3 hover:bg-black-50 transition cursor-pointer rounded-lg"
           >
             <Download className="w-4 h-4" />
             Download QR Image
@@ -822,7 +822,7 @@ const QrShareModal = memo(function QrShareModal({
 
           <button
             onClick={handleCopyLink}
-            className="w-full flex items-center justify-center gap-2 text-xs uppercase tracking-widest border border-gray-300 text-gray-700 px-4 py-3 hover:bg-gray-50 transition cursor-pointer rounded-lg"
+            className="w-full flex items-center justify-center gap-2 text-xs uppercase tracking-widest border border-black-300 text-black-700 px-4 py-3 hover:bg-black-50 transition cursor-pointer rounded-lg"
           >
             {copied ? "Copied!" : "Copy Link"}
           </button>

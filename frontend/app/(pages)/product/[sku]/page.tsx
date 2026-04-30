@@ -9,7 +9,7 @@ export default async function ProductPage({ params }: { params: Promise<{ sku: s
     console.log("product", product);
 
     if (!product) {
-      return <div className="p-6 text-gray-500">No product found.</div>;
+      return <div className="p-6 text-black-500">No product found.</div>;
     }
 
     return <ProductClient product={product} />;

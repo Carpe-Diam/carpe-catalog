@@ -208,7 +208,7 @@ export const OrderRequestDrawer = memo(function OrderRequestDrawer({ variant, pr
           </div>
 
           {/* Hidden Product Metadata */}
-          <div className="text-xs text-gray-500 border-t pt-3">
+          <div className="text-xs text-black-500 border-t pt-3">
             Requesting: <strong>{product.title}</strong>
             <br />
             Variant: <strong>{variant.variant_sku}</strong>

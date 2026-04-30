@@ -69,44 +69,44 @@ export default function AppointmentsPage() {
   ];
 
   return (
-    <div ref={containerRef} className="bg-white min-h-screen font-sans text-gray-900 selection:bg-gray-100">
+    <div ref={containerRef} className="bg-white min-h-screen font-sans text-black-900 selection:bg-black-100">
 
       {/* 1. HERO & CONTACT (Visible on Load) */}
-      <section className="pt-32 pb-24 px-6 border-b border-gray-50">
+      <section className="pt-32 pb-24 px-6 border-b border-black-50">
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
             <div>
-              <p className="hero-content text-[10px] uppercase tracking-[0.5em] text-gray-400 mb-6">Concierge</p>
+              <p className="hero-content text-[10px] uppercase tracking-[0.5em] text-black-400 mb-6">Concierge</p>
               <h1 className="hero-content text-4xl md:text-5xl font-serif italic mb-8 leading-tight">
                 Appointments &<br />Consultations
               </h1>
-              <p className="hero-content text-gray-500 leading-relaxed max-w-md mb-8">
+              <p className="hero-content text-black-500 leading-relaxed max-w-md mb-8">
                 Whether you're seeking a meaningful gift or a piece to mark a personal milestone, our team is here to guide you. Contact us directly to begin your journey.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 lg:bg-[#fafafa] lg:p-10 lg:rounded-sm">
               <div className="hero-content">
-                <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-gray-400">Email</h4>
-                <a href="mailto:hello@carpediam.in" className="text-sm text-gray-700 hover:text-black transition-colors underline-offset-4 hover:underline block">
+                <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-black-400">Email</h4>
+                <a href="mailto:hello@carpediam.in" className="text-sm text-black-700 hover:text-black transition-colors underline-offset-4 hover:underline block">
                   hello@carpediam.in
                 </a>
               </div>
               <div className="hero-content">
-                <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-gray-400">Phone & WhatsApp</h4>
-                <a href="https://wa.me/918850157354?text=Hi! I’d like to book an appointment. Could you please help me with the available slots?" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-700 hover:text-black transition-colors underline-offset-4 hover:underline block">
+                <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-black-400">Phone & WhatsApp</h4>
+                <a href="https://wa.me/918850157354?text=Hi! I’d like to book an appointment. Could you please help me with the available slots?" target="_blank" rel="noopener noreferrer" className="text-sm text-black-700 hover:text-black transition-colors underline-offset-4 hover:underline block">
                   +91 88501 57354
                 </a>
               </div>
               <div className="hero-content">
-                <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-gray-400">Instagram</h4>
-                <a href="https://www.instagram.com/carpediamjewelry?igsh=Y3BuOW0xd2s2Ymhi" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-700 hover:text-black transition-colors underline-offset-4 hover:underline block">
+                <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-black-400">Instagram</h4>
+                <a href="https://www.instagram.com/carpediamjewelry?igsh=Y3BuOW0xd2s2Ymhi" target="_blank" rel="noopener noreferrer" className="text-sm text-black-700 hover:text-black transition-colors underline-offset-4 hover:underline block">
                   @carpediamjewelry
                 </a>
               </div>
               <div className="hero-content">
-                <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-gray-400">Location</h4>
-                <a href="https://maps.app.goo.gl/cD9RoMc389AP9a9v9" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-700 hover:text-black transition-colors underline-offset-4 hover:underline block">
+                <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-black-400">Location</h4>
+                <a href="https://maps.app.goo.gl/cD9RoMc389AP9a9v9" target="_blank" rel="noopener noreferrer" className="text-sm text-black-700 hover:text-black transition-colors underline-offset-4 hover:underline block">
                   Mumbai, India
                 </a>
               </div>
@@ -119,7 +119,7 @@ export default function AppointmentsPage() {
       <section className="py-32 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-24">
-            <p className="text-[10px] uppercase tracking-[0.4em] text-gray-400 mb-4">The Journey</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-black-400 mb-4">The Journey</p>
             <h3 className="text-3xl font-serif italic">Our Process</h3>
           </div>
 
@@ -131,18 +131,18 @@ export default function AppointmentsPage() {
                     src={step.image}
                     alt={step.title}
                     fill
-                    className="object-cover grayscale hover:grayscale-0 transition-all duration-1000"
+                    className="object-cover blackscale hover:blackscale-0 transition-all duration-1000"
                   />
                 </div>
                 <div className={`${i % 2 !== 0 ? 'lg:order-1' : ''}`}>
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
+                    <div className="w-10 h-10 rounded-full bg-black-50 flex items-center justify-center text-black-400">
                       {step.icon}
                     </div>
                     <span className="text-[10px] uppercase tracking-[0.4em] text-black font-serif italic">Step 0{i + 1}</span>
                   </div>
                   <h4 className="text-2xl font-serif mb-6 text-black">{step.title}</h4>
-                  <p className="text-gray-500 leading-relaxed max-w-sm">
+                  <p className="text-black-500 leading-relaxed max-w-sm">
                     {step.description}
                   </p>
                 </div>
@@ -152,7 +152,7 @@ export default function AppointmentsPage() {
         </div>
       </section>
  */}
-      <footer className="py-20 px-6 text-center text-[10px] uppercase tracking-[0.5em] text-gray-300">
+      <footer className="py-20 px-6 text-center text-[10px] uppercase tracking-[0.5em] text-black-300">
         Carpe Diam ©
       </footer>
 

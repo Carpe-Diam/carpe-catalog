@@ -50,10 +50,10 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
 
   return (
     <>
-      <header className="sticky top-0 z-[500] bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="px-4 md:px-6 py-5 md:py-4 flex items-center justify-center">
-          <Link href="/" className="absolute left-4 md:left-6 flex items-center hover:opacity-80 transition-opacity">
-            <Image src="/cd-logo.svg" alt="Carpe Diam" width={140} height={40} className={`w-auto h-10 md:h-12 max-w-[130px] md:max-w-none transition-opacity duration-500 ${showLogo ? 'opacity-100' : 'opacity-0'}`} priority unoptimized />
+      <header className="sticky top-0 z-[500] bg-white/80 backdrop-blur-md border-b border-black-100">
+        <div className="px-4 md:px-6 py-5 md:max-lg:py-6 lg:py-4 flex items-center justify-center">
+          <Link href="/" className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 flex items-center hover:opacity-80 transition-opacity">
+            <Image src="/cd-logo.svg" alt="Carpe Diam" width={140} height={40} className={`w-auto h-10 md:max-lg:h-10 lg:h-12 max-w-[130px] md:max-lg:max-w-[130px] lg:max-w-none transition-opacity duration-500 ${showLogo ? 'opacity-100' : 'opacity-0'}`} priority unoptimized />
           </Link>
 
           {/* Hamburger button -- mobile only */}
@@ -62,11 +62,11 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
             onClick={() => setMobileOpen(prev => !prev)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
           >
-            {mobileOpen ? <X className="w-6 h-6 text-gray-700" /> : <Menu className="w-6 h-6 text-gray-700" />}
+            {mobileOpen ? <X className="w-6 h-6 text-black-700" /> : <Menu className="w-6 h-6 text-black-700" />}
           </button>
 
           {/* Desktop nav -- centered */}
-          <nav className="hidden lg:flex items-center gap-8 text-[15px] tracking-[0.2em] font-medium text-gray-500">
+          <nav className="hidden lg:flex items-center gap-8 text-[15px] tracking-[0.2em] font-medium text-black-500">
 
             {/* Collections dropdown */}
             {hasCollections && (
@@ -81,7 +81,7 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
                       <Link
                         key={col}
                         href={`/catalog?collection=${encodeURIComponent(col)}`}
-                        className="block w-full text-left px-4 py-2 text-[15px]  tracking-wider text-gray-500 hover:text-black hover:bg-gray-50 transition-colors"
+                        className="block w-full text-left px-4 py-2 text-[15px]  tracking-wider text-black-500 hover:text-black hover:bg-black-50 transition-colors"
                       >
                         {col}
                       </Link>
@@ -104,7 +104,7 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
                       <div key={cat} className="group/cat relative">
                         <Link
                           href={`/catalog?category=${encodeURIComponent(cat)}`}
-                          className="flex items-center justify-between px-4 py-2 text-[15px]  tracking-wider text-gray-500 hover:text-black hover:bg-gray-50 transition-colors"
+                          className="flex items-center justify-between px-4 py-2 text-[15px]  tracking-wider text-black-500 hover:text-black hover:bg-black-50 transition-colors"
                         >
                           {cat.endsWith('s') ? cat : `${cat}s`}
                           {categoryTree[cat].length > 0 && (
@@ -118,7 +118,7 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
                                 <Link
                                   key={sub}
                                   href={`/catalog?category=${encodeURIComponent(cat)}&subcategory=${encodeURIComponent(sub)}`}
-                                  className="block px-4 py-2 text-[15px] tracking-wider text-gray-500 hover:text-black hover:bg-gray-50 transition-colors"
+                                  className="block px-4 py-2 text-[15px] tracking-wider text-black-500 hover:text-black hover:bg-black-50 transition-colors"
                                 >
                                   {sub}
                                 </Link>
@@ -146,12 +146,12 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
 
       {/* Mobile menu -- outside header to avoid backdrop-filter stacking context issue */}
       {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 top-[80px] z-[400] bg-white overflow-y-auto">
-          <nav className="flex flex-col py-6 px-6 text-[12px]  tracking-[0.2em] font-medium text-gray-600">
+        <div className="lg:hidden fixed inset-0 top-[80px] md:max-lg:top-[96px] z-[400] bg-white overflow-y-auto">
+          <nav className="flex flex-col py-6 px-6 text-[12px]  tracking-[0.2em] font-medium text-black-600">
 
             {/* Collections */}
             {hasCollections && (
-              <div className="border-b border-gray-100">
+              <div className="border-b border-black-100">
                 <div className="flex items-center justify-between">
                   <Link href="/catalog" className="py-4 hover:text-black transition-colors flex-1">
                     Collections
@@ -170,7 +170,7 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
                       <Link
                         key={col}
                         href={`/catalog?collection=${encodeURIComponent(col)}`}
-                        className="block py-2 text-[10px] tracking-wider text-gray-400 hover:text-black transition-colors"
+                        className="block py-2 text-[10px] tracking-wider text-black-400 hover:text-black transition-colors"
                       >
                         {col}
                       </Link>
@@ -182,7 +182,7 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
 
             {/* Categories */}
             {hasCategories && (
-              <div className="border-b border-gray-100">
+              <div className="border-b border-black-100">
                 <div className="flex items-center justify-between">
                   <span className="py-4 flex-1">Categories</span>
                   <button
@@ -200,7 +200,7 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
                         <div className="flex items-center justify-between">
                           <Link
                             href={`/catalog?category=${encodeURIComponent(cat)}`}
-                            className="py-2 text-[10px] tracking-wider text-gray-400 hover:text-black transition-colors flex-1"
+                            className="py-2 text-[10px] tracking-wider text-black-400 hover:text-black transition-colors flex-1"
                           >
                             {cat.endsWith('s') ? cat : `${cat}s`}
                           </Link>
@@ -220,7 +220,7 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
                               <Link
                                 key={sub}
                                 href={`/catalog?category=${encodeURIComponent(cat)}&subcategory=${encodeURIComponent(sub)}`}
-                                className="block py-1.5 text-[15px] tracking-wider text-gray-400 hover:text-black transition-colors"
+                                className="block py-1.5 text-[15px] tracking-wider text-black-400 hover:text-black transition-colors"
                               >
                                 {sub}
                               </Link>
@@ -236,15 +236,15 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
 
             {/* Bespoke -- only if products exist */}
             {hasBespoke && (
-              <Link href="/catalog?collection=Bespoke" className="py-4 border-b border-gray-100 hover:text-black transition-colors">
+              <Link href="/catalog?collection=Bespoke" className="py-4 border-b border-black-100 hover:text-black transition-colors">
                 Bespoke
               </Link>
             )}
 
-            <Link href="/our-story" className="py-4 border-b border-gray-100 hover:text-black transition-colors">
+            <Link href="/our-story" className="py-4 border-b border-black-100 hover:text-black transition-colors">
               Our Story
             </Link>
-            <Link href="/appointments" className="py-4 border-b border-gray-100 hover:text-black transition-colors">
+            <Link href="/appointments" className="py-4 border-b border-black-100 hover:text-black transition-colors">
               Contact Us
             </Link>
           </nav>

@@ -137,10 +137,11 @@ export default function CatalogClient({ products }: { products: Product[] }) {
       </section>
 
       {/* Mobile Filter Button */}
-      <div className="lg:hidden px-6 py-4 flex items-center gap-3 border-b border-gray-100">
+      <div className="lg:hidden px-6 py-4 flex items-center gap-3 border-b border-black-100">
         <button
+          type="button"
           onClick={() => setMobileFilterOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 text-xs uppercase tracking-widest font-medium border border-gray-300 text-gray-700 hover:border-black hover:text-black transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 text-xs uppercase tracking-widest font-medium border border-black-300 text-black-700 hover:border-black hover:text-black transition-all"
         >
           <SlidersHorizontal className="w-4 h-4" />
           Filter
@@ -148,13 +149,13 @@ export default function CatalogClient({ products }: { products: Product[] }) {
             <span className="ml-1 w-1.5 h-1.5 rounded-full bg-[#C5A059]" />
           )}
         </button>
-        <span className="text-[11px] uppercase tracking-[0.2em] text-gray-400">
+        <span className="text-[11px] uppercase tracking-[0.2em] text-black-400">
           {filteredProducts.length} Items
         </span>
         {(activeCategory || activeSubcategory || activeOrderType || activeCollection) && (
           <button
             onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); setActiveCollection(null); }}
-            className="ml-auto text-[10px] uppercase tracking-wider text-gray-400 underline hover:text-black transition-colors"
+            className="ml-auto text-[10px] uppercase tracking-wider text-black-400 underline hover:text-black transition-colors"
           >
             Clear
           </button>
@@ -164,12 +165,12 @@ export default function CatalogClient({ products }: { products: Product[] }) {
       {/* Mobile Filter Drawer */}
       {mobileFilterOpen && (
         <>
-          <div className="fixed inset-0 bg-black/30 z-50 lg:hidden" onClick={() => setMobileFilterOpen(false)} />
-          <div className="fixed top-0 left-0 h-full w-[300px] bg-white z-50 shadow-2xl flex flex-col lg:hidden">
+          <div className="fixed inset-0 bg-black/30 z-[2000]" onClick={() => setMobileFilterOpen(false)} />
+          <div className="fixed top-0 left-0 h-full w-[340px] max-w-[88vw] bg-white z-[2001] shadow-2xl flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-black-100">
               <span className="text-xs uppercase tracking-[0.2em] font-bold text-black">Filters</span>
-              <button onClick={() => setMobileFilterOpen(false)} className="p-1 text-gray-500 hover:text-black">
+              <button type="button" onClick={() => setMobileFilterOpen(false)} className="p-1 text-black-500 hover:text-black">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -184,14 +185,14 @@ export default function CatalogClient({ products }: { products: Product[] }) {
                     <label key={cat} className="flex items-center gap-3 cursor-pointer group">
                       <input
                         type="checkbox"
-                        className="w-4 h-4 border-gray-200 rounded-none accent-[#C5A059]"
+                        className="w-4 h-4 border-black-200 rounded-none accent-[#C5A059]"
                         checked={activeCategory === cat}
                         onChange={() => {
                           setActiveCategory(prev => prev === cat ? null : cat);
                           setActiveSubcategory(null);
                         }}
                       />
-                      <span className={`text-xs tracking-wider transition-colors ${activeCategory === cat ? 'text-black font-semibold' : 'text-gray-500 group-hover:text-black'}`}>
+                      <span className={`text-xs tracking-wider transition-colors ${activeCategory === cat ? 'text-black font-semibold' : 'text-black-500 group-hover:text-black'}`}>
                         {cat.endsWith('s') ? cat : `${cat}s`}
                       </span>
                     </label>
@@ -210,11 +211,11 @@ export default function CatalogClient({ products }: { products: Product[] }) {
                         <label key={sub} className="flex items-center gap-3 cursor-pointer group">
                           <input
                             type="checkbox"
-                            className="w-4 h-4 border-gray-200 rounded-none accent-[#C5A059]"
+                            className="w-4 h-4 border-black-200 rounded-none accent-[#C5A059]"
                             checked={activeSubcategory === sub}
                             onChange={() => setActiveSubcategory(prev => prev === sub ? null : sub)}
                           />
-                          <span className={`text-xs tracking-wider transition-colors ${activeSubcategory === sub ? 'text-black font-semibold' : 'text-gray-500 group-hover:text-black'}`}>
+                          <span className={`text-xs tracking-wider transition-colors ${activeSubcategory === sub ? 'text-black font-semibold' : 'text-black-500 group-hover:text-black'}`}>
                             {sub}
                           </span>
                         </label>
@@ -232,11 +233,11 @@ export default function CatalogClient({ products }: { products: Product[] }) {
                       <label key={ord} className="flex items-center gap-3 cursor-pointer group">
                         <input
                           type="checkbox"
-                          className="w-4 h-4 border-gray-200 rounded-none accent-[#C5A059]"
+                          className="w-4 h-4 border-black-200 rounded-none accent-[#C5A059]"
                           checked={activeOrderType === ord}
                           onChange={() => setActiveOrderType(prev => prev === ord ? null : ord)}
                         />
-                        <span className={`text-xs tracking-wider transition-colors ${activeOrderType === ord ? 'text-black font-semibold' : 'text-gray-500 group-hover:text-black'}`}>
+                        <span className={`text-xs tracking-wider transition-colors ${activeOrderType === ord ? 'text-black font-semibold' : 'text-black-500 group-hover:text-black'}`}>
                           {ord}
                         </span>
                       </label>
@@ -254,11 +255,11 @@ export default function CatalogClient({ products }: { products: Product[] }) {
                       <label key={col} className="flex items-center gap-3 cursor-pointer group">
                         <input
                           type="checkbox"
-                          className="w-4 h-4 border-gray-200 rounded-none accent-[#C5A059]"
+                          className="w-4 h-4 border-black-200 rounded-none accent-[#C5A059]"
                           checked={activeCollection === col}
                           onChange={() => setActiveCollection(prev => prev === col ? null : col)}
                         />
-                        <span className={`text-xs tracking-wider transition-colors ${activeCollection === col ? 'text-black font-semibold' : 'text-gray-500 group-hover:text-black'}`}>
+                        <span className={`text-xs tracking-wider transition-colors ${activeCollection === col ? 'text-black font-semibold' : 'text-black-500 group-hover:text-black'}`}>
                           {col}
                         </span>
                       </label>
@@ -269,17 +270,18 @@ export default function CatalogClient({ products }: { products: Product[] }) {
             </div>
 
             {/* Footer buttons */}
-            <div className="p-4 border-t border-gray-100 space-y-2">
+            <div className="p-4 border-t border-black-100 space-y-2">
               <button
+                type="button"
                 onClick={() => setMobileFilterOpen(false)}
-                className="w-full py-3 text-xs uppercase tracking-widest font-medium bg-black text-white hover:bg-gray-800 transition-all"
+                className="w-full py-3 text-xs uppercase tracking-widest font-medium bg-black text-white hover:bg-black-800 transition-all"
               >
                 View {filteredProducts.length} Results
               </button>
               {(activeCategory || activeSubcategory || activeOrderType || activeCollection) && (
                 <button
                   onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); setActiveCollection(null); }}
-                  className="w-full py-2.5 text-xs uppercase tracking-widest font-medium border border-gray-300 text-gray-600 hover:border-black hover:text-black transition-all"
+                  className="w-full py-2.5 text-xs uppercase tracking-widest font-medium border border-black-300 text-black-600 hover:border-black hover:text-black transition-all"
                 >
                   Clear All
                 </button>
@@ -289,9 +291,9 @@ export default function CatalogClient({ products }: { products: Product[] }) {
         </>
       )}
 
-      <div className="max-w-[1800px] mx-auto px-6 lg:px-20 py-16 flex flex-col lg:flex-row gap-16">
+      <div className="max-w-[1800px] mx-auto px-6 lg:px-20 py-16 flex flex-col lg:flex-row gap-0">
         {/* 2. SIDEBAR FILTERS — Desktop only */}
-        <aside className="hidden lg:block w-64 flex-shrink-0">
+        <aside className="hidden w-64 flex-shrink-0">
           <div className="sticky top-24 space-y-12">
             {/* Category Filter */}
             <div>
@@ -301,14 +303,14 @@ export default function CatalogClient({ products }: { products: Product[] }) {
                   <label key={cat} className="flex items-center gap-3 cursor-pointer group">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 border-gray-200 rounded-none accent-[#C5A059] checked:bg-[#C5A059]"
+                      className="w-4 h-4 border-black-200 rounded-none accent-[#C5A059] checked:bg-[#C5A059]"
                       checked={activeCategory === cat}
                       onChange={() => {
                         setActiveCategory(prev => prev === cat ? null : cat);
                         setActiveSubcategory(null); // reset sub when category changes
                       }}
                     />
-                    <span className={`text-xs tracking-wider transition-colors ${activeCategory === cat ? 'text-black font-semibold' : 'text-gray-500 group-hover:text-black'}`}>
+                    <span className={`text-xs tracking-wider transition-colors ${activeCategory === cat ? 'text-black font-semibold' : 'text-black-500 group-hover:text-black'}`}>
                       {cat.endsWith('s') ? cat : `${cat}s`}
                     </span>
                   </label>
@@ -327,11 +329,11 @@ export default function CatalogClient({ products }: { products: Product[] }) {
                       <label key={sub} className="flex items-center gap-3 cursor-pointer group">
                         <input
                           type="checkbox"
-                          className="w-4 h-4 border-gray-200 rounded-none accent-[#C5A059] checked:bg-[#C5A059]"
+                          className="w-4 h-4 border-black-200 rounded-none accent-[#C5A059] checked:bg-[#C5A059]"
                           checked={activeSubcategory === sub}
                           onChange={() => setActiveSubcategory(prev => prev === sub ? null : sub)}
                         />
-                        <span className={`text-xs tracking-wider transition-colors ${activeSubcategory === sub ? 'text-black font-semibold' : 'text-gray-500 group-hover:text-black'}`}>
+                        <span className={`text-xs tracking-wider transition-colors ${activeSubcategory === sub ? 'text-black font-semibold' : 'text-black-500 group-hover:text-black'}`}>
                           {sub}
                         </span>
                       </label>
@@ -349,11 +351,11 @@ export default function CatalogClient({ products }: { products: Product[] }) {
                     <label key={ord} className="flex items-center gap-3 cursor-pointer group">
                       <input
                         type="checkbox"
-                        className="w-4 h-4 border-gray-200 rounded-none accent-[#C5A059] checked:bg-[#C5A059]"
+                        className="w-4 h-4 border-black-200 rounded-none accent-[#C5A059] checked:bg-[#C5A059]"
                         checked={activeOrderType === ord}
                         onChange={() => setActiveOrderType(prev => prev === ord ? null : ord)}
                       />
-                      <span className={`text-xs tracking-wider transition-colors ${activeOrderType === ord ? 'text-black font-semibold' : 'text-gray-500 group-hover:text-black'}`}>
+                      <span className={`text-xs tracking-wider transition-colors ${activeOrderType === ord ? 'text-black font-semibold' : 'text-black-500 group-hover:text-black'}`}>
                         {ord}
                       </span>
                     </label>
@@ -371,11 +373,11 @@ export default function CatalogClient({ products }: { products: Product[] }) {
                     <label key={col} className="flex items-center gap-3 cursor-pointer group">
                       <input
                         type="checkbox"
-                        className="w-4 h-4 border-gray-200 rounded-none accent-[#C5A059] checked:bg-[#C5A059]"
+                        className="w-4 h-4 border-black-200 rounded-none accent-[#C5A059] checked:bg-[#C5A059]"
                         checked={activeCollection === col}
                         onChange={() => setActiveCollection(prev => prev === col ? null : col)}
                       />
-                      <span className={`text-xs tracking-wider transition-colors ${activeCollection === col ? 'text-black font-semibold' : 'text-gray-500 group-hover:text-black'}`}>
+                      <span className={`text-xs tracking-wider transition-colors ${activeCollection === col ? 'text-black font-semibold' : 'text-black-500 group-hover:text-black'}`}>
                         {col}
                       </span>
                     </label>
@@ -389,10 +391,29 @@ export default function CatalogClient({ products }: { products: Product[] }) {
 
         {/* 3. PRODUCT GRID */}
         <div className="flex-grow">
-          <div className="flex items-center mb-12 border-b border-gray-100 pb-6">
-            <span className="text-[11px] uppercase tracking-[0.2em] text-gray-400">
+          <div className="flex items-center gap-3 mb-12 border-b border-black-100 pb-6">
+            <button
+              type="button"
+              onClick={() => setMobileFilterOpen(true)}
+              className="hidden lg:inline-flex items-center gap-2 px-4 py-2.5 text-xs uppercase tracking-widest font-medium border border-black-300 text-black-700 hover:border-black hover:text-black transition-all"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              Filter
+              {(activeCategory || activeSubcategory || activeOrderType || activeCollection) && (
+                <span className="ml-1 w-1.5 h-1.5 rounded-full bg-[#C5A059]" />
+              )}
+            </button>
+            <span className="text-[11px] uppercase tracking-[0.2em] text-black-400">
               {filteredProducts.length} Items found
             </span>
+            {(activeCategory || activeSubcategory || activeOrderType || activeCollection) && (
+              <button
+                onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); setActiveCollection(null); }}
+                className="hidden lg:inline-flex ml-auto text-[10px] uppercase tracking-wider text-black-400 underline hover:text-black transition-colors"
+              >
+                Clear
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 gap-y-10">
@@ -405,7 +426,7 @@ export default function CatalogClient({ products }: { products: Product[] }) {
 
           {filteredProducts.length === 0 && (
             <div className="text-center py-32">
-              <p className="text-gray-400 font-serif italic uppercase tracking-widest">No styles match your selection</p>
+              <p className="text-black-400 font-serif italic uppercase tracking-widest">No styles match your selection</p>
               <button
                 onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); setActiveCollection(null); setQuery(''); }}
                 className="mt-6 text-[11px] uppercase tracking-[0.2em] underline hover:text-black transition-all"
@@ -415,7 +436,7 @@ export default function CatalogClient({ products }: { products: Product[] }) {
             </div>
           )}
 
-          <div className="mt-24 pt-12 border-t border-gray-100 text-center">
+          <div className="mt-24 pt-12 border-t border-black-100 text-center">
             <button className="px-12 py-4 border border-black text-[11px] uppercase tracking-[0.2em] font-medium hover:bg-black hover:text-white transition-all">
               Load More Styles
             </button>
@@ -438,7 +459,7 @@ const CategorySection = memo(function CategorySection({ id, title, products }: {
     <section id={id} className="category-section scroll-mt-24">
       <div className="flex items-center justify-between mb-8 border-b border-[#EAEAEA] pb-4">
         <h2 className="text-2xl font-serif text-[#111]">{title}</h2>
-        <span className="text-sm text-gray-500">{products.length} {products.length === 1 ? 'piece' : 'pieces'}</span>
+        <span className="text-sm text-black-500">{products.length} {products.length === 1 ? 'piece' : 'pieces'}</span>
       </div>
 
       <div className="product-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 sm:gap-x-6 lg:gap-x-8 gap-y-10 lg:gap-y-12">
