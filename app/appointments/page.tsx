@@ -1,0 +1,159 @@
+'use client';
+
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef } from "react";
+import Image from "next/image";
+import { Mail, Phone, Instagram, MapPin, MessageCircle, PenTool, Gem, CheckCircle2 } from "lucide-react";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+export default function AppointmentsPage() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    // Immediate Reveal for Hero & Contact
+    gsap.from(".hero-content", {
+      opacity: 0,
+      y: 20,
+      duration: 1,
+      ease: "power3.out",
+      stagger: 0.1
+    });
+
+    // Process Steps Reveal
+    const steps = gsap.utils.toArray(".process-step");
+    steps.forEach((step: any, i: number) => {
+      gsap.from(step, {
+        scrollTrigger: {
+          trigger: step,
+          start: "top 85%",
+        },
+        opacity: 0,
+        x: i % 2 === 0 ? -20 : 20,
+        duration: 1,
+        ease: "power2.out"
+      });
+    });
+
+  }, { scope: containerRef });
+
+  const processSteps = [
+    {
+      title: "Consultation",
+      description: "A private dialogue to understand your vision, preferences, and the significance behind the piece.",
+      icon: <MessageCircle className="w-5 h-5" />,
+      image: "/images/redesign/artistry.png"
+    },
+    {
+      title: "Design & Curation",
+      description: "Translating ideas into sketches and technical renders, ensuring every proportion and detail is perfect.",
+      icon: <PenTool className="w-5 h-5" />,
+      image: "/Vision.webp"
+    },
+    {
+      title: "Master Craftsmanship",
+      description: "Our artisans bring the design to life using time-honored techniques and the finest materials.",
+      icon: <Gem className="w-5 h-5" />,
+      image: "/images/redesign/cat-bracelets.jpeg"
+    },
+    {
+      title: "Completion",
+      description: "A final inspection of excellence before the piece is presented to you, ready to be a modern heirloom.",
+      icon: <CheckCircle2 className="w-5 h-5" />,
+      image: "/images/redesign/hero-luxury.png"
+    }
+  ];
+
+  return (
+    <div ref={containerRef} className="bg-background min-h-screen font-serif text-foreground selection:bg-accent/20">
+
+      {/* 1. HERO & CONTACT (Visible on Load) */}
+      <section className="pt-32 pb-24 px-6 border-b border-white/5">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            <div>
+              <p className="hero-content text-[10px] uppercase tracking-[0.5em] text-muted-foreground mb-6">Concierge</p>
+              <h1 className="hero-content text-4xl md:text-5xl font-serif italic mb-8 leading-tight">
+                Appointments &<br />Consultations
+              </h1>
+              <p className="hero-content text-muted-foreground leading-relaxed max-w-md mb-8">
+                Whether you're seeking a meaningful gift or a piece to mark a personal milestone, our team is here to guide you. Contact us directly to begin your journey.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 lg:bg-secondary lg:p-12 lg:rounded-[2rem] border border-white/5 shadow-2xl">
+              <div className="hero-content">
+                <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-muted-foreground">Email</h4>
+                <a href="mailto:hello@carpediam.in" className="text-sm text-foreground hover:text-accent transition-colors underline-offset-4 hover:underline block">
+                  hello@carpediam.in
+                </a>
+              </div>
+              <div className="hero-content">
+                <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-muted-foreground">Phone & WhatsApp</h4>
+                <a href="https://wa.me/918850157354?text=Hi! I’d like to book an appointment. Could you please help me with the available slots?" target="_blank" rel="noopener noreferrer" className="text-sm text-foreground hover:text-accent transition-colors underline-offset-4 hover:underline block">
+                  +91 88501 57354
+                </a>
+              </div>
+              <div className="hero-content">
+                <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-muted-foreground">Instagram</h4>
+                <a href="https://www.instagram.com/carpediamjewelry?igsh=Y3BuOW0xd2s2Ymhi" target="_blank" rel="noopener noreferrer" className="text-sm text-foreground hover:text-accent transition-colors underline-offset-4 hover:underline block">
+                  @carpediamjewelry
+                </a>
+              </div>
+              <div className="hero-content">
+                <h4 className="text-[10px] uppercase tracking-[0.2em] font-semibold mb-3 text-muted-foreground">Location</h4>
+                <a href="https://maps.app.goo.gl/cD9RoMc389AP9a9v9" target="_blank" rel="noopener noreferrer" className="text-sm text-foreground hover:text-accent transition-colors underline-offset-4 hover:underline block">
+                  Mumbai, India
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/*
+       2. THE PROCESS 
+      <section className="py-32 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-24">
+            <p className="text-[10px] uppercase tracking-[0.4em] text-black-400 mb-4">The Journey</p>
+            <h3 className="text-3xl font-serif italic">Our Process</h3>
+          </div>
+
+          <div className="grid grid-cols-1 gap-24">
+            {processSteps.map((step, i) => (
+              <div key={i} className="process-step grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div className={`relative aspect-video overflow-hidden ${i % 2 !== 0 ? 'lg:order-2' : ''}`}>
+                  <Image
+                    src={step.image}
+                    alt={step.title}
+                    fill
+                    className="object-cover blackscale hover:blackscale-0 transition-all duration-1000"
+                  />
+                </div>
+                <div className={`${i % 2 !== 0 ? 'lg:order-1' : ''}`}>
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-10 h-10 rounded-full bg-black-50 flex items-center justify-center text-black-400">
+                      {step.icon}
+                    </div>
+                    <span className="text-[10px] uppercase tracking-[0.4em] text-black font-serif italic">Step 0{i + 1}</span>
+                  </div>
+                  <h4 className="text-2xl font-serif mb-6 text-black">{step.title}</h4>
+                  <p className="text-black-500 leading-relaxed max-w-sm">
+                    {step.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+ */}
+
+
+    </div>
+  );
+}
