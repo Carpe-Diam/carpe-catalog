@@ -63,8 +63,22 @@ export default async function RootLayout({
     console.error("Layout fetch error:", error);
   }
 
+  const themeScript = `
+    (() => {
+      try {
+        const stored = localStorage.getItem("carpe-theme");
+        document.documentElement.classList.toggle("dark", stored ? stored === "dark" : true);
+      } catch {
+        document.documentElement.classList.remove("dark");
+      }
+    })();
+  `;
+
   return (
-    <html lang="en" className={`${amiri.variable} ${outfit.variable} dark`}>
+    <html lang="en" className={`${amiri.variable} ${outfit.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="bg-background text-foreground antialiased min-h-screen flex flex-col font-serif">
         {/* Global Dynamic Hooked Header */}
         <Suspense fallback={null}>
@@ -82,4 +96,3 @@ export default async function RootLayout({
     </html>
   );
 }
-
