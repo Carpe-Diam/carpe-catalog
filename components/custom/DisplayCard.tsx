@@ -27,7 +27,7 @@ const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
   return (
     <Link href={`/product/${product.parent_sku}`}>
       <div className="group cursor-pointer transition-all">
-        <div className="relative aspect-[4/5] w-full overflow-hidden bg-secondary rounded-[2rem] border border-white/5">
+        <div className="relative aspect-[4/5] w-full overflow-hidden bg-secondary border border-white/5">
           {showFallback ? (
             <div className="flex h-full w-full items-center justify-center bg-muted">
               <ImageIcon className="h-12 w-12 text-muted-foreground" />

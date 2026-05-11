@@ -398,7 +398,7 @@ interface MediaSectionProps {
 const MediaSection = memo(function MediaSection({ mediaArray, onOpenLightbox, setCurrentIndex, productTitle }: MediaSectionProps) {
   if (!mediaArray.length) {
     return (
-      <div className="w-full h-96 flex flex-col items-center justify-center text-muted-foreground font-serif italic border border-white/5 bg-secondary rounded-[2rem]">
+      <div className="w-full h-96 flex flex-col items-center justify-center text-muted-foreground font-serif italic border border-white/5 bg-secondary">
         No media available
       </div>
     );
@@ -413,7 +413,7 @@ const MediaSection = memo(function MediaSection({ mediaArray, onOpenLightbox, se
         return (
           <div
             key={m.id}
-            className="w-full relative aspect-[3/4] bg-secondary cursor-zoom-in group overflow-hidden rounded-[2rem] border border-white/5"
+            className="w-full relative aspect-[3/4] bg-secondary cursor-zoom-in group overflow-hidden border border-white/5"
             onClick={() => {
               setCurrentIndex(i);
               onOpenLightbox();
