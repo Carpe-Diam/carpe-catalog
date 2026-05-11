@@ -318,7 +318,7 @@ export default function ProductClient({ product }: ProductClientProps) {
   }, { scope: containerRef });
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans text-black-900" ref={containerRef}>
+    <div className="min-h-screen bg-background flex flex-col font-serif text-foreground" ref={containerRef}>
       <main className="flex-grow pb-32">
         <section className="container mx-auto px-4 md:px-8 flex flex-col lg:flex-row gap-8 lg:gap-16 mb-16 pt-12">
           {/* Left: Image Gallery */}
@@ -360,7 +360,7 @@ export default function ProductClient({ product }: ProductClientProps) {
           </div>
         </section>
 
-        <section className="mb-16 border-t border-black-100">
+        <section className="mb-16 border-t border-white/5">
           <TrustSignals />
         </section>
 
@@ -398,7 +398,7 @@ interface MediaSectionProps {
 const MediaSection = memo(function MediaSection({ mediaArray, onOpenLightbox, setCurrentIndex, productTitle }: MediaSectionProps) {
   if (!mediaArray.length) {
     return (
-      <div className="w-full h-96 flex flex-col items-center justify-center text-black-400 font-serif italic border border-black-200 bg-black-50">
+      <div className="w-full h-96 flex flex-col items-center justify-center text-muted-foreground font-serif italic border border-white/5 bg-secondary">
         No media available
       </div>
     );
@@ -413,7 +413,7 @@ const MediaSection = memo(function MediaSection({ mediaArray, onOpenLightbox, se
         return (
           <div
             key={m.id}
-            className="w-full relative aspect-[3/4] bg-black-50 cursor-zoom-in group overflow-hidden"
+            className="w-full relative aspect-[3/4] bg-secondary cursor-zoom-in group overflow-hidden border border-white/5"
             onClick={() => {
               setCurrentIndex(i);
               onOpenLightbox();
@@ -510,13 +510,13 @@ const HeaderSection = memo(function HeaderSection({ product, selectedVariant }: 
       </h1>
 
       {description && (
-        <p className="text-lg md:text-xl font-serif italic text-black-700 mb-4 leading-tight">
+        <p className="text-lg md:text-xl font-serif text-muted-foreground mb-4 leading-tight">
           {description.charAt(0).toUpperCase() + description.slice(1)}
         </p>
       )}
 
       {sellPrice != null && sellPrice > 0 && (
-        <p className="text-xl font-semibold tracking-wide text-black-900 mb-6">
+        <p className="text-xl font-semibold tracking-wide text-foreground mb-6">
           {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(sellPrice)}
         </p>
       )}
@@ -573,7 +573,7 @@ const ConfigurationSection = memo(function ConfigurationSection({
         <div className="mb-6">
           <Button
             variant="outline"
-            className="w-full border-black-300 hover:bg-black-50 uppercase tracking-widest py-4 h-auto rounded-none text-xs font-semibold"
+            className="w-full border-white/20 hover:bg-white/5 uppercase tracking-widest py-4 h-auto rounded-full text-xs font-semibold text-foreground"
             onClick={() => {
               let shareUrl = `/share/${product.parent_sku}`;
 
@@ -643,8 +643,8 @@ const DetailsSection = memo(function DetailsSection({ product, selectedVariant }
   return (
     <section>
       <div className="mb-6">
-        <p className="text-xs uppercase text-black-400 mb-2">Ref: {v?.variant_sku}</p>
-        <ul className="text-sm text-black-700 list-disc pl-4 space-y-1">
+        <p className="text-xs uppercase text-muted-foreground mb-4 tracking-widest">Ref: {v?.variant_sku}</p>
+        <ul className="text-sm text-foreground/80 list-disc pl-4 space-y-2">
           {getMetalDisplay() && <li>Metal: <span className="underline">{getMetalDisplay()}</span></li>}
           {v?.net_weight && <li>Gold Weight: {v.net_weight} g</li>}
           {v?.polki_weight && <li>Polki Weight: {v.polki_weight} g</li>}
@@ -753,7 +753,7 @@ const ConfigGroup = memo(function ConfigGroup({ title, options, selected, onSele
     <div className="mb-6">
       <div className="flex justify-between items-center mb-2">
         <p className="text-sm font-medium uppercase tracking-wider">{title}</p>
-        {title === 'Ring Size' && <span className="text-[10px] md:text-xs text-black-500 cursor-pointer underline">Size guide</span>}
+        {title === 'Ring Size' && <span className="text-[10px] md:text-xs text-muted-foreground cursor-pointer underline">Size guide</span>}
       </div>
       <div className="flex flex-wrap gap-2">
         {options.map(option => (
@@ -762,7 +762,7 @@ const ConfigGroup = memo(function ConfigGroup({ title, options, selected, onSele
             onClick={() => onSelect(option)}
             className={cn(
               "border px-4 py-2 text-xs md:text-sm text-center transition-all min-w-[3rem]",
-              selected === option ? "border-black text-black" : "border-black-300 text-black-500 hover:border-black hover:text-black"
+              selected === option ? "border-accent bg-accent text-accent-foreground" : "border-white/10 text-muted-foreground hover:border-white/20 hover:text-foreground"
             )}
           >
             {shouldDecode ? decodeSegment(option) : option}

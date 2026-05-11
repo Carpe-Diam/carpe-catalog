@@ -27,14 +27,14 @@ const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
   return (
     <Link href={`/product/${product.parent_sku}`}>
       <div className="group cursor-pointer transition-all">
-        <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#F9F9F9]">
+        <div className="relative aspect-[4/5] w-full overflow-hidden bg-secondary border border-white/5">
           {showFallback ? (
-            <div className="flex h-full w-full items-center justify-center bg-black-200">
-              <ImageIcon className="h-12 w-12 text-black-400" />
+            <div className="flex h-full w-full items-center justify-center bg-muted">
+              <ImageIcon className="h-12 w-12 text-muted-foreground" />
             </div>
           ) :
             <Image
-              className="object-cover bg-none transition-transform duration-700 group-hover:scale-105"
+              className="object-cover bg-none transition-transform duration-1000 group-hover:scale-110"
               alt={title || "Product"}
               src={preferredUrl}
               fill
@@ -44,12 +44,11 @@ const DisplayCard = memo(function DisplayCard({ product }: DisplayCardProps) {
           }
         </div>
 
-        <div className="pt-4 pb-2 text-center lg:text-left">
-          <h3 className="text-[11px] uppercase tracking-[0.2em] font-medium mb-1 whitespace-normal break-words">{title}</h3>
-          <p className="text-[10px] text-black-400 italic font-serif mb-2">
+        <div className="pt-6 pb-2 text-center lg:text-left">
+          <h3 className="text-[12px] uppercase tracking-[0.25em] font-semibold mb-2 whitespace-normal break-words group-hover:text-accent transition-colors">{title}</h3>
+          <p className="text-[11px] text-muted-foreground tracking-widest uppercase mb-2">
             {subcategory || category || "Fine Jewelry"}
           </p>
-
         </div>
       </div>
     </Link>

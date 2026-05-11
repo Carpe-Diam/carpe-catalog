@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Amiri } from "next/font/google";
+import { Amiri, Outfit } from "next/font/google";
 import "./globals.css";
 import GlobalHeader from "@/components/custom/GlobalHeader";
+import GlobalFooter from "@/components/custom/GlobalFooter";
 import { getProducts, type Product } from "@/lib/zohoClient";
 import { Suspense } from "react";
 import { Analytics } from "@vercel/analytics/next"
@@ -10,6 +11,11 @@ const amiri = Amiri({
   variable: "--font-amiri",
   subsets: ["latin", "arabic"],
   weight: ["400", "700"],
+});
+
+const outfit = Outfit({
+  variable: "--font-outfit",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -57,9 +63,23 @@ export default async function RootLayout({
     console.error("Layout fetch error:", error);
   }
 
+  const themeScript = `
+    (() => {
+      try {
+        const stored = localStorage.getItem("carpe-theme");
+        document.documentElement.classList.toggle("dark", stored ? stored === "dark" : true);
+      } catch {
+        document.documentElement.classList.remove("dark");
+      }
+    })();
+  `;
+
   return (
-    <html lang="en" className={`${amiri.variable}`}>
-      <body className="bg-white text-[#111] antialiased min-h-screen flex flex-col font-serif">
+    <html lang="en" className={`${amiri.variable} ${outfit.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className="bg-background text-foreground antialiased min-h-screen flex flex-col font-serif">
         {/* Global Dynamic Hooked Header */}
         <Suspense fallback={null}>
           <GlobalHeader categoryTree={categoryTree} collections={collections} />
@@ -69,9 +89,10 @@ export default async function RootLayout({
           {children}
         </main>
 
+        <GlobalFooter />
+
         <Analytics />
       </body>
     </html>
   );
 }
-

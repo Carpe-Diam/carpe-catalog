@@ -114,7 +114,7 @@ export default function CatalogClient({ products }: { products: Product[] }) {
   const heroImage = "/collection1.png"
 
   return (
-    <div ref={containerRef} className="bg-white min-h-screen font-sans">
+    <div ref={containerRef} className="bg-background min-h-screen text-foreground font-serif">
       {/* 1. COLLECTION HERO */}
       <section className="relative h-[50vh] w-full overflow-hidden flex items-center justify-center">
         <Image
@@ -137,11 +137,11 @@ export default function CatalogClient({ products }: { products: Product[] }) {
       </section>
 
       {/* Mobile Filter Button */}
-      <div className="lg:hidden px-6 py-4 flex items-center gap-3 border-b border-black-100">
+      <div className="lg:hidden px-6 py-4 flex items-center gap-3 border-b border-white/5">
         <button
           type="button"
           onClick={() => setMobileFilterOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 text-xs uppercase tracking-widest font-medium border border-black-300 text-black-700 hover:border-black hover:text-black transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 text-xs uppercase tracking-widest font-medium border border-white/20 text-foreground/70 hover:border-foreground hover:text-foreground transition-all"
         >
           <SlidersHorizontal className="w-4 h-4" />
           Filter
@@ -149,13 +149,13 @@ export default function CatalogClient({ products }: { products: Product[] }) {
             <span className="ml-1 w-1.5 h-1.5 rounded-full bg-[#C5A059]" />
           )}
         </button>
-        <span className="text-[11px] uppercase tracking-[0.2em] text-black-400">
+        <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
           {filteredProducts.length} Items
         </span>
         {(activeCategory || activeSubcategory || activeOrderType || activeCollection) && (
           <button
             onClick={() => { setActiveCategory(null); setActiveSubcategory(null); setActiveOrderType(null); setActiveCollection(null); }}
-            className="ml-auto text-[10px] uppercase tracking-wider text-black-400 underline hover:text-black transition-colors"
+            className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground underline hover:text-foreground transition-colors"
           >
             Clear
           </button>
@@ -166,11 +166,11 @@ export default function CatalogClient({ products }: { products: Product[] }) {
       {mobileFilterOpen && (
         <>
           <div className="fixed inset-0 bg-black/30 z-[2000]" onClick={() => setMobileFilterOpen(false)} />
-          <div className="fixed top-0 left-0 h-full w-[340px] max-w-[88vw] bg-white z-[2001] shadow-2xl flex flex-col">
+          <div className="fixed top-0 left-0 h-full w-[340px] max-w-[88vw] bg-card z-[2001] shadow-2xl flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-black-100">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
               <span className="text-xs uppercase tracking-[0.2em] font-bold text-black">Filters</span>
-              <button type="button" onClick={() => setMobileFilterOpen(false)} className="p-1 text-black-500 hover:text-black">
+              <button type="button" onClick={() => setMobileFilterOpen(false)} className="p-1 text-muted-foreground hover:text-foreground">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -297,7 +297,7 @@ export default function CatalogClient({ products }: { products: Product[] }) {
           <div className="sticky top-24 space-y-12">
             {/* Category Filter */}
             <div>
-              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-6 text-black">Category</h3>
+              <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-6 text-foreground">Category</h3>
               <div className="space-y-3">
                 {filterData.categories.map(cat => (
                   <label key={cat} className="flex items-center gap-3 cursor-pointer group">
@@ -391,11 +391,11 @@ export default function CatalogClient({ products }: { products: Product[] }) {
 
         {/* 3. PRODUCT GRID */}
         <div className="flex-grow">
-          <div className="flex items-center gap-3 mb-12 border-b border-black-100 pb-6">
+          <div className="flex items-center gap-3 mb-12 border-b border-white/5 pb-6">
             <button
               type="button"
               onClick={() => setMobileFilterOpen(true)}
-              className="hidden lg:inline-flex items-center gap-2 px-4 py-2.5 text-xs uppercase tracking-widest font-medium border border-black-300 text-black-700 hover:border-black hover:text-black transition-all"
+              className="hidden lg:inline-flex items-center gap-2 px-4 py-2.5 text-xs uppercase tracking-widest font-medium border border-white/20 text-foreground/70 hover:border-foreground hover:text-foreground transition-all"
             >
               <SlidersHorizontal className="w-4 h-4" />
               Filter
@@ -403,7 +403,7 @@ export default function CatalogClient({ products }: { products: Product[] }) {
                 <span className="ml-1 w-1.5 h-1.5 rounded-full bg-[#C5A059]" />
               )}
             </button>
-            <span className="text-[11px] uppercase tracking-[0.2em] text-black-400">
+            <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
               {filteredProducts.length} Items found
             </span>
             {(activeCategory || activeSubcategory || activeOrderType || activeCollection) && (
@@ -436,8 +436,8 @@ export default function CatalogClient({ products }: { products: Product[] }) {
             </div>
           )}
 
-          <div className="mt-24 pt-12 border-t border-black-100 text-center">
-            <button className="px-12 py-4 border border-black text-[11px] uppercase tracking-[0.2em] font-medium hover:bg-black hover:text-white transition-all">
+          <div className="mt-24 pt-12 border-t border-white/5 text-center">
+            <button className="px-12 py-4 border border-white/20 text-[11px] uppercase tracking-[0.2em] font-medium hover:bg-white hover:text-background transition-all rounded-full">
               Load More Styles
             </button>
           </div>

@@ -118,52 +118,56 @@ export const OrderRequestDrawer = memo(function OrderRequestDrawer({ variant, pr
   return (
     <Drawer open={open} onOpenChange={setOpen} direction="right">
       <DrawerTrigger asChild>
-        <Button className="bg-black text-white">Submit Order Request</Button>
+        <Button className="bg-accent text-accent-foreground rounded-full px-8 py-6 font-semibold tracking-widest uppercase text-xs hover:opacity-90 transition-all">
+          Submit Order Request
+        </Button>
       </DrawerTrigger>
 
-      <DrawerContent className="p-6">
-        <DrawerHeader>
-          <DrawerTitle className="text-xl font-semibold">
+      <DrawerContent className="p-8 bg-card border-l border-white/5">
+        <DrawerHeader className="px-0">
+          <DrawerTitle className="text-2xl font-medium tracking-tight text-foreground">
             Submit Order Request
           </DrawerTitle>
-          <DrawerDescription>
+          <DrawerDescription className="text-muted-foreground tracking-wide">
             Provide your contact info and we will reach out shortly.
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="space-y-4 mt-4">
+        <div className="space-y-6 mt-6">
           {/* Name */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Full Name</label>
+          <div className="space-y-2">
+            <label className="text-[11px] uppercase tracking-[0.2em] font-semibold text-muted-foreground">Full Name</label>
             <Input
               placeholder="Enter your name"
               value={form.name}
               onChange={(e) => handleChange("name", e.target.value)}
+              className="bg-secondary border-white/5 rounded-xl h-12"
             />
           </div>
 
           {/* Company */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Company Name</label>
+          <div className="space-y-2">
+            <label className="text-[11px] uppercase tracking-[0.2em] font-semibold text-muted-foreground">Company Name</label>
             <Input
               placeholder="Enter company name"
               value={form.company}
               onChange={(e) => handleChange("company", e.target.value)}
+              className="bg-secondary border-white/5 rounded-xl h-12"
             />
           </div>
 
           {/* Communication */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium">
+          <div className="space-y-2">
+            <label className="text-[11px] uppercase tracking-[0.2em] font-semibold text-muted-foreground">
               Preferred Communication
             </label>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {["call", "text", "whatsapp", "email"].map((method) => (
                 <Button
                   key={method}
                   type="button"
                   variant={communication === method ? "default" : "outline"}
-                  className="capitalize"
+                  className={`capitalize rounded-xl text-[11px] tracking-wider ${communication === method ? 'bg-accent text-accent-foreground' : 'border-white/10'}`}
                   onClick={() => setCommunication(method)}
                 >
                   {method}
@@ -173,21 +177,21 @@ export const OrderRequestDrawer = memo(function OrderRequestDrawer({ variant, pr
           </div>
 
           {/* Dynamic Contact Info */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Contact Info</label>
+          <div className="space-y-2">
+            <label className="text-[11px] uppercase tracking-[0.2em] font-semibold text-muted-foreground">Contact Info</label>
             {contactField()}
           </div>
 
           {/* Order Type */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Order Type</label>
+          <div className="space-y-2">
+            <label className="text-[11px] uppercase tracking-[0.2em] font-semibold text-muted-foreground">Order Type</label>
             <div className="grid grid-cols-2 gap-2">
               {["purchase", "consignment"].map((type) => (
                 <Button
                   key={type}
                   type="button"
                   variant={orderType === type ? "default" : "outline"}
-                  className="capitalize"
+                  className={`capitalize rounded-xl text-[11px] tracking-wider ${orderType === type ? 'bg-accent text-accent-foreground' : 'border-white/10'}`}
                   onClick={() => setOrderType(type)}
                 >
                   {type}
@@ -197,32 +201,32 @@ export const OrderRequestDrawer = memo(function OrderRequestDrawer({ variant, pr
           </div>
 
           {/* Message */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Message</label>
+          <div className="space-y-2">
+            <label className="text-[11px] uppercase tracking-[0.2em] font-semibold text-muted-foreground">Message</label>
             <Textarea
               placeholder="Enter custom notes or special instructions"
               value={form.message}
               onChange={(e) => handleChange("message", e.target.value)}
-              className="min-h-[100px]"
+              className="min-h-[100px] bg-secondary border-white/5 rounded-xl"
             />
           </div>
 
           {/* Hidden Product Metadata */}
-          <div className="text-xs text-black-500 border-t pt-3">
-            Requesting: <strong>{product.title}</strong>
+          <div className="text-[10px] text-muted-foreground/60 border-t border-white/5 pt-6 leading-relaxed uppercase tracking-widest">
+            Requesting: <strong className="text-foreground">{product.title}</strong>
             <br />
-            Variant: <strong>{variant.variant_sku}</strong>
+            Variant: <strong className="text-foreground">{variant.variant_sku}</strong>
             <br />
-            Order Type: <strong>{orderType}</strong>
+            Order Type: <strong className="text-foreground">{orderType}</strong>
           </div>
         </div>
 
-        <DrawerFooter>
-          <Button className="bg-black text-white" onClick={handleSubmit}>
+        <DrawerFooter className="px-0 pt-8 pb-0">
+          <Button className="bg-accent text-accent-foreground rounded-full h-14 font-bold tracking-widest uppercase text-xs shadow-xl shadow-accent/10" onClick={handleSubmit}>
             Submit Request
           </Button>
           <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" className="rounded-full h-14 border-white/10 text-muted-foreground hover:text-foreground">Cancel</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
