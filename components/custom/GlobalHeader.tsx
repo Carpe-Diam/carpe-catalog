@@ -14,6 +14,8 @@ interface GlobalHeaderProps {
 export default function GlobalHeader({ categoryTree, collections }: GlobalHeaderProps) {
   const categories = Object.keys(categoryTree);
   const pathname = usePathname();
+  
+  if (pathname === "/form") return null;
   const searchParams = useSearchParams();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
@@ -102,6 +104,12 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
                 </span>
                 <div className="absolute left-1/2 -translate-x-1/2 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                   <div className="bg-popover border border-border shadow-2xl min-w-[240px] py-3 overflow-hidden">
+                    <Link
+                      href="/catalog"
+                      className="block px-6 py-2.5 text-[12px] tracking-widest font-semibold text-foreground/90 hover:text-popover-foreground hover:bg-accent border-b border-border/50 pb-3 mb-2 transition-all"
+                    >
+                      Shop All
+                    </Link>
                     {categories.map(cat => (
                       <div key={cat} className="group/cat relative">
                         <Link
@@ -215,6 +223,12 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
                 </div>
                 {expandedSection === 'categories' && (
                   <div className="pb-3 pl-4">
+                    <Link
+                      href="/catalog"
+                      className="block py-3 text-[10px] tracking-wider font-semibold text-foreground/90 hover:text-foreground border-b border-border/50 mb-2 transition-colors"
+                    >
+                      Shop All
+                    </Link>
                     {categories.map(cat => (
                       <div key={cat}>
                         <div className="flex items-center justify-between">
