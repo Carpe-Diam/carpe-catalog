@@ -72,13 +72,13 @@ export default function LeadFormPage() {
 
   return (
     <div className="bg-background min-h-screen font-serif text-foreground selection:bg-accent/20 flex flex-col justify-center py-12 sm:py-16 md:py-24 px-4 sm:px-6 md:px-8">
-      <div className="max-w-lg mx-auto w-full">
+      <div className="max-w-xl mx-auto w-full">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-8">
+        {/* <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-8">
           <Link href="/" className="hover:text-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-foreground transition-colors">Home</Link>
           <ChevronRight className="w-3 h-3" />
           <span>Inquiry Form</span>
-        </div>
+        </div> */}
 
         {success ? (
           /* Success Screen */
