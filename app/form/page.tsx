@@ -6,35 +6,15 @@ import Image from "next/image";
 import { ChevronRight, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 
 export default function LeadFormPage() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
-  const [interestedIn, setInterestedIn] = useState<string[]>([]);
-  const [source, setSource] = useState("");
+  const [interestedIn, setInterestedIn] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-
-  const interestOptions = ["Designer Piece", "Custom Piece"];
-  const sourceOptions = [
-    "Instagram",
-    "Facebook",
-    "Google Search",
-    "Exhibition",
-    "Friends/Family",
-    "Others",
-  ];
-
-  const handleInterestToggle = (option: string) => {
-    setInterestedIn((prev) =>
-      prev.includes(option)
-        ? prev.filter((item) => item !== option)
-        : [...prev, option]
-    );
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,11 +22,16 @@ export default function LeadFormPage() {
     setError(null);
 
     // Basic validation
-    if (!firstName.trim() || !lastName.trim() || !email.trim() || !phone.trim() || !city.trim()) {
+    if (!fullName.trim() || !phone.trim() || !city.trim()) {
       setError("Please fill out all required fields.");
       setLoading(false);
       return;
     }
+
+    // Split Full Name into First and Last Name for API / CRM support
+    const nameParts = fullName.trim().split(/\s+/);
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || ".";
 
     try {
       const res = await fetch("/api/lead", {
@@ -60,8 +45,8 @@ export default function LeadFormPage() {
           email,
           phone,
           city,
-          interestedIn,
-          source,
+          interestedIn: interestedIn.trim() ? [interestedIn.trim()] : [],
+          source: "",
         }),
       });
 
@@ -73,13 +58,11 @@ export default function LeadFormPage() {
 
       setSuccess(true);
       // Reset form
-      setFirstName("");
-      setLastName("");
+      setFullName("");
       setEmail("");
       setPhone("");
       setCity("");
-      setInterestedIn([]);
-      setSource("");
+      setInterestedIn("");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to submit form. Please check your network.");
     } finally {
@@ -89,7 +72,7 @@ export default function LeadFormPage() {
 
   return (
     <div className="bg-background min-h-screen font-serif text-foreground selection:bg-accent/20 flex flex-col justify-center py-12 sm:py-16 md:py-24 px-4 sm:px-6 md:px-8">
-      <div className="max-w-5xl mx-auto w-full">
+      <div className="max-w-lg mx-auto w-full">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-8">
           <Link href="/" className="hover:text-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-foreground transition-colors">Home</Link>
@@ -133,10 +116,11 @@ export default function LeadFormPage() {
                   />
                 </Link>
               </div>
-              <h1 className="text-3xl md:text-4xl font-serif italic mb-4 leading-tight">Acquisition & Design Inquiry</h1>
-              <p className="text-muted-foreground text-sm leading-relaxed font-sans">
-                Please complete the form below. Our consultants will evaluate your preferences and connect with you to begin the process.
-              </p>
+              <h1 className="text-3xl md:text-4xl font-serif italic mb-4 leading-tight">Inquiry</h1>
+              <div className="text-muted-foreground text-sm sm:text-base font-sans space-y-1 mb-8">
+                <p>Email: <a href="mailto:hello@carpediam.in" className="hover:text-foreground transition-colors underline underline-offset-4">hello@carpediam.in</a></p>
+                <p>Call: <a href="tel:+919833403880" className="hover:text-foreground transition-colors underline underline-offset-4">+91 98334 03880</a></p>
+              </div>
             </div>
 
             {error && (
@@ -150,139 +134,82 @@ export default function LeadFormPage() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Name fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label htmlFor="firstName" className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
-                    First Name <span className="text-destructive">*</span>
-                  </label>
-                  <input
-                    id="firstName"
-                    type="text"
-                    required
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="border border-border bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-foreground focus-visible:ring-1 focus-visible:ring-foreground transition-colors w-full rounded-none font-sans"
-                    placeholder="E.g., Charlotte"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="lastName" className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
-                    Last Name <span className="text-destructive">*</span>
-                  </label>
-                  <input
-                    id="lastName"
-                    type="text"
-                    required
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="border border-border bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-foreground focus-visible:ring-1 focus-visible:ring-foreground transition-colors w-full rounded-none font-sans"
-                    placeholder="E.g., Dupont"
-                  />
-                </div>
-              </div>
-
-              {/* Contact fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label htmlFor="email" className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
-                    Email Address <span className="text-destructive">*</span>
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="border border-border bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-foreground focus-visible:ring-1 focus-visible:ring-foreground transition-colors w-full rounded-none font-sans"
-                    placeholder="name@domain.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="phone" className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
-                    Phone Number <span className="text-destructive">*</span>
-                  </label>
-                  <input
-                    id="phone"
-                    type="tel"
-                    required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="border border-border bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-foreground focus-visible:ring-1 focus-visible:ring-foreground transition-colors w-full rounded-none font-sans"
-                    placeholder="+91 XXXXX XXXXX"
-                  />
-                </div>
-              </div>
-
-              {/* City & Source fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label htmlFor="city" className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
-                    City <span className="text-destructive">*</span>
-                  </label>
-                  <input
-                    id="city"
-                    type="text"
-                    required
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="border border-border bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-foreground focus-visible:ring-1 focus-visible:ring-foreground transition-colors w-full rounded-none font-sans"
-                    placeholder="E.g., Mumbai"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="source" className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
-                    How did you find about us?
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="source"
-                      value={source}
-                      onChange={(e) => setSource(e.target.value)}
-                      className="border border-border bg-background px-4 py-3.5 text-sm focus:outline-none focus:border-foreground focus-visible:ring-1 focus-visible:ring-foreground transition-colors w-full rounded-none appearance-none cursor-pointer font-sans"
-                    >
-                      <option value="" disabled className="text-muted-foreground">
-                        Select an option
-                      </option>
-                      {sourceOptions.map((opt) => (
-                        <option key={opt} value={opt} className="text-foreground bg-background">
-                          {opt}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-muted-foreground">
-                      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Interested In - Multi-Select tags */}
-              <div className="space-y-3">
-                <label className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
-                  Interested In (Select all that apply)
+              {/* Full Name field */}
+              <div className="space-y-2">
+                <label htmlFor="fullName" className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
+                  Full Name <span className="text-destructive">*</span>
                 </label>
-                <div className="grid grid-cols-2 gap-4 max-w-md">
-                  {interestOptions.map((opt) => {
-                    const isSelected = interestedIn.includes(opt);
-                    return (
-                      <button
-                        key={opt}
-                        type="button"
-                        onClick={() => handleInterestToggle(opt)}
-                        className={`border px-4 py-3.5 text-[10px] sm:text-[11px] uppercase tracking-[0.15em] font-medium transition-all duration-300 rounded-none text-center select-none focus:outline-none focus-visible:ring-1 focus-visible:ring-foreground focus-visible:border-foreground cursor-pointer ${
-                          isSelected
-                            ? "border-foreground bg-foreground text-background font-semibold"
-                            : "border-border text-muted-foreground hover:border-foreground/45"
-                        }`}
-                      >
-                        {opt}
-                      </button>
-                    );
-                  })}
-                </div>
+                <input
+                  id="fullName"
+                  type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="border border-border bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-foreground focus-visible:ring-1 focus-visible:ring-foreground transition-colors w-full rounded-none font-sans"
+                  placeholder="E.g., Charlotte Dupont"
+                />
+              </div>
+
+              {/* Email Address field */}
+              <div className="space-y-2">
+                <label htmlFor="email" className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
+                  Email Address
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="border border-border bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-foreground focus-visible:ring-1 focus-visible:ring-foreground transition-colors w-full rounded-none font-sans"
+                  placeholder="name@domain.com"
+                />
+              </div>
+
+              {/* Phone Number field */}
+              <div className="space-y-2">
+                <label htmlFor="phone" className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
+                  Phone Number <span className="text-destructive">*</span>
+                </label>
+                <input
+                  id="phone"
+                  type="tel"
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="border border-border bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-foreground focus-visible:ring-1 focus-visible:ring-foreground transition-colors w-full rounded-none font-sans"
+                  placeholder="+91 XXXXX XXXXX"
+                />
+              </div>
+
+              {/* City field */}
+              <div className="space-y-2">
+                <label htmlFor="city" className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
+                  City <span className="text-destructive">*</span>
+                </label>
+                <input
+                  id="city"
+                  type="text"
+                  required
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="border border-border bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-foreground focus-visible:ring-1 focus-visible:ring-foreground transition-colors w-full rounded-none font-sans"
+                  placeholder="E.g., Mumbai"
+                />
+              </div>
+
+              {/* Interested In - Text Input */}
+              <div className="space-y-2">
+                <label htmlFor="interestedIn" className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
+                  Interested In
+                </label>
+                <input
+                  id="interestedIn"
+                  type="text"
+                  value={interestedIn}
+                  onChange={(e) => setInterestedIn(e.target.value)}
+                  className="border border-border bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-foreground focus-visible:ring-1 focus-visible:ring-foreground transition-colors w-full rounded-none font-sans"
+                  placeholder="E.g., Custom Diamond Ring, Emerald Bracelet"
+                />
               </div>
 
               {/* Submit button */}

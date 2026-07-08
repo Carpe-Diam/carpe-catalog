@@ -28,9 +28,9 @@ export async function POST(req: NextRequest) {
 
     const source = validateString(body.source, 100);
 
-    if (!firstName || !lastName || !email || !phone || !city) {
+    if (!firstName || !lastName || !phone || !city) {
       return Response.json(
-        { success: false, error: "First Name, Last Name, Email, Phone, and City are required." },
+        { success: false, error: "First Name, Last Name, Phone, and City are required." },
         { status: 400 }
       );
     }
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         firstName,
         lastName,
-        email,
+        email: email ?? "",
         phone,
         city,
         interestedIn,
