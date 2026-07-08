@@ -3,13 +3,9 @@
 import { useState, useRef, useMemo, memo, useEffect } from "react";
 import DisplayCard from "@/components/custom/DisplayCard";
 import Image from "next/image";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SlidersHorizontal, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { type Product } from "@/lib/zohoClient";
-
-gsap.registerPlugin(ScrollTrigger);
 
 
 /* -------------------------------------------------------------------------- */

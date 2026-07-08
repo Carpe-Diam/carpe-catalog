@@ -2,8 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
 import { useRef } from "react";
 
 import { useMemo } from "react";
@@ -49,52 +47,7 @@ export default function HomeClient({ products }: { products: Product[] }) {
     })).sort((a, b) => parseInt(b.count) - parseInt(a.count)).slice(0, 4);
   }, [products]);
 
-  useGSAP(() => {
-    const tl = gsap.timeline();
 
-    /* 1. Logo fades in slowly */
-    tl.from(".hero-logo", {
-      opacity: 0,
-      scale: 0.45,
-      duration: 2,
-      ease: "power2.out",
-    });
-
-    /* 2. Underline sweeps in from left */
-    tl.from(".hero-underline", {
-      scaleX: 0,
-      duration: 1.2,
-      ease: "power2.inOut",
-    }, "-=0.6");
-
-    /* 3. CTA link fades in */
-    tl.from(".hero-cta", { opacity: 0, y: 15, duration: 0.8, ease: "power2.out" }, "-=0.3");
-
-    /* Scroll-triggered: Category heading slides up gently */
-    gsap.from(".cat-heading", {
-      scrollTrigger: {
-        trigger: ".cat-heading",
-        start: "top 85%",
-      },
-      opacity: 0,
-      y: 40,
-      duration: 1.2,
-      ease: "power2.out"
-    });
-
-    /* Scroll-triggered: Category cards stagger in one by one */
-    gsap.from(".cat-card", {
-      scrollTrigger: {
-        trigger: ".cat-grid",
-        start: "top 80%",
-      },
-      opacity: 0,
-      y: 60,
-      duration: 1,
-      stagger: 0.15,
-      ease: "power2.out"
-    });
-  }, { scope: containerRef });
 
   return (
     <div ref={containerRef} className="bg-background text-foreground">

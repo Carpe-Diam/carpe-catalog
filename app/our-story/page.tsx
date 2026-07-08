@@ -1,56 +1,12 @@
 'use client';
 
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef } from "react";
 import Image from "next/image";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 export default function OurStoryPage() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useGSAP(() => {
-    // Hero Text Reveal
-    gsap.from(".hero-text", {
-      opacity: 0,
-      y: 30,
-      duration: 1.5,
-      ease: "power3.out",
-      stagger: 0.3
-    });
 
-    // Section Reveals
-    const sections = gsap.utils.toArray(".reveal-section");
-    sections.forEach((section: any) => {
-      gsap.from(section, {
-        scrollTrigger: {
-          trigger: section,
-          start: "top 80%",
-        },
-        opacity: 0,
-        y: 40,
-        duration: 1.2,
-        ease: "power2.out"
-      });
-    });
-
-    // Image Paralax / Reveal
-    gsap.from(".reveal-image", {
-      scrollTrigger: {
-        trigger: ".reveal-image",
-        start: "top 85%",
-      },
-      opacity: 0,
-      scale: 1.05,
-      duration: 2,
-      ease: "power2.out"
-    });
-
-  }, { scope: containerRef });
 
   return (
     <div ref={containerRef} className="bg-white min-h-screen font-sans text-black-900 selection:bg-black-100">

@@ -1,45 +1,13 @@
 'use client';
 
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef } from "react";
 import Image from "next/image";
 import { Mail, Phone, Instagram, MapPin, MessageCircle, PenTool, Gem, CheckCircle2 } from "lucide-react";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
 export default function AppointmentsPage() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useGSAP(() => {
-    // Immediate Reveal for Hero & Contact
-    gsap.from(".hero-content", {
-      opacity: 0,
-      y: 20,
-      duration: 1,
-      ease: "power3.out",
-      stagger: 0.1
-    });
 
-    // Process Steps Reveal
-    const steps = gsap.utils.toArray(".process-step");
-    steps.forEach((step: any, i: number) => {
-      gsap.from(step, {
-        scrollTrigger: {
-          trigger: step,
-          start: "top 85%",
-        },
-        opacity: 0,
-        x: i % 2 === 0 ? -20 : 20,
-        duration: 1,
-        ease: "power2.out"
-      });
-    });
-
-  }, { scope: containerRef });
 
   const processSteps = [
     {

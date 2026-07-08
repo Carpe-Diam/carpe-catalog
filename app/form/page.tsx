@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronRight, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 
 export default function LeadFormPage() {
@@ -88,7 +89,7 @@ export default function LeadFormPage() {
 
   return (
     <div className="bg-background min-h-screen font-serif text-foreground selection:bg-accent/20 flex flex-col justify-center py-12 sm:py-16 md:py-24 px-4 sm:px-6 md:px-8">
-      <div className="max-w-xl mx-auto w-full">
+      <div className="max-w-5xl mx-auto w-full">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-8">
           <Link href="/" className="hover:text-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-foreground transition-colors">Home</Link>
@@ -98,7 +99,7 @@ export default function LeadFormPage() {
 
         {success ? (
           /* Success Screen */
-          <div className="border border-border p-8 sm:p-12 text-center shadow-2xl bg-card transition-all duration-500 animate-in fade-in zoom-in-95">
+          <div className="w-full text-center transition-all duration-500 animate-in fade-in zoom-in-95">
             <div className="flex justify-center mb-6">
               <CheckCircle2 className="w-12 h-12 text-foreground stroke-[1.5]" />
             </div>
@@ -106,10 +107,10 @@ export default function LeadFormPage() {
             <p className="text-muted-foreground text-sm leading-relaxed max-w-sm mx-auto mb-8 font-sans">
               Your inquiry has been successfully registered. A dedicated consultant will contact you shortly to guide you on the next steps.
             </p>
-            <div className="flex flex-col gap-4">
+            <div className="flex justify-center mt-6">
               <button
                 onClick={() => setSuccess(false)}
-                className="inline-block bg-foreground text-background py-4 px-6 text-xs uppercase tracking-[0.2em] font-medium hover:bg-foreground/90 transition-colors w-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
+                className="inline-block bg-foreground text-background py-4 px-12 text-xs uppercase tracking-[0.2em] font-medium hover:bg-foreground/90 transition-colors w-auto min-w-[220px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
               >
                 Submit another request
               </button>
@@ -117,9 +118,21 @@ export default function LeadFormPage() {
           </div>
         ) : (
           /* Lead Form Screen */
-          <div className="border border-border p-5 sm:p-8 md:p-12 shadow-2xl bg-card">
+          <div className="w-full">
             <div className="mb-10">
-              <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground mb-3">Carpe Diam</p>
+              <div className="mb-6 flex justify-center">
+                <Link href="/" className="hover:opacity-80 transition-opacity">
+                  <Image
+                    src="/cd-logo.svg"
+                    alt="Carpe Diam"
+                    width={140}
+                    height={40}
+                    className="w-auto h-8 md:h-10 transition-[filter] duration-500 dark:invert"
+                    priority
+                    unoptimized
+                  />
+                </Link>
+              </div>
               <h1 className="text-3xl md:text-4xl font-serif italic mb-4 leading-tight">Acquisition & Design Inquiry</h1>
               <p className="text-muted-foreground text-sm leading-relaxed font-sans">
                 Please complete the form below. Our consultants will evaluate your preferences and connect with you to begin the process.
@@ -201,20 +214,49 @@ export default function LeadFormPage() {
                 </div>
               </div>
 
-              {/* City field */}
-              <div className="space-y-2">
-                <label htmlFor="city" className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
-                  City <span className="text-destructive">*</span>
-                </label>
-                <input
-                  id="city"
-                  type="text"
-                  required
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  className="border border-border bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-foreground focus-visible:ring-1 focus-visible:ring-foreground transition-colors w-full rounded-none font-sans"
-                  placeholder="E.g., Mumbai"
-                />
+              {/* City & Source fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label htmlFor="city" className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
+                    City <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    id="city"
+                    type="text"
+                    required
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="border border-border bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-foreground focus-visible:ring-1 focus-visible:ring-foreground transition-colors w-full rounded-none font-sans"
+                    placeholder="E.g., Mumbai"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="source" className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
+                    How did you find about us?
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="source"
+                      value={source}
+                      onChange={(e) => setSource(e.target.value)}
+                      className="border border-border bg-background px-4 py-3.5 text-sm focus:outline-none focus:border-foreground focus-visible:ring-1 focus-visible:ring-foreground transition-colors w-full rounded-none appearance-none cursor-pointer font-sans"
+                    >
+                      <option value="" disabled className="text-muted-foreground">
+                        Select an option
+                      </option>
+                      {sourceOptions.map((opt) => (
+                        <option key={opt} value={opt} className="text-foreground bg-background">
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-muted-foreground">
+                      <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Interested In - Multi-Select tags */}
@@ -222,7 +264,7 @@ export default function LeadFormPage() {
                 <label className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
                   Interested In (Select all that apply)
                 </label>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 max-w-md">
                   {interestOptions.map((opt) => {
                     const isSelected = interestedIn.includes(opt);
                     return (
@@ -243,50 +285,23 @@ export default function LeadFormPage() {
                 </div>
               </div>
 
-              {/* How did you find about us? - Styled Select */}
-              <div className="space-y-2">
-                <label htmlFor="source" className="block text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">
-                  How did you find about us?
-                </label>
-                <div className="relative">
-                  <select
-                    id="source"
-                    value={source}
-                    onChange={(e) => setSource(e.target.value)}
-                    className="border border-border bg-background px-4 py-3.5 text-sm focus:outline-none focus:border-foreground focus-visible:ring-1 focus-visible:ring-foreground transition-colors w-full rounded-none appearance-none cursor-pointer font-sans"
-                  >
-                    <option value="" disabled className="text-muted-foreground">
-                      Select an option
-                    </option>
-                    {sourceOptions.map((opt) => (
-                      <option key={opt} value={opt} className="text-foreground bg-background">
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-muted-foreground">
-                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
               {/* Submit button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="mt-4 bg-foreground text-background py-4.5 uppercase tracking-[0.2em] font-medium text-xs hover:bg-foreground/90 transition-colors w-full rounded-none flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  "Submit Inquiry"
-                )}
-              </button>
+              <div className="flex justify-start mt-6">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-foreground text-background py-4 px-12 uppercase tracking-[0.2em] font-medium text-xs hover:bg-foreground/90 transition-colors w-auto min-w-[220px] rounded-none flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    "Submit Inquiry"
+                  )}
+                </button>
+              </div>
             </form>
           </div>
         )}

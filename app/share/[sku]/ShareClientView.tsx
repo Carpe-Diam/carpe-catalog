@@ -4,8 +4,6 @@ import Image from "next/image";
 import { useEffect, useState, useRef, memo } from "react";
 import { cn } from "@/lib/utils";
 import { Play, X, Download, Share2 } from "lucide-react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
@@ -384,17 +382,8 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
     return () => window.removeEventListener("keydown", handler);
   }, [lightboxOpen, mediaArray.length]);
 
-  /* GSAP stagger animations */
-  const containerRef = useRef<HTMLDivElement>(null);
-  useGSAP(() => {
-    gsap.fromTo('.stagger-reveal',
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power2.out", delay: 0.2 }
-    );
-  }, { scope: containerRef });
-
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans text-black-900" ref={containerRef}>
+    <div className="min-h-screen bg-white flex flex-col font-sans text-black-900">
       {/* Header — outside PDF capture area */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-black-200 flex items-center justify-between px-4 md:px-6 py-3 md:py-4">
         <span className="text-xs uppercase tracking-widest text-black-500">Ref: {variant?.variant_sku}</span>

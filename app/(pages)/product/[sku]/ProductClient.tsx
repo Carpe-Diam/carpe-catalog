@@ -9,11 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Play, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, Truck, Package, Handshake, RefreshCw, UserCheck, ShieldCheck } from "lucide-react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-gsap.registerPlugin(ScrollTrigger);
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
@@ -293,29 +289,7 @@ export default function ProductClient({ product }: ProductClientProps) {
   const handleOpenLightbox = useCallback(() => setLightboxOpen(true), []);
   const handleCloseLightbox = useCallback(() => setLightboxOpen(false), []);
 
-  useGSAP(() => {
-    // Initial fade in for top content
-    gsap.fromTo('.stagger-reveal',
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: "power2.out", delay: 0.2 }
-    );
 
-    // Fade in for the "Made to Order" storytelling section on scroll
-    gsap.fromTo('.storytelling-reveal',
-      { opacity: 0, y: 40 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 1.2,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: '.storytelling-reveal',
-          start: "top 85%",
-          toggleActions: "play none none none"
-        }
-      }
-    );
-  }, { scope: containerRef });
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-serif text-foreground" ref={containerRef}>
