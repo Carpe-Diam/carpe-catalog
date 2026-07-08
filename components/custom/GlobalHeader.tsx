@@ -14,8 +14,6 @@ interface GlobalHeaderProps {
 export default function GlobalHeader({ categoryTree, collections }: GlobalHeaderProps) {
   const categories = Object.keys(categoryTree);
   const pathname = usePathname();
-  
-  if (pathname === "/form") return null;
   const searchParams = useSearchParams();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
@@ -52,6 +50,8 @@ export default function GlobalHeader({ categoryTree, collections }: GlobalHeader
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [mobileOpen]);
+
+  if (pathname === "/form") return null;
 
   return (
     <>
