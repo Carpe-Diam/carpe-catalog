@@ -69,6 +69,7 @@ export interface Product {
     variants: Variant[];
     metal_type?: string | null;
     stone_type?: string | null;
+    is_it_big?: string | null;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -244,6 +245,7 @@ const PRODUCT_FIELDS = [
     'Product_display_Image',
     'Product_Description',
     'Product_Category',
+    'Is_it_big',
 ];
 
 // Variant fields to fetch from Zoho CRM (only fields used in the catalog)
@@ -673,6 +675,7 @@ function transformProduct(zohoProduct: any, variants: Variant[]): Product {
         product_description: zohoProduct.Product_Description ?? null,
         type_of_order: zohoProduct.Type_of_Order ?? null,
         record_image: recordImage,
+        is_it_big: zohoProduct.Is_it_big ?? null,
         variants,
     };
 }
@@ -826,6 +829,13 @@ export const getProducts = unstable_cache(
 
         // 5. Sync all images to R2 (replaces proxy URLs with CDN URLs in-place)
         await syncAllImagesToR2(result);
+
+        // 6. Sort products so that those with Is_it_big == 'Yes' are seen first
+        result.sort((a, b) => {
+            const aBig = a.is_it_big?.toLowerCase() === 'yes' ? 1 : 0;
+            const bBig = b.is_it_big?.toLowerCase() === 'yes' ? 1 : 0;
+            return bBig - aBig;
+        });
 
         return result;
     }, ['zoho-products'], { revalidate: 3600, tags: ['products'] });
