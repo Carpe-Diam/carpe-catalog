@@ -174,14 +174,11 @@ export default function ShareClientView({ product, variant, orderId }: ShareClie
       y += 8;
 
       // --- Price ---
-      if (v?.sell_price && v.sell_price > 0) {
-        pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(16);
-        pdf.setTextColor(0, 0, 0);
-        const priceTxt = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v.sell_price);
-        pdf.text(priceTxt, margin, y);
-        y += 10;
-      }
+      pdf.setFont("helvetica", "italic");
+      pdf.setFontSize(14);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text("Price on Request", margin, y);
+      y += 10;
       pdf.setTextColor(0, 0, 0);
 
       // --- Product Image (first catalog image) ---
@@ -570,11 +567,9 @@ const ShareHeaderSection = memo(function ShareHeaderSection({
         <h1 className="text-xl md:text-2xl font-semibold uppercase tracking-wide">
           {product.title}
         </h1>
-        {sellPrice != null && sellPrice > 0 && (
-          <p className="text-lg md:text-xl font-semibold tracking-wide text-black-900">
-            {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(sellPrice)}
-          </p>
-        )}
+        <p className="text-lg font-serif italic tracking-wide text-black-500">
+          Price on Request
+        </p>
       </div>
 
       {description && (

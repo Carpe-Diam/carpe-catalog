@@ -489,11 +489,9 @@ const HeaderSection = memo(function HeaderSection({ product, selectedVariant }: 
         </p>
       )}
 
-      {sellPrice != null && sellPrice > 0 && (
-        <p className="text-xl font-semibold tracking-wide text-foreground mb-6">
-          {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(sellPrice)}
-        </p>
-      )}
+      <p className="text-lg font-serif italic tracking-wide text-muted-foreground mb-6">
+        Price on Request
+      </p>
 
       {product.others && <p className="text-black-600 text-sm mb-6">{product.others}</p>}
     </section>
@@ -544,7 +542,52 @@ const ConfigurationSection = memo(function ConfigurationSection({
 
 
 
-        <div className="mb-6">
+        <div className="mb-6 space-y-3">
+          <Button
+            variant="default"
+            className="w-full bg-[#C5A059] hover:bg-[#B08D4B] text-white uppercase tracking-widest py-4 h-auto rounded-full text-xs font-semibold"
+            onClick={() => {
+              const title = product.title;
+              const sku = selectedVariant?.variant_sku || product.parent_sku;
+              
+              // Get metal details
+              let metal = "";
+              if (selectedVariant?.metal_type && selectedVariant?.carat_weight && selectedVariant?.metal_color) {
+                const primary = `${selectedVariant.carat_weight}K ${selectedVariant.metal_color} ${selectedVariant.metal_type}`;
+                if (selectedVariant.secondary_metal_type && selectedVariant.secondary_carat_weight && selectedVariant.secondary_metal_color) {
+                  const secondary = `${selectedVariant.secondary_carat_weight}K ${selectedVariant.secondary_metal_color} ${selectedVariant.secondary_metal_type}`;
+                  metal = `${primary}, ${secondary}`;
+                } else {
+                  metal = primary;
+                }
+              }
+              
+              // Get stone details
+              const stones = selectedVariant ? extractStones(selectedVariant.sku_segments) : [];
+              const stoneDetails = stones.map(s => {
+                let desc = s.type;
+                if (s.subGroup === 'LabGrown') desc = `Lab-Grown ${desc}`;
+                else if (s.subGroup === 'Natural') desc = `Natural ${desc}`;
+                return desc;
+              }).join(', ');
+
+              const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+              
+              let text = `Hi, I would like to enquire about the price for the following product:\n\n`;
+              text += `*Product:* ${title}\n`;
+              text += `*SKU:* ${sku}\n`;
+              if (metal) text += `*Metal:* ${metal}\n`;
+              if (stoneDetails) text += `*Stones:* ${stoneDetails}\n`;
+              text += `*Link:* ${pageUrl}`;
+              
+              const encodedText = encodeURIComponent(text);
+              const whatsappUrl = `https://wa.me/918850157354?text=${encodedText}`;
+              window.open(whatsappUrl, "_blank");
+            }}
+          >
+            Request Price
+          </Button>
+
           <Button
             variant="outline"
             className="w-full border-white/20 hover:bg-white/5 uppercase tracking-widest py-4 h-auto rounded-full text-xs font-semibold text-foreground"
