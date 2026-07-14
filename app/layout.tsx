@@ -19,10 +19,33 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://catalog.carpediam.in"),
   title: "Carpe Diam",
   description: "A collection of Carpe Diam",
   icons: {
-    icon: "/Favicon_450x.ico",
+    icon: "/favicon.ico",
+  },
+  openGraph: {
+    title: "Carpe Diam",
+    description: "A collection of Carpe Diam",
+    url: "https://catalog.carpediam.in",
+    siteName: "Carpe Diam",
+    images: [
+      {
+        url: "/logo.png",
+        width: 800,
+        height: 800,
+        alt: "Carpe Diam Logo",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Carpe Diam",
+    description: "A collection of Carpe Diam",
+    images: ["/logo.png"],
   },
 };
 
